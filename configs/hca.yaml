@@ -1,0 +1,12 @@
+output_dir: data/hca_smoke
+api:
+  endpoint: https://service.azul.data.humancellatlas.org
+  catalog: dcp60
+selection:
+  formats: [h5ad]
+  species: Homo sapiens
+  max_files: 1
+  max_file_bytes: 10000000
+  max_total_bytes: 10000000
+  file_source: Contributor
+  max_pages: 2

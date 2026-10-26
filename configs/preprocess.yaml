@@ -1,0 +1,7 @@
+input_path: /data1021/xukaichen/data/CTA/pbmc.h5ad
+output_path: data/processed/pbmc_smoke.h5ad
+gene_key: gene_ids
+source: X
+batch_size: 128
+min_genes: 200
+max_cells: 256

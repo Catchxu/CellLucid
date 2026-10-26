@@ -1,0 +1,14 @@
+topic_bank: runs/pbmc_smoke/topic_bank
+dataset: data/processed/pbmc_smoke.h5ad
+gene_key: feature_id
+count_source: X
+output: runs/pbmc_smoke/inference.h5
+device: cuda
+batch_size: 2
+max_cells: 16
+backbone:
+  checkpoint: assets/tf_sapiens
+  device: cuda
+  max_length: 127
+  compile_attention: false
+  precision: float32

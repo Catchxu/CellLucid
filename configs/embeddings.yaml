@@ -1,0 +1,16 @@
+backbone:
+  checkpoint: assets/tf_sapiens
+  device: cuda
+  max_length: 127
+  compile_attention: false
+  precision: float32
+features:
+  dataset_path: data/processed/pbmc_smoke.h5ad
+  output_path: cache/embeddings/pbmc_masked.h5
+  gene_key: feature_id
+  source: X
+  batch_size: 2
+  max_cells: 64
+  mask_fraction: 0.25
+  n_views: 2
+  seed: 42
