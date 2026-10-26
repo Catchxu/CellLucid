@@ -98,3 +98,128 @@ def test_discovery_uses_hca_filters_and_excludes_nonmatrix_and_inaccessible(tmp_
     assert load_manifest(path)["records"][0]["file_id"] == "a"
     with pytest.raises(ValueError, match="Duplicate"):
         save_manifest(path, rows + rows)
+
+
+@pytest.mark.parametrize("mode", ["max_pages", "max_files", "missing_sha256"])
+def test_discovery_reports_limits(mode):
+    item = {
+        "uuid": "a",
+        "version": "v1",
+        "accessible": True,
+        "contentDescription": ["Count matrix"],
+        "format": "h5ad",
+        "name": "matrix.h5ad",
+        "size": 100,
+        "sha256": "a" * 64,
+        "azul_url": "https://example.org/a",
+    }
+    if mode == "missing_sha256":
+        item.pop("sha256")
+    payload = {
+        "hits": [{"files": [item]}],
+        "pagination": {
+            "total": 2,
+            "next": "https://service.azul.data.humancellatlas.org/index/files?page=2",
+        },
+    }
+    client = HCAClient()
+    client.session = SimpleNamespace(
+        get=lambda *a, **k: SimpleNamespace(raise_for_status=lambda: None, json=lambda: payload)
+    )
+    rows = client.discover(
+        max_pages=1, max_files=1 if mode == "max_files" else 2, require_sha256=True
+    )
+    assert not client.report["catalog_exhausted"]
+    assert client.report["stop_reason"] == ("max_files" if mode == "max_files" else "max_pages")
+    assert client.report["selected_files"] == len(rows)
+    if mode == "missing_sha256":
+        assert not rows and client.report["skipped"]["missing_sha256"] == 1
+
+
+def _download_config(tmp_path, records):
+    selection = {
+        "max_files": len(records),
+        "max_file_bytes": 10000,
+        "max_total_bytes": 10000,
+        "require_sha256": True,
+    }
+    save_manifest(tmp_path / "manifest.json", records, query=selection)
+    return {"output_dir": str(tmp_path), "selection": selection, "download": {"workers": 2}}
+
+
+def test_parallel_failures_are_persisted_and_retry_keeps_verified_files(server, tmp_path):
+    from celllucid.tasks.download_hca import run
+
+    url, body, requested = server
+    record = {
+        "file_id": "a",
+        "file_version": "v1",
+        "file_name": "a.h5ad",
+        "size_bytes": len(body),
+        "sha256": hashlib.sha256(body).hexdigest(),
+        "url": url,
+        "status": "selected",
+        "metadata": {},
+    }
+    bad = dict(record, file_id="b", file_name="b.h5ad", sha256="0" * 64)
+    config = _download_config(tmp_path, [record, bad])
+    with pytest.raises(RuntimeError, match="1 HCA downloads failed"):
+        run(config)
+    manifest = load_manifest(tmp_path / "manifest.json")
+    assert [r["status"] for r in manifest["records"]] == ["verified", "failed"]
+    assert len(requested) == 4  # One good transfer and three failed-checksum retries.
+    manifest["records"][1]["sha256"] = record["sha256"]
+    (tmp_path / "manifest.json").write_text(json.dumps(manifest))
+    manifest = run(config)
+    assert all(r["status"] == "verified" for r in manifest["records"])
+    assert len(requested) == 5  # Existing valid file was not downloaded again.
+
+
+def test_inventory_does_not_transfer_and_lock_prevents_duplicate_writers(server, tmp_path):
+    from celllucid.tasks.download_hca import run, _exclusive_lock
+
+    url, body, requested = server
+    record = {
+        "file_id": "a",
+        "file_version": "v1",
+        "file_name": "a.h5ad",
+        "size_bytes": len(body),
+        "sha256": hashlib.sha256(body).hexdigest(),
+        "url": url,
+        "status": "selected",
+        "metadata": {},
+    }
+    config = _download_config(tmp_path, [record])
+    assert len(run(config, inventory_only=True)["records"]) == 1
+    assert requested == [] and not (tmp_path / "raw").exists()
+    with _exclusive_lock(tmp_path):
+        with pytest.raises(RuntimeError, match="Another HCA process"):
+            run(config)
+    run(config)
+    assert len(requested) == 1
+
+
+def test_space_guard_and_catalog_mismatch_stop_before_transfers(server, tmp_path, monkeypatch):
+    from celllucid.tasks import download_hca as task
+
+    url, body, requested = server
+    record = {
+        "file_id": "a",
+        "file_version": "v1",
+        "file_name": "a.h5ad",
+        "size_bytes": len(body),
+        "sha256": hashlib.sha256(body).hexdigest(),
+        "url": url,
+        "status": "selected",
+        "metadata": {},
+    }
+    config = _download_config(tmp_path, [record])
+    monkeypatch.setattr(task.shutil, "disk_usage", lambda p: SimpleNamespace(free=0))
+    with pytest.raises(OSError, match="Insufficient disk space"):
+        task.run(config)
+    assert requested == []
+    manifest = load_manifest(tmp_path / "manifest.json")
+    manifest["api"] = {"catalog": "other"}
+    (tmp_path / "manifest.json").write_text(json.dumps(manifest))
+    with pytest.raises(ValueError, match="another API/catalog"):
+        task.run(config, inventory_only=True)

@@ -1,12 +1,17 @@
-output_dir: data/hca_smoke
+# Public, human-associated H5AD matrices; an acquisition set, not a training cohort.
+output_dir: data/HCA
 api:
   endpoint: https://service.azul.data.humancellatlas.org
   catalog: dcp60
 selection:
   formats: [h5ad]
   species: Homo sapiens
-  max_files: 1
-  max_file_bytes: 10000000
-  max_total_bytes: 10000000
-  file_source: Contributor
-  max_pages: 2
+  file_source: null  # Include all public source categories indexed by HCA.
+  require_sha256: true
+  max_files: 10000
+  max_file_bytes: 100000000000  # 100 GB per source file.
+  max_total_bytes: 1000000000000  # 1 TB ceiling, not preallocated space.
+  max_pages: 1000
+download:
+  workers: 4
+  min_free_bytes: 100000000000  # Leave at least 100 GB of shared free space.

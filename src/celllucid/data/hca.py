@@ -3,6 +3,9 @@
 from pathlib import Path
 import json
 import requests
+from collections import Counter
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 
 class HCAClient:
@@ -10,6 +13,9 @@ class HCAClient:
         self.endpoint = endpoint.rstrip("/")
         self.catalog = catalog
         self.session = requests.Session()
+        retries = Retry(total=5, backoff_factor=1, status_forcelist=[429, 500, 502, 503, 504])
+        self.session.mount("https://", HTTPAdapter(max_retries=retries))
+        self.report = {}
 
     def discover(
         self,
@@ -22,8 +28,9 @@ class HCAClient:
         project_ids=None,
         file_source=None,
         max_pages=20,
+        require_sha256=False,
     ):
-        if max_files < 1 or max_file_bytes < 1 or max_total_bytes < 1:
+        if max_files < 1 or max_file_bytes < 1 or max_total_bytes < 1 or max_pages < 1:
             raise ValueError("Set explicit positive discovery budgets")
         filters = {"fileFormat": {"is": list(formats)}, "genusSpecies": {"is": [species]}}
         if project_ids:
@@ -37,10 +44,19 @@ class HCAClient:
         }
         url = self.endpoint + "/index/files"
         selected, seen, total = [], set(), 0
+        skipped = Counter()
+        self.report = {
+            "pages_scanned": 0,
+            "catalog_exhausted": False,
+            "stop_reason": "max_pages",
+            "skipped": {},
+        }
         for _ in range(max_pages):
             response = self.session.get(url, params=params, timeout=(20, 90))
             response.raise_for_status()
             payload = response.json()
+            self.report["pages_scanned"] += 1
+            self.report["catalog_matching_hits"] = payload.get("pagination", {}).get("total")
             for hit in payload["hits"]:
                 projects = hit.get("projects", [])
                 ids = sorted({p for x in projects for p in x.get("projectId", [])})
@@ -59,7 +75,14 @@ class HCAClient:
                     if file_source and item.get("fileSource") != file_source:
                         continue
                     size = int(item["size"])
-                    if size > max_file_bytes or total + size > max_total_bytes:
+                    if size <= 0 or size > max_file_bytes:
+                        skipped["per_file_bytes"] += 1
+                        continue
+                    if total + size > max_total_bytes:
+                        skipped["total_bytes"] += 1
+                        continue
+                    if require_sha256 and not item.get("sha256"):
+                        skipped["missing_sha256"] += 1
                         continue
                     mirror = item.get("azul_mirror_uri", "")
                     download_url = item.get("azul_url")
@@ -94,11 +117,21 @@ class HCAClient:
                     seen.add(identity)
                     total += size
                     if len(selected) == max_files:
+                        self.report.update(
+                            stop_reason="max_files",
+                            selected_files=len(selected),
+                            selected_bytes=total,
+                            skipped=dict(skipped),
+                        )
                         return selected
             next_url = payload.get("pagination", {}).get("next")
             if not next_url:
+                self.report.update(catalog_exhausted=True, stop_reason="catalog_exhausted")
                 break
             if not next_url.startswith(self.endpoint + "/"):
                 raise ValueError("Pagination unexpectedly left the HCA endpoint")
             url, params = next_url, None
+        self.report.update(
+            selected_files=len(selected), selected_bytes=total, skipped=dict(skipped)
+        )
         return selected

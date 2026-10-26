@@ -45,23 +45,72 @@ Training checkpoints never duplicate those frozen weights.
 
 ## HCA: inventory before download
 
+HCA acquisition uses one configuration, `configs/hca.yaml`, and one script,
+`scripts/download_hca.sh`. Run from the repository root with Python >=3.11 and
+the package dependencies available. The script uses `.venv/bin/python` if it
+exists, otherwise `python3` from the active environment; `PYTHON_BIN` can override
+that interpreter. It imports the checkout through `PYTHONPATH`.
+
+Inspect the source inventory without downloading matrix contents, then download:
+
 ```bash
-.venv/bin/celllucid-download-hca --config configs/hca.yaml --inventory-only
+bash scripts/download_hca.sh --inventory-only
 bash scripts/download_hca.sh
 ```
 
-The supplied configuration selects **one** public human H5AD count matrix under
-10 MB. It does not download the full HCA collection. The selected file/version,
-original project metadata, size and SHA256 are retained in
-`data/hca_smoke/manifest.json`. Resume uses that frozen manifest rather than
-silently choosing a new file. Use another output directory for another selection.
+The same script contains Slurm resource directives. They are comments during
+ordinary Bash execution. To submit a CPU download job, supply your cluster's
+account and partition on the command line:
 
-The current acquisition adapter can select H5AD or Loom files; the count
-preprocessor initially accepts H5AD. Other formats need explicit conversion.
-Project summaries do not establish per-cell donor identity. Metadata missing from
-the matrix is retained as missing; project aggregates are not assigned to cells.
-Checksums deduplicate files, not biological cells or alternate analyses of them.
-Review project/library/contributor matrix overlap before building a large corpus.
+```bash
+sbatch --account=<account> --partition=<cpu_partition> scripts/download_hca.sh
+```
+
+Default Slurm resources are one node, four CPUs, 16 GB RAM and 48 hours.
+Scheduler options can override these defaults. Logs use Slurm's normal
+`slurm-<job_id>.out` destination unless `--output`/`--error` are supplied to
+`sbatch`; any chosen log directory must exist before submission. Slurm's spool
+copy locates the repository through `SLURM_SUBMIT_DIR`, so submit from the
+repository root or export `CELLLUCID_ROOT` with its absolute path.
+
+The configuration selects public, human-associated H5AD matrices across all
+source categories in HCA catalog `dcp60`, requiring SHA256. Default limits are
+10,000 files, 100 GB per file and 1 TB total; these are ceilings, not the expected
+size. Four concurrent transfers are used, with a preflight check requiring the
+remaining bytes plus 100 GB free. Shared filesystem usage can change afterwards.
+This is an acquisition set; assess biological overlap, modality, species and raw
+count availability before selecting training data. Human-associated source files
+can also contain other species. A matrix label does not establish raw counts in X.
+
+The default directory is `data/HCA`. Override it without a separate config:
+
+```bash
+bash scripts/download_hca.sh --output-dir /path/to/data/HCA --inventory-only
+sbatch --account=<account> --partition=<cpu_partition> \
+  scripts/download_hca.sh --output-dir /path/to/data/HCA
+```
+
+The manifest records file UUID/version, source metadata, bytes, SHA256,
+API/catalog and discovery stopping condition. Resume uses this frozen inventory;
+rerun the same command after interruption. Completed files are verified locally,
+partial files resume where HTTP Range is supported, and failed files are recorded
+without preventing unrelated transfers. Any remaining failure gives a nonzero
+exit status. A process lock prevents concurrent jobs from writing the same
+collection. Changing selection or catalog requires a fresh output directory.
+
+For a small smoke example using the same configuration and script:
+
+```bash
+bash scripts/download_hca.sh --output-dir data/hca_smoke \
+  --max-files 1 --max-file-bytes 10000000 --max-total-bytes 10000000
+```
+
+The acquisition adapter also supports Loom discovery; preprocessing currently
+accepts H5AD. Other formats need explicit conversion. Project summaries do not
+establish per-cell donor identity. Metadata missing from a matrix stays missing;
+project aggregates are not assigned to cells. File identity does not deduplicate
+biological cells or alternate analyses. Preserve source counts and review raw
+layers, mixed species, spatial assays and study overlap before training.
 
 ## PBMC smoke workflow
 
@@ -147,7 +196,9 @@ data-contract tests. The marked test loads the real frozen backbone.
 ## Reproduce the HCA symbol-mapping test
 
 The included `hca_preprocess.yaml` and `hca_inference.yaml` describe the tested
-HCA matrix. On a fresh set of output paths, prepare its explicit annotation:
+HCA matrix. First download the small HCA example above to a fresh output path
+and confirm that the selected source matches the preprocessing input path.
+Prepare its explicit annotation:
 
 ```bash
 .venv/bin/python scripts/build_gene_mapping.py \
