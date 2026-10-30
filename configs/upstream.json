@@ -1,9 +1,0 @@
-{
-  "repository": "https://github.com/czi-ai/transcriptformer",
-  "revision": "c943a89a4de9511a8ab1010715bf1cfa8827cc99",
-  "package_version": "0.6.1",
-  "checkpoint_url": "https://czi-transcriptformer.s3.amazonaws.com/weights/tf_sapiens.tar.gz",
-  "weights_sha256": "eff027e7393f92a32cadcbb2e13a917e24b62b71341571bf40f38ff6ec6d3021",
-  "weights_frozen": true,
-  "source_modified": false
-}

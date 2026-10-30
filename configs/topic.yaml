@@ -1,0 +1,40 @@
+# Shared frozen backbone for feature extraction and inference.
+backbone:
+  checkpoint: assets/tf_sapiens
+  device: cuda
+  max_length: null  # Use the checkpoint sequence length.
+  compile_attention: false
+  precision: float32
+
+features:
+  gene_key: feature_id
+  source: X
+  batch_size: 2
+  mask_fraction: 0.25
+  n_views: 2
+  seed: 42
+
+# Starting hyperparameters; select these for the intended research experiment.
+model:
+  n_topics: 16
+  temperature: 0.1
+  ot_epsilon: 0.1
+  ot_iterations: 60
+
+training:
+  seed: 42
+  optimizer:
+    lr: 0.005
+    weight_decay: 0.0
+  batch_size: 16
+  grad_clip: 1.0
+  split:
+    validation_fraction: 0.2
+    seed: 42
+    group_key: study_id
+    split_key: null
+
+inference:
+  gene_key: feature_id
+  count_source: X
+  batch_size: 2

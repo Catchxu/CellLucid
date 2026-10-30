@@ -6,7 +6,7 @@ import json
 import torch
 from torch.nn import functional as F
 from safetensors.torch import save_file, load_file
-from ..config import file_sha256, write_json, fingerprint
+from ..config import file_digest, write_json, fingerprint
 
 
 def export_topic_bank(model, genes, output_dir, *, backbone, training=None):
@@ -25,13 +25,13 @@ def export_topic_bank(model, genes, output_dir, *, backbone, training=None):
     save_file(tensors, str(output / "topics.safetensors"))
     write_json(output / "genes.json", list(genes))
     payload = {
-        "format_version": 1,
+        "format_version": 2,
         "model": model.hyperparameters(),
         "backbone": backbone,
         "training": training or {},
         "gene_representation": "projected_input",
         "files": {
-            name: file_sha256(output / name) for name in ("topics.safetensors", "genes.json")
+            name: file_digest(output / name) for name in ("topics.safetensors", "genes.json")
         },
     }
     payload["bank_id"] = fingerprint(payload)
@@ -47,10 +47,10 @@ class TopicBank:
         if fingerprint(unsigned) != self.manifest.get("bank_id"):
             raise ValueError("Topic-bank manifest fingerprint mismatch")
 
-        if self.manifest.get("format_version") != 1:
+        if self.manifest.get("format_version") != 2:
             raise ValueError("Unsupported topic bank")
         for name, expected in self.manifest["files"].items():
-            if file_sha256(self.path / name) != expected:
+            if file_digest(self.path / name) != expected:
                 raise ValueError(f"Topic bank checksum mismatch: {name}")
         self.genes = json.loads((self.path / "genes.json").read_text())
         tensors = load_file(str(self.path / "topics.safetensors"), device=str(device))
@@ -108,7 +108,7 @@ def main():
     with FeatureCache(args.cache) as cache:
         if (
             info["metadata"]["genes"] != cache.genes
-            or info["metadata"]["gene_vectors_sha256"] != array_hash(cache.gene_vectors)
+            or info["metadata"]["gene_vectors_digest"] != array_hash(cache.gene_vectors)
             or info["metadata"]["backbone"]["fingerprint"]
             != cache.metadata["backbone"]["fingerprint"]
         ):

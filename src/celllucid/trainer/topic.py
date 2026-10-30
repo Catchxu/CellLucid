@@ -17,17 +17,17 @@ from ..losses.masked import masked_compositional_loss
 
 
 def array_hash(array):
-    return hashlib.sha256(memoryview(np.ascontiguousarray(array))).hexdigest()
+    return hashlib.blake2b(memoryview(np.ascontiguousarray(array))).hexdigest()
 
 
 def prepare_rows(caches, split_config):
     unique, key_to_index, pairs = [], {}, []
     for ci, cache in enumerate(caches):
         for row, source_index in enumerate(cache.indices):
-            key = (cache.metadata["dataset_sha256"], int(source_index))
+            key = (cache.metadata["dataset_digest"], int(source_index))
             if key not in key_to_index:
                 record = cache.dataset.adata.obs.iloc[int(source_index)].to_dict()
-                record["_dataset"] = cache.metadata["dataset_sha256"]
+                record["_dataset"] = cache.metadata["dataset_digest"]
                 record["_cell"] = cache.cell_ids[row]
                 key_to_index[key] = len(unique)
                 unique.append(record)
@@ -121,7 +121,7 @@ def train(config, resume=None):
         optimizer = torch.optim.AdamW([model.topics], **optimizer_config)
         metadata = {
             "genes": first.genes,
-            "gene_vectors_sha256": vectors_hash,
+            "gene_vectors_digest": vectors_hash,
             "backbone": first.metadata["backbone"],
             "cache_fingerprints": [c.metadata["fingerprint"] for c in caches],
             "split": split_info,
@@ -214,8 +214,20 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", required=True)
     parser.add_argument("--resume")
+    parser.add_argument("--caches", nargs="+", required=True)
+    parser.add_argument("--output-dir", required=True)
+    parser.add_argument("--epochs", type=int, required=True)
     args = parser.parse_args()
-    print(train(load_config(args.config), args.resume))
+    config = load_config(args.config)
+    settings = dict(config["training"])
+    settings.update(
+        model=config["model"],
+        device=config["backbone"]["device"],
+        caches=args.caches,
+        output_dir=args.output_dir,
+        epochs=args.epochs,
+    )
+    print(train(settings, args.resume))
 
 
 if __name__ == "__main__":

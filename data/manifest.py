@@ -3,7 +3,7 @@
 from pathlib import Path
 import json
 from datetime import datetime, timezone
-from ..config import write_json, fingerprint
+from celllucid.config import write_json, fingerprint
 
 
 def save_manifest(path, records, *, source="HCA", query=None):

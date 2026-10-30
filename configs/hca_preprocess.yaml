@@ -1,5 +1,0 @@
-input_path: data/hca_smoke/raw/1e3ceb1d-9c82-4164-915c-3c1445d964a5/ctype_BC.h5ad
-output_path: data/processed/hca_smoke.h5ad
-gene_mapping: data/resources/symbol_to_ensembl.json
-batch_size: 64
-min_genes: 0

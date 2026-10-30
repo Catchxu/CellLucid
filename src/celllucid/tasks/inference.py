@@ -6,7 +6,7 @@ import json
 import os
 import h5py
 import numpy as np
-from ..config import load_config, file_sha256
+from ..config import load_config, file_digest
 from ..data.dataset import CountDataset
 from ..models.backbone import FrozenTranscriptFormer
 from .topic_bank import TopicBank
@@ -39,7 +39,7 @@ def infer(config):
             )
             handle.create_dataset("gene_available", data=ds.available)
             handle.attrs["bank_id"] = bank.manifest["bank_id"]
-            handle.attrs["dataset_sha256"] = file_sha256(ds.path)
+            handle.attrs["dataset_digest"] = file_digest(ds.path)
             handle.attrs["backbone_fingerprint"] = backbone.identity()["fingerprint"]
             for start in range(0, n, size):
                 rows = np.arange(start, min(n, start + size))
@@ -56,8 +56,22 @@ def infer(config):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", required=True)
+    parser.add_argument("--input", required=True)
+    parser.add_argument("--output", required=True)
+    parser.add_argument("--topic-bank", required=True)
+    parser.add_argument("--max-cells", type=int, help="Optional limit for a small trial")
     args = parser.parse_args()
-    print(json.dumps(infer(load_config(args.config))))
+    config = load_config(args.config)
+    settings = dict(config["inference"])
+    settings.update(
+        backbone=config["backbone"],
+        device=config["backbone"]["device"],
+        dataset=args.input,
+        output=args.output,
+        topic_bank=args.topic_bank,
+        max_cells=args.max_cells,
+    )
+    print(json.dumps(infer(settings)))
 
 
 if __name__ == "__main__":

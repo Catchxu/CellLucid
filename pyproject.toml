@@ -17,9 +17,8 @@ dependencies = [
 [project.optional-dependencies]
 dev = ["pytest>=8", "ruff>=0.9"]
 # Install the pinned upstream package separately with --no-deps on Blackwell;
-# see docs/setup.md for its older dependency pins and the tested environment.
+# see README.md for upstream dependency compatibility.
 [project.scripts]
-celllucid-download-hca = "celllucid.tasks.download_hca:main"
 celllucid-preprocess = "celllucid.tasks.preprocess:main"
 celllucid-embeddings = "celllucid.tasks.embeddings:main"
 celllucid-train-topics = "celllucid.trainer.topic:main"
@@ -29,6 +28,7 @@ celllucid-infer = "celllucid.tasks.inference:main"
 packages = ["src/celllucid"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = [".", "src"]
 addopts = "--basetemp=runs/pytest-tmp"
 markers = ["integration: requires real TranscriptFormer assets or network"]
 [tool.ruff]

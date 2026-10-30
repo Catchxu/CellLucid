@@ -2,7 +2,7 @@
 
 from pathlib import Path
 import json
-from .config import file_sha256, fingerprint
+from .config import file_digest, fingerprint
 
 
 class BackboneAssets:
@@ -19,8 +19,8 @@ class BackboneAssets:
         # Hash the actual files; a directory name or mtime is not an identity.
         files = [self.config, self.weights]
         files.extend(sorted(p for p in self.vocabs.rglob("*") if p.is_file()))
-        hashes = {str(p.relative_to(self.root)): file_sha256(p) for p in files}
-        return {"format_version": 1, "files": hashes, "fingerprint": fingerprint(hashes)}
+        hashes = {str(p.relative_to(self.root)): file_digest(p) for p in files}
+        return {"format_version": 2, "files": hashes, "fingerprint": fingerprint(hashes)}
 
     def read_config(self):
         return json.loads(self.config.read_text())

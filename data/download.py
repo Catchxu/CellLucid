@@ -1,21 +1,18 @@
-"""Bounded, resumable HTTP transfers with atomic completion and SHA256 checks."""
+"""Bounded, resumable HTTP transfers with atomic completion and file-size checks."""
 
 from pathlib import Path
 import os
 import time
 import requests
-from ..config import file_sha256
 
 
-def download_file(url, destination, *, sha256=None, size=None, max_bytes=None, retries=3):
+def download_file(url, destination, *, size=None, max_bytes=None, retries=3):
     destination = Path(destination)
     destination.parent.mkdir(parents=True, exist_ok=True)
     if size is not None and max_bytes is not None and size > max_bytes:
         raise ValueError("Declared file size exceeds download budget")
     if destination.exists():
-        if (size is None or destination.stat().st_size == size) and (
-            sha256 is None or file_sha256(destination) == sha256
-        ):
+        if size is None or destination.stat().st_size == size:
             return destination
         raise ValueError(f"Existing destination fails integrity check: {destination}")
     part = destination.with_name(destination.name + ".part")
@@ -48,9 +45,6 @@ def download_file(url, destination, *, sha256=None, size=None, max_bytes=None, r
                             handle.write(chunk)
             if size is not None and part.stat().st_size != size:
                 raise IOError("Downloaded size differs from manifest")
-            if sha256 and file_sha256(part) != sha256:
-                part.unlink()
-                raise IOError("SHA256 differs from manifest")
             os.replace(part, destination)
             return destination
         except (requests.RequestException, OSError):

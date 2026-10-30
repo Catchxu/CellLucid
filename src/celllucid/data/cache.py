@@ -5,7 +5,7 @@ import json
 import os
 import h5py
 import numpy as np
-from ..config import file_sha256, fingerprint
+from ..config import file_digest, fingerprint
 from .dataset import CountDataset
 from .masking import masked_views
 
@@ -37,9 +37,9 @@ def build_feature_cache(
     with CountDataset(dataset_path, genes=genes, gene_key=gene_key, source=source) as dataset:
         n_cells = len(dataset) if max_cells is None else min(len(dataset), int(max_cells))
         settings = {
-            "format_version": 1,
+            "format_version": 2,
             "dataset_path": dataset.path,
-            "dataset_sha256": file_sha256(dataset.path),
+            "dataset_digest": file_digest(dataset.path),
             "backbone": backbone.identity(),
             "genes": genes,
             "count_source": dataset.source,
@@ -128,7 +128,7 @@ class FeatureCache:
         if fingerprint(unsigned) != recorded:
             raise ValueError("Feature-cache metadata fingerprint mismatch")
 
-        if self.metadata.get("format_version") != 1:
+        if self.metadata.get("format_version") != 2:
             raise ValueError("Unsupported cache format")
         self.genes = self.handle["genes"].asstr()[:].tolist()
         if self.genes != self.metadata["genes"]:
@@ -141,7 +141,7 @@ class FeatureCache:
             gene_key=self.metadata["gene_key"],
             source=self.metadata["count_source"],
         )
-        if verify_source and file_sha256(self.dataset.path) != self.metadata["dataset_sha256"]:
+        if verify_source and file_digest(self.dataset.path) != self.metadata["dataset_digest"]:
             raise ValueError("Source dataset changed since feature extraction")
         if not np.array_equal(self.available, self.dataset.available):
             raise ValueError("Gene availability changed")

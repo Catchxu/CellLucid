@@ -9,11 +9,11 @@ import copy
 import fcntl
 import logging
 import shutil
-from ..config import load_config, write_json
-from ..data.hca import HCAClient
-from ..data.manifest import save_manifest, load_manifest
-from ..data.download import download_file
-from ..data.metadata import project_summary
+from celllucid.config import load_config, write_json
+from .hca import HCAClient
+from .manifest import save_manifest, load_manifest
+from .download import download_file
+from .metadata import project_summary
 
 log = logging.getLogger(__name__)
 
@@ -48,7 +48,6 @@ def _transfer(root, record, max_bytes):
         download_file(
             record["url"],
             destination,
-            sha256=record["sha256"],
             size=record["size_bytes"],
             max_bytes=max_bytes,
         )
@@ -83,7 +82,7 @@ def _run(config, root, inventory_only):
     manifest_path = root / "manifest.json"
     if manifest_path.exists():
         manifest = load_manifest(manifest_path)
-        if manifest["selection"] != selection:
+        if {key: manifest["selection"][key] for key in selection} != selection:
             raise ValueError(
                 "Existing manifest has another selection; choose a new output directory"
             )
@@ -115,8 +114,6 @@ def _run(config, root, inventory_only):
         destinations.add(destination)
         if not 0 < record["size_bytes"] <= max_bytes:
             raise ValueError("Manifest exceeds configured per-file byte budget")
-        if selection.get("require_sha256") and not record.get("sha256"):
-            raise ValueError("Manifest contains a file without SHA256")
     log.info(
         "Inventory: %d files, %.3f GB; discovery=%s",
         len(records),

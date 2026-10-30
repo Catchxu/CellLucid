@@ -74,4 +74,4 @@ def test_explicit_symbol_mapping_and_provenance(tmp_path):
     a = ad.read_h5ad(out)
     assert a.var_names.tolist() == ["ENSG1", "ENSG2", "unmapped"]
     assert a.var.gene_symbol.tolist() == ["IL7R", "CCR7", "unmapped"]
-    assert "gene_mapping_sha256" in a.uns["celllucid"]
+    assert "gene_mapping_digest" in a.uns["celllucid"]

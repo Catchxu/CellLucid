@@ -6,7 +6,7 @@ import anndata as ad
 import h5py
 import numpy as np
 from scipy import sparse
-from ..config import file_sha256, write_json
+from ..config import file_digest, write_json
 from .dataset import CountDataset, validate_counts
 
 
@@ -85,7 +85,7 @@ def preprocess_h5ad(
             ad.io.write_elem(handle, "obs", dataset.adata.obs.iloc[kept].copy())
             provenance = {
                 "source_path": str(Path(input_path).resolve()),
-                "source_sha256": file_sha256(input_path),
+                "source_digest": file_digest(input_path),
                 "count_source": dataset.source,
                 "gene_key": gene_key or "auto",
                 "min_genes": min_genes,
@@ -94,7 +94,7 @@ def preprocess_h5ad(
                 "retained_genes": len(measured),
             }
             if gene_mapping is not None:
-                provenance["gene_mapping_sha256"] = file_sha256(gene_mapping)
+                provenance["gene_mapping_digest"] = file_digest(gene_mapping)
             del handle["uns"]
             ad.io.write_elem(handle, "uns", {"celllucid": provenance})
     os.replace(temporary, output)

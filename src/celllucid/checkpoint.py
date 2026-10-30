@@ -5,7 +5,7 @@ import os
 import json
 import torch
 from safetensors.torch import save_file, load_file
-from .config import write_json, file_sha256
+from .config import write_json, file_digest
 
 
 def save_checkpoint(path, model, optimizer, *, epoch, metadata):
@@ -16,11 +16,11 @@ def save_checkpoint(path, model, optimizer, *, epoch, metadata):
     save_file(tensors, str(path / "topics.safetensors.tmp"))
     os.replace(path / "topics.safetensors.tmp", path / "topics.safetensors")
     payload = {
-        "format_version": 1,
+        "format_version": 2,
         "model": model.hyperparameters(),
         "epoch": epoch,
         "metadata": metadata,
-        "weights_sha256": file_sha256(path / "topics.safetensors"),
+        "weights_digest": file_digest(path / "topics.safetensors"),
     }
     state = {
         "optimizer": optimizer.state_dict(),
@@ -38,11 +38,11 @@ def save_checkpoint(path, model, optimizer, *, epoch, metadata):
 def load_checkpoint(path, model, optimizer=None, *, expected_metadata=None):
     path = Path(path)
     info = json.loads((path / "checkpoint.json").read_text())
-    if info.get("format_version") != 1 or info["model"] != model.hyperparameters():
+    if info.get("format_version") != 2 or info["model"] != model.hyperparameters():
         raise ValueError("Checkpoint model configuration differs")
     if expected_metadata is not None and info["metadata"] != expected_metadata:
         raise ValueError("Checkpoint data/backbone/split identity differs")
-    if file_sha256(path / "topics.safetensors") != info["weights_sha256"]:
+    if file_digest(path / "topics.safetensors") != info["weights_digest"]:
         raise ValueError("Checkpoint checksum mismatch")
     model.load_state_dict(load_file(str(path / "topics.safetensors")), strict=True)
     if optimizer is not None:

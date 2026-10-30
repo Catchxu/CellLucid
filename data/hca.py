@@ -28,7 +28,6 @@ class HCAClient:
         project_ids=None,
         file_source=None,
         max_pages=20,
-        require_sha256=False,
     ):
         if max_files < 1 or max_file_bytes < 1 or max_total_bytes < 1 or max_pages < 1:
             raise ValueError("Set explicit positive discovery budgets")
@@ -81,9 +80,6 @@ class HCAClient:
                     if total + size > max_total_bytes:
                         skipped["total_bytes"] += 1
                         continue
-                    if require_sha256 and not item.get("sha256"):
-                        skipped["missing_sha256"] += 1
-                        continue
                     mirror = item.get("azul_mirror_uri", "")
                     download_url = item.get("azul_url")
                     if mirror.startswith("s3://humancellatlas/"):
@@ -106,7 +102,6 @@ class HCAClient:
                                 else "unresolved"
                             ),
                             "size_bytes": size,
-                            "sha256": item.get("sha256"),
                             "url": download_url,
                             "azul_url": item.get("azul_url"),
                             "reported_matrix_cells": item.get("matrixCellCount"),

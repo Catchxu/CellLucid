@@ -163,7 +163,12 @@ cython_debug/
 *.out
 
 
-/data/
+# Track acquisition code; keep downloaded datasets and generated outputs ignored.
+/data/*
+!/data/*.py
+!/data/*.sh
+!/data/hca.yaml
+!/data/README.md
 save_model/
 /results/
 

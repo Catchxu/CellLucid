@@ -21,11 +21,11 @@ def load_config(path):
 
 def fingerprint(value):
     payload = json.dumps(value, sort_keys=True, separators=(",", ":"), allow_nan=False)
-    return hashlib.sha256(payload.encode()).hexdigest()
+    return hashlib.blake2b(payload.encode()).hexdigest()
 
 
-def file_sha256(path):
-    digest = hashlib.sha256()
+def file_digest(path):
+    digest = hashlib.blake2b()
     with Path(path).open("rb") as handle:
         for chunk in iter(lambda: handle.read(8 * 1024 * 1024), b""):
             digest.update(chunk)

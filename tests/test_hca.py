@@ -1,12 +1,11 @@
-import hashlib
 import json
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from threading import Thread
 from types import SimpleNamespace
 import pytest
-from celllucid.data.hca import HCAClient
-from celllucid.data.download import download_file
-from celllucid.data.manifest import save_manifest, load_manifest
+from data.hca import HCAClient
+from data.download import download_file
+from data.manifest import save_manifest, load_manifest
 
 
 @pytest.fixture
@@ -37,21 +36,19 @@ def server():
     thread.join()
 
 
-def test_resume_checksum_idempotence_and_budget(server, tmp_path):
+def test_resume_size_idempotence_and_budget(server, tmp_path):
     url, body, requested = server
     path = tmp_path / "matrix.h5ad"
     part = tmp_path / "matrix.h5ad.part"
     part.write_bytes(body[:17])
-    sha = hashlib.sha256(body).hexdigest()
-    download_file(url, path, sha256=sha, size=len(body), max_bytes=len(body))
+    download_file(url, path, size=len(body), max_bytes=len(body))
     assert path.read_bytes() == body and requested == ["bytes=17-"]
-    download_file(url, path, sha256=sha, size=len(body))
+    download_file(url, path, size=len(body))
     assert len(requested) == 1
     with pytest.raises(ValueError, match="budget"):
         download_file(url, tmp_path / "too-large", size=len(body), max_bytes=2)
-    with pytest.raises(IOError, match="SHA256"):
-        download_file(url, tmp_path / "bad", sha256="0" * 64, size=len(body), retries=1)
-    assert not (tmp_path / "bad").exists()
+    with pytest.raises(ValueError, match="integrity"):
+        download_file(url, path, size=len(body) + 1)
 
 
 def test_discovery_uses_hca_filters_and_excludes_nonmatrix_and_inaccessible(tmp_path):
@@ -64,7 +61,6 @@ def test_discovery_uses_hca_filters_and_excludes_nonmatrix_and_inaccessible(tmp_
         "name": "matrix.h5ad",
         "size": 100,
         "fileSource": "Contributor",
-        "sha256": "a" * 64,
         "azul_url": "https://example.org/a",
     }
     payload = {
@@ -100,7 +96,7 @@ def test_discovery_uses_hca_filters_and_excludes_nonmatrix_and_inaccessible(tmp_
         save_manifest(path, rows + rows)
 
 
-@pytest.mark.parametrize("mode", ["max_pages", "max_files", "missing_sha256"])
+@pytest.mark.parametrize("mode", ["max_pages", "max_files", "per_file_bytes"])
 def test_discovery_reports_limits(mode):
     item = {
         "uuid": "a",
@@ -110,11 +106,10 @@ def test_discovery_reports_limits(mode):
         "format": "h5ad",
         "name": "matrix.h5ad",
         "size": 100,
-        "sha256": "a" * 64,
         "azul_url": "https://example.org/a",
     }
-    if mode == "missing_sha256":
-        item.pop("sha256")
+    if mode == "per_file_bytes":
+        item["size"] = 200
     payload = {
         "hits": [{"files": [item]}],
         "pagination": {
@@ -127,13 +122,13 @@ def test_discovery_reports_limits(mode):
         get=lambda *a, **k: SimpleNamespace(raise_for_status=lambda: None, json=lambda: payload)
     )
     rows = client.discover(
-        max_pages=1, max_files=1 if mode == "max_files" else 2, require_sha256=True
+        max_pages=1, max_files=1 if mode == "max_files" else 2, max_file_bytes=100
     )
     assert not client.report["catalog_exhausted"]
     assert client.report["stop_reason"] == ("max_files" if mode == "max_files" else "max_pages")
     assert client.report["selected_files"] == len(rows)
-    if mode == "missing_sha256":
-        assert not rows and client.report["skipped"]["missing_sha256"] == 1
+    if mode == "per_file_bytes":
+        assert not rows and client.report["skipped"]["per_file_bytes"] == 1
 
 
 def _download_config(tmp_path, records):
@@ -141,14 +136,13 @@ def _download_config(tmp_path, records):
         "max_files": len(records),
         "max_file_bytes": 10000,
         "max_total_bytes": 10000,
-        "require_sha256": True,
     }
     save_manifest(tmp_path / "manifest.json", records, query=selection)
     return {"output_dir": str(tmp_path), "selection": selection, "download": {"workers": 2}}
 
 
 def test_parallel_failures_are_persisted_and_retry_keeps_verified_files(server, tmp_path):
-    from celllucid.tasks.download_hca import run
+    from data.download_hca import run
 
     url, body, requested = server
     record = {
@@ -156,27 +150,26 @@ def test_parallel_failures_are_persisted_and_retry_keeps_verified_files(server, 
         "file_version": "v1",
         "file_name": "a.h5ad",
         "size_bytes": len(body),
-        "sha256": hashlib.sha256(body).hexdigest(),
         "url": url,
         "status": "selected",
         "metadata": {},
     }
-    bad = dict(record, file_id="b", file_name="b.h5ad", sha256="0" * 64)
+    bad = dict(record, file_id="b", file_name="b.h5ad", size_bytes=len(body) + 1)
     config = _download_config(tmp_path, [record, bad])
     with pytest.raises(RuntimeError, match="1 HCA downloads failed"):
         run(config)
     manifest = load_manifest(tmp_path / "manifest.json")
     assert [r["status"] for r in manifest["records"]] == ["verified", "failed"]
-    assert len(requested) == 4  # One good transfer and three failed-checksum retries.
-    manifest["records"][1]["sha256"] = record["sha256"]
+    assert len(requested) == 4  # One good transfer and three size-mismatch attempts.
+    manifest["records"][1]["size_bytes"] = record["size_bytes"]
     (tmp_path / "manifest.json").write_text(json.dumps(manifest))
     manifest = run(config)
     assert all(r["status"] == "verified" for r in manifest["records"])
-    assert len(requested) == 5  # Existing valid file was not downloaded again.
+    assert len(requested) == 4  # Reuse the valid file and completed partial transfer.
 
 
 def test_inventory_does_not_transfer_and_lock_prevents_duplicate_writers(server, tmp_path):
-    from celllucid.tasks.download_hca import run, _exclusive_lock
+    from data.download_hca import run, _exclusive_lock
 
     url, body, requested = server
     record = {
@@ -184,7 +177,6 @@ def test_inventory_does_not_transfer_and_lock_prevents_duplicate_writers(server,
         "file_version": "v1",
         "file_name": "a.h5ad",
         "size_bytes": len(body),
-        "sha256": hashlib.sha256(body).hexdigest(),
         "url": url,
         "status": "selected",
         "metadata": {},
@@ -200,7 +192,7 @@ def test_inventory_does_not_transfer_and_lock_prevents_duplicate_writers(server,
 
 
 def test_space_guard_and_catalog_mismatch_stop_before_transfers(server, tmp_path, monkeypatch):
-    from celllucid.tasks import download_hca as task
+    from data import download_hca as task
 
     url, body, requested = server
     record = {
@@ -208,7 +200,6 @@ def test_space_guard_and_catalog_mismatch_stop_before_transfers(server, tmp_path
         "file_version": "v1",
         "file_name": "a.h5ad",
         "size_bytes": len(body),
-        "sha256": hashlib.sha256(body).hexdigest(),
         "url": url,
         "status": "selected",
         "metadata": {},

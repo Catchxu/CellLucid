@@ -5,7 +5,7 @@ import argparse
 from pathlib import Path
 import anndata as ad
 import h5py
-from celllucid.config import file_sha256, write_json
+from celllucid.config import file_digest, write_json
 
 
 def main():
@@ -29,7 +29,7 @@ def main():
         str(output) + ".provenance.json",
         {
             "source": str(Path(args.annotation).resolve()),
-            "source_sha256": file_sha256(args.annotation),
+            "source_digest": file_digest(args.annotation),
             "gene_id_column": args.gene_id_column,
             "symbols": len(mapping),
         },

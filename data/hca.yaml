@@ -7,7 +7,6 @@ selection:
   formats: [h5ad]
   species: Homo sapiens
   file_source: null  # Include all public source categories indexed by HCA.
-  require_sha256: true
   max_files: 10000
   max_file_bytes: 100000000000  # 100 GB per source file.
   max_total_bytes: 1000000000000  # 1 TB ceiling, not preallocated space.

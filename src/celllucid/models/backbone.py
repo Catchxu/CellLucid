@@ -7,7 +7,7 @@ import pandas as pd
 import torch
 from torch import nn
 from ..assets import BackboneAssets
-from ..config import fingerprint, file_sha256
+from ..config import fingerprint, file_digest
 from pathlib import Path
 import importlib.util
 
@@ -29,7 +29,7 @@ class FrozenTranscriptFormer(nn.Module):
             from transcriptformer.tokenizer.vocab import load_vocabs_and_embeddings
         except ImportError as error:
             raise ImportError(
-                "Install the pinned TranscriptFormer dependency; see docs/setup.md"
+                "Install the pinned TranscriptFormer dependency; see README.md"
             ) from error
         self.assets = BackboneAssets(checkpoint)
         config = OmegaConf.create(self.assets.read_config())
@@ -106,7 +106,7 @@ class FrozenTranscriptFormer(nn.Module):
                 "utils/utils.py",
             ]
             runtime["upstream_sources"] = {
-                name: file_sha256(source_root / name) for name in source_files
+                name: file_digest(source_root / name) for name in source_files
             }
             runtime["torch_version"] = str(torch.__version__)
 
