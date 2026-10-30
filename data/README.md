@@ -87,3 +87,61 @@ directory before submission. Submit from the repository root, or set
 This utility runs from a source checkout; acquisition is not a console command
 in the installed modeling package. The Python equivalent of the shell entrypoint
 is `PYTHONPATH=.:src python -m data.download_hca --config data/hca.yaml`.
+
+## Prepare a reviewed cohort for topic training
+
+Create a cohort manifest with one record per selected source matrix. Selection is
+explicit: audit modality, species, overlapping files and available count layers
+before adding records. Each study ID should refer to the source study consistently
+across files. It is not a donor annotation.
+
+```json
+{
+  "records": [
+    {
+      "file_id": "source-file-id",
+      "study_id": "source-project-id",
+      "input_path": "/path/to/source.h5ad",
+      "count_source": "raw",
+      "gene_key": null
+    }
+  ]
+}
+```
+
+`count_source` is `X`, `raw` or an explicit layer path. A null gene key uses the
+existing identifier resolver; when Ensembl IDs are already the variable index,
+no symbol lookup is needed. Specify a column name for sources whose IDs are in a
+column. Required source information is not inferred from expression.
+
+```bash
+bash data/prepare_topics.sh \
+  --manifest /path/to/cohort.json --output-dir /path/to/processed
+```
+
+The existing preprocessor checks all selected expression batches for valid raw
+counts. Invalid input stops preparation. Original matrices remain read-only.
+Prepared matrices retain cell metadata and receive the explicit `study_id` from
+the cohort record for grouped splitting. The output includes per-file count
+provenance and `prepared.json`, which connects each source file to its standardized
+matrix. Add `--max-cells` only for a limited trial; the normal run processes all
+cells. This script also supports `sbatch` with cluster options supplied at launch.
+
+Continue with the shared topic configuration:
+
+```bash
+sbatch --account=<account> --partition=<gpu_partition> \
+  scripts/extract_embeddings.sh --manifest /path/to/processed/prepared.json \
+  --output /path/to/features
+sbatch --account=<account> --partition=<gpu_partition> \
+  --dependency=afterok:<feature_job_id> scripts/train_topics.sh \
+  --manifest /path/to/features/features.json \
+  --output-dir /path/to/run --epochs 50
+```
+
+Each stage is a single process. GPU stages request one GPU, four CPUs, 32 GB
+host RAM and 24 hours by default. Override resources explicitly when submitting.
+Feature extraction loads the frozen backbone once for the cohort and records
+`features.json`. Topic training reads those caches with the configured study
+split. Its current implementation is single-GPU; requesting extra GPUs does not
+make it distributed. The epoch value above is an experiment choice.

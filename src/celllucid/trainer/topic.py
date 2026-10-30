@@ -4,6 +4,7 @@ from contextlib import ExitStack
 from pathlib import Path
 import argparse
 import hashlib
+import json
 import numpy as np
 import pandas as pd
 import torch
@@ -214,16 +215,22 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", required=True)
     parser.add_argument("--resume")
-    parser.add_argument("--caches", nargs="+", required=True)
+    inputs = parser.add_mutually_exclusive_group(required=True)
+    inputs.add_argument("--caches", nargs="+")
+    inputs.add_argument("--manifest", help="Cohort feature manifest")
     parser.add_argument("--output-dir", required=True)
     parser.add_argument("--epochs", type=int, required=True)
     args = parser.parse_args()
     config = load_config(args.config)
+    caches = args.caches
+    if args.manifest is not None:
+        cohort = json.loads(Path(args.manifest).read_text())
+        caches = [record["cache_path"] for record in cohort["records"]]
     settings = dict(config["training"])
     settings.update(
         model=config["model"],
         device=config["backbone"]["device"],
-        caches=args.caches,
+        caches=caches,
         output_dir=args.output_dir,
         epochs=args.epochs,
     )

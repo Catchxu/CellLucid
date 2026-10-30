@@ -21,6 +21,7 @@ def preprocess_h5ad(
     min_genes=0,
     max_cells=None,
     gene_mapping=None,
+    study_id=None,
 ):
     output = Path(output_path).resolve()
     if output == Path(input_path).resolve():
@@ -82,7 +83,10 @@ def preprocess_h5ad(
                 raise ValueError("No cells passed preprocessing")
             group.attrs["shape"] = np.array([n_rows, len(measured)], dtype=np.int64)
             del handle["obs"]
-            ad.io.write_elem(handle, "obs", dataset.adata.obs.iloc[kept].copy())
+            obs = dataset.adata.obs.iloc[kept].copy()
+            if study_id is not None:
+                obs["study_id"] = study_id
+            ad.io.write_elem(handle, "obs", obs)
             provenance = {
                 "source_path": str(Path(input_path).resolve()),
                 "source_digest": file_digest(input_path),
@@ -93,6 +97,8 @@ def preprocess_h5ad(
                 "retained_cells": n_rows,
                 "retained_genes": len(measured),
             }
+            if study_id is not None:
+                provenance["study_id"] = study_id
             if gene_mapping is not None:
                 provenance["gene_mapping_digest"] = file_digest(gene_mapping)
             del handle["uns"]
