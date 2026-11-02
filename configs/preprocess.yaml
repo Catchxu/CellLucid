@@ -1,5 +1,9 @@
-# Source counts and identifiers must be selected explicitly for each dataset.
-gene_key: feature_id
-source: X
+# Atlas-wide count preprocessing. Every source receives a coverage report.
 batch_size: 128
 min_genes: 200
+shard_cells: 10000
+validation_block: 1000000
+count_sources: [layers/counts, layers/cellranger, raw, X]
+exclude_methods: [visium, spatial, atac]
+validation_fraction: 0.2
+split_seed: 42

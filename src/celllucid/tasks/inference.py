@@ -30,7 +30,7 @@ def infer(config):
         gene_key=config.get("gene_key"),
         source=config.get("count_source", "auto"),
     ) as ds:
-        n = min(len(ds), config.get("max_cells") or len(ds))
+        n = len(ds)
         size = int(config.get("batch_size", 4))
         with h5py.File(temporary, "w") as handle:
             theta = handle.create_dataset("theta", (n, len(bank.topics)), dtype="f4")
@@ -59,7 +59,6 @@ def main():
     parser.add_argument("--input", required=True)
     parser.add_argument("--output", required=True)
     parser.add_argument("--topic-bank", required=True)
-    parser.add_argument("--max-cells", type=int, help="Optional limit for a small trial")
     args = parser.parse_args()
     config = load_config(args.config)
     settings = dict(config["inference"])
@@ -69,7 +68,6 @@ def main():
         dataset=args.input,
         output=args.output,
         topic_bank=args.topic_bank,
-        max_cells=args.max_cells,
     )
     print(json.dumps(infer(settings)))
 

@@ -19,7 +19,6 @@ def preprocess_h5ad(
     genes=None,
     batch_size=512,
     min_genes=0,
-    max_cells=None,
     gene_mapping=None,
     study_id=None,
 ):
@@ -49,7 +48,7 @@ def preprocess_h5ad(
         ad.AnnData(sparse.csr_matrix((0, len(measured)), dtype=np.float32), var=var).write_h5ad(
             temporary
         )
-        n_input = len(dataset) if max_cells is None else min(len(dataset), int(max_cells))
+        n_input = len(dataset)
         with h5py.File(temporary, "r+") as handle:
             del handle["X"]
             group = handle.create_group("X")

@@ -5,6 +5,7 @@
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=32G
 #SBATCH --time=24:00:00
+#SBATCH --mail-type=END,FAIL
 
 set -euo pipefail
 if [[ -n "${SLURM_JOB_ID:-}" ]]; then

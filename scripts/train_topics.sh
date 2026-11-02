@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
-#SBATCH --job-name=topic-train
+#SBATCH --job-name=celllucid-pretrain
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=4
-#SBATCH --mem=32G
-#SBATCH --time=24:00:00
+#SBATCH --cpus-per-task=16
+#SBATCH --mem=128G
+#SBATCH --time=120:00:00
 #SBATCH --gpus=1
+#SBATCH --mail-type=END,FAIL
 
 set -euo pipefail
 if [[ -n "${SLURM_JOB_ID:-}" ]]; then
@@ -15,7 +16,10 @@ else
 fi
 cd "${ROOT_DIR}"
 PYTHON_BIN="${PYTHON_BIN:-python3}"
+NPROC_PER_NODE="${NPROC_PER_NODE:-${SLURM_GPUS_ON_NODE:-1}}"
 export PYTHONPATH="${ROOT_DIR}:${ROOT_DIR}/src${PYTHONPATH:+:${PYTHONPATH}}"
 export PYTHONUNBUFFERED=1
-export OMP_NUM_THREADS="${SLURM_CPUS_PER_TASK:-4}"
-exec "${PYTHON_BIN}" -u -m celllucid.trainer.topic --config "${ROOT_DIR}/configs/topic.yaml" "$@"
+export OMP_NUM_THREADS="${OMP_NUM_THREADS:-2}"
+exec "${PYTHON_BIN}" -u -m torch.distributed.run --standalone \
+  --nproc_per_node="${NPROC_PER_NODE}" -m celllucid.trainer.topic \
+  --config "${ROOT_DIR}/configs/topic.yaml" "$@"

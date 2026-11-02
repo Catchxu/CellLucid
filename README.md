@@ -2,58 +2,130 @@
 
 CellLucid enables natural-language querying of single-cell atlases through interpretable topic modeling.
 
-The current implementation covers HCA acquisition, count preprocessing, a frozen
-TranscriptFormer backbone and topic modeling. Pathway mapping and the query agent
-will be added later.
+The current implementation pretrains a shared topic model across an HCA atlas.
+Each training batch contains raw counts: fresh masking, a frozen TranscriptFormer
+forward, and a topic update happen in one loop. No offline embedding cache is
+required. Pathway interpretation and the query agent will be added later.
 
-## Installation and backbone
+## Install
 
-Use Python >=3.11 with a PyTorch build appropriate for your accelerator. From the
-repository root, install CellLucid into your active environment:
+Use Python >=3.11 with a CUDA-enabled PyTorch build for your hardware. Install
+CellLucid and its frozen backbone dependency in the active environment:
 
 ```bash
 python -m pip install -e .
-```
-
-Install the unmodified TranscriptFormer source at revision
-`c943a89a4de9511a8ab1010715bf1cfa8827cc99` (package version 0.6.1):
-
-```bash
 mkdir -p assets
 git clone https://github.com/czi-ai/transcriptformer.git assets/transcriptformer_source
 git -C assets/transcriptformer_source checkout c943a89a4de9511a8ab1010715bf1cfa8827cc99
-python -m pip install -e assets/transcriptformer_source
+python -m pip install hydra-core==1.3.2 omegaconf==2.3.0
+python -m pip install --no-deps -e assets/transcriptformer_source
 ```
 
-Upstream pins PyTorch 2.5.1 and older scientific packages. If retaining a newer
-accelerator-compatible environment, install its required dependencies explicitly
-and use `--no-deps` for the upstream installation; validate that environment before
-training. The previous integration run used PyTorch 2.11 with unmodified upstream
-source. This does not establish compatibility with every environment.
+The pinned upstream version is 0.6.1. It declares older scientific-package pins;
+install its runtime dependencies in a compatible environment before using
+`--no-deps`. Current validation uses PyTorch 2.11 and AnnData 0.12. Upstream
+source and backbone weights are not modified.
 
 Download [TF-Sapiens](https://czi-transcriptformer.s3.amazonaws.com/weights/tf_sapiens.tar.gz)
-and extract it under `assets/tf_sapiens/`, containing `config.json`,
-`model_weights.pt` and `vocabs/`.
+and extract under `assets/tf_sapiens/`, containing `config.json`,
+`model_weights.pt` and `vocabs/`. Obtain the pinned gene annotation and mapping
+as described in [the data guide](data/README.md).
 
-All backbone parameters stay frozen. Only topic embeddings are trained.
+## Repository
 
-## Repository layout
+| Path | Purpose |
+| --- | --- |
+| `data/` | HCA acquisition, annotation mapping and full-inventory corpus preparation |
+| `configs/preprocess.yaml` | Count-source policy, QC, sharding and study split |
+| `configs/topic.yaml` | Frozen backbone, topic model and online pretraining settings |
+| `scripts/train_topics.sh` | Single-process or multi-GPU pretraining entrypoint |
+| `src/celllucid/data/atlas.py` | Streaming raw-count batches partitioned across ranks/workers |
+| `src/celllucid/trainer/topic.py` | Frozen forwards and topic updates in one training loop |
+| `tests/` | Numerical and pipeline tests |
+| `docs/` | Future figures and tutorials, without subfolders |
 
-- `data/`: HCA acquisition code, `hca.yaml`, the shell entrypoint and download guide.
-- `configs/preprocess.yaml`: count source, gene identifiers and preprocessing settings.
-- `configs/topic.yaml`: shared backbone, features, topic model, training and inference settings.
-- `scripts/`: modeling command entrypoints and the gene-mapping utility.
-- `src/celllucid/`: implementation; `tests/`: existing automated tests.
-- `docs/`: future figures and tutorials, stored directly without subfolders.
+Large assets, datasets and runs are ignored by Git. Cluster account, partition
+and data paths are supplied at launch rather than embedded in project files.
 
-Dataset paths, output destinations and training duration are explicit command
-arguments. Downloaded assets, datasets, caches and experiment outputs stay outside
-Git. No private server paths are required.
+## Prepare the atlas
 
-## Download HCA
+Use the complete acquisition manifest, not a hand-selected small cohort:
 
-Dataset acquisition utilities and their usage guide are in [`data/`](data/README.md).
-Use `bash data/download_hca.sh --output-dir /path/to/HCA` for direct execution or
-submit the same script through Slurm as described in the guide. The same guide
-describes explicit cohort manifests and `data/prepare_topics.sh` for preparing
-reviewed source matrices with study labels.
+```bash
+bash data/download_hca.sh --output-dir /path/to/HCA
+bash data/prepare_topics.sh --manifest /path/to/HCA/manifest.json \
+  --output-dir /path/to/atlas
+```
+
+Preparation examines every inventory record, validates full count matrices,
+normalizes gene identifiers, sums duplicate gene features, filters cells using
+explicit QC and writes sparse row shards. Each file receives a coverage record,
+including exclusion reasons. An unavailable raw count matrix is reported rather
+than reconstructed from normalized expression. Acquisition coverage is separate
+from the HCA portal's headline cell count.
+
+Exact duplicate cells with the same study/donor/cell identity, aligned counts and
+measurement availability are removed. This does not claim complete biological
+deduplication when independent submissions rename cells or change counts.
+Study identities keep related source files in the same training/validation split.
+The source index supports restart after completed files; partial work for the
+interrupted file is rebuilt. Preserve the original download manifest and matrices.
+
+## Pretrain
+
+Activate the environment before submission. After count preparation, submit one
+GPU job for the complete online training workflow. The training and preparation
+scripts request email on completion or failure; supply the recipient at submission:
+
+```bash
+sbatch --account=<account> --partition=<gpu_partition> --gpus=8 \
+  --mail-user=<email> \
+  scripts/train_topics.sh --manifest /path/to/atlas/manifest.json \
+  --output-dir /path/to/run --epochs 50 \
+  --batch-size 128 --encoder-batch-size 16
+```
+
+The epoch count is an explicit experiment choice. `--batch-size` is the number
+of cells per optimizer update per rank; `--encoder-batch-size` controls the frozen
+forward microbatch within that update. Values are used as supplied without
+memory-based reduction. `NPROC_PER_NODE` defaults to the number of allocated
+Slurm GPUs; it can be set explicitly for direct `torchrun` use. Single-node
+multi-GPU training uses DDP for the topic parameters and one frozen backbone
+replica per GPU. Submit from the repository root or set `CELLLUCID_ROOT`.
+
+All training shards contribute to one shared topic bank. Shards and cell rows
+are shuffled each epoch without building an atlas-wide cell index in RAM. Masks
+are fresh per cell and epoch; validation uses fixed masks on held-out studies.
+Measured zero expression and unavailable genes remain distinct. Distributed
+training repeats initial batches only to fill its final synchronized step; all
+validation cells are evaluated once globally.
+
+Only topic embeddings enter the optimizer. Cell-topic assignments use cosine
+softmax; the shared topic-gene dictionary uses entropy-regularized OT with fixed
+marginals. The single loss compares predicted and observed expression proportions
+on hidden measured genes. The backbone remains in evaluation mode with gradients
+disabled. Gene vectors are projected input embeddings computed once per replica.
+
+Checkpoints save topic/optimizer state and the next batch cursor, not the frozen
+backbone. Resume with the same corpus/settings/world size and
+`--resume /path/to/run/checkpoints/latest`. `--max-steps` sets an explicit total
+optimizer-step limit. Exported banks are named `topic_bank_step_<step>/` and contain
+topics, a fixed gene dictionary, ordered genes and provenance. No cell embeddings
+are written during pretraining.
+
+## Inference and tests
+
+For new datasets, preprocess raw counts, then apply an exported bank:
+
+```bash
+bash scripts/preprocess.sh --input /path/to/input.h5ad --output /path/to/counts.h5ad \
+  --count-source layers/counts --gene-key feature_id
+bash scripts/infer_topics.sh --input /path/to/counts.h5ad \
+  --topic-bank /path/to/run/topic_bank_step_000100000 --output /path/to/usage.h5
+PYTHONDONTWRITEBYTECODE=1 python -m pytest -p no:cacheprovider -q -m 'not integration'
+```
+
+Remove `runs/pytest-tmp` and other disposable test outputs after testing while
+preserving scientific results. The marked integration test requires real backbone
+assets and an accelerator. Full GPU throughput should be benchmarked for the
+chosen context, precision and batch sizes before a long pretraining run.

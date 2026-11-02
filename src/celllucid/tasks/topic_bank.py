@@ -94,36 +94,28 @@ class TopicBank:
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Export a trained topic checkpoint")
+    parser = argparse.ArgumentParser(description="Export an online-pretraining topic checkpoint")
     parser.add_argument("--checkpoint", required=True)
-    parser.add_argument("--cache", required=True)
+    parser.add_argument("--config", default="configs/topic.yaml")
     parser.add_argument("--output", required=True)
     args = parser.parse_args()
-    from ..data.cache import FeatureCache
+    from ..config import load_config
+    from ..models.backbone import FrozenTranscriptFormer
     from ..models.topic import TopicModel
     from ..checkpoint import load_checkpoint
-    from ..trainer.topic import array_hash
 
     info = json.loads((Path(args.checkpoint) / "checkpoint.json").read_text())
-    with FeatureCache(args.cache) as cache:
-        if (
-            info["metadata"]["genes"] != cache.genes
-            or info["metadata"]["gene_vectors_digest"] != array_hash(cache.gene_vectors)
-            or info["metadata"]["backbone"]["fingerprint"]
-            != cache.metadata["backbone"]["fingerprint"]
-        ):
-            raise ValueError("Cache is incompatible with the checkpoint")
-        model = TopicModel(cache.gene_vectors, **info["model"])
-        load_checkpoint(args.checkpoint, model)
-        print(
-            export_topic_bank(
-                model,
-                cache.genes,
-                args.output,
-                backbone=cache.metadata["backbone"],
-                training=info["metadata"],
-            )
+    backbone = FrozenTranscriptFormer(**load_config(args.config)["backbone"])
+    if backbone.identity() != info["metadata"]["backbone"]:
+        raise ValueError("Backbone differs from the pretraining checkpoint")
+    genes = info["metadata"]["genes"]
+    model = TopicModel(backbone.gene_vectors(genes), **info["model"])
+    load_checkpoint(args.checkpoint, model)
+    print(
+        export_topic_bank(
+            model, genes, args.output, backbone=backbone.identity(), training=info["metadata"]
         )
+    )
 
 
 if __name__ == "__main__":
