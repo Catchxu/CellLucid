@@ -4,9 +4,9 @@ backbone:
   device: cuda
   max_length: null
   compile_attention: false
-  precision: float32
+  precision: bfloat16
 model:
-  n_topics: 16
+  n_topics: 256
   temperature: 0.1
   ot_epsilon: 0.1
   ot_iterations: 60
@@ -17,7 +17,7 @@ training:
   workers: 2
   mask_fraction: 0.25
   optimizer:
-    lr: 0.005
+    lr: 0.001
     weight_decay: 0.0
   grad_clip: 1.0
   log_every_steps: 10

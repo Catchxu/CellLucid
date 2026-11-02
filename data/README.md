@@ -96,7 +96,7 @@ After preparation finishes:
 sbatch --account=<account> --partition=<gpu_partition> --gpus=8 \
   --mail-user=<email> \
   scripts/train_topics.sh --manifest /path/to/atlas/manifest.json \
-  --output-dir /path/to/run --epochs 50 \
+  --output-dir /path/to/run --epochs 3 \
   --batch-size 128 --encoder-batch-size 16
 ```
 
