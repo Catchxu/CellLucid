@@ -13,6 +13,7 @@ from torch.utils.data import DataLoader
 from ..config import load_config, seed_everything, write_json
 from ..checkpoint import save_checkpoint, load_checkpoint
 from ..experiment import prepare_run, get_logger, log_metrics
+from ..metrics import topic_diversity, topic_usage_sums, topic_usage
 from ..data.atlas import AtlasBatches
 from ..data.masking import masked_views
 from ..models.backbone import FrozenTranscriptFormer
@@ -163,6 +164,16 @@ def train(config, manifest_path, output_dir, epochs, resume=None, max_steps=None
         else model
     )
     initial_topics = model.topics.detach().clone()
+    if rank == 0:
+        with torch.no_grad():
+            diagnostics = topic_diversity(model.topics, model.dictionary())
+        log_metrics(root, {
+            "event": "resume" if resume else "initial",
+            "step": step,
+            "epoch": start_epoch + 1,
+            "model_state": "before_next_update",
+            **diagnostics,
+        })
     stopped = False
     try:
         for epoch in range(start_epoch, epochs):
@@ -177,10 +188,19 @@ def train(config, manifest_path, output_dir, epochs, resume=None, max_steps=None
             )
             model.train()
             loss_sum = cell_sum = 0.0
+            window_usage = torch.zeros(model.n_topics + 3, dtype=torch.float64, device=device)
+            epoch_usage = torch.zeros_like(window_usage)
             cursor = start_batch if epoch == start_epoch else 0
             for batch in stream:
                 h, x, hidden = forward_batch(backbone, batch, genes, settings, epoch)
-                predicted, _, _ = parallel(h)
+                predicted, theta, beta = parallel(h)
+                batch_usage = topic_usage_sums(theta)
+                window_usage += batch_usage
+                epoch_usage += batch_usage
+                log_step = step == 0 or (step + 1) % settings["log_every_steps"] == 0
+                if log_step and rank == 0:
+                    # Geometry and dictionary describe the same pre-update forward state.
+                    diagnostics = topic_diversity(model.topics, beta)
                 count = len(h)
                 loss = (
                     masked_compositional_loss(predicted, x, hidden)
@@ -203,14 +223,38 @@ def train(config, manifest_path, output_dir, epochs, resume=None, max_steps=None
                 cursor = int(batch["batch_index"]) + 1
                 loss_sum += float(loss.detach()) * count
                 cell_sum += count
-                if rank == 0 and step % settings["log_every_steps"] == 0:
-                    logger.info(
-                        "epoch=%d step=%d batch=%d train_ce=%.6f",
-                        epoch + 1,
-                        step,
-                        cursor,
-                        loss_sum / cell_sum if cell_sum else 0,
+                if log_step:
+                    global_usage = window_usage.clone()
+                    if distributed:
+                        dist.all_reduce(global_usage)
+                    train_sum, train_cells = reduce_pair(
+                        loss_sum, cell_sum, device, distributed
                     )
+                    if rank == 0:
+                        usage = topic_usage(global_usage)
+                        log_metrics(root, {
+                            "event": "training",
+                            "epoch": epoch + 1,
+                            "step": step,
+                            "batch_in_epoch": cursor,
+                            "model_state": "before_update",
+                            "train_ce": train_sum / train_cells,
+                            **diagnostics,
+                            **usage,
+                        })
+                        logger.info(
+                            "epoch=%d step=%d batch=%d train_ce=%.6f "
+                            "topic_cosine_mean=%s gene_dictionary_jsd=%.6f "
+                            "usage_effective_topics=%.2f",
+                            epoch + 1,
+                            step,
+                            cursor,
+                            train_sum / train_cells,
+                            diagnostics["topic_cosine_mean"],
+                            diagnostics["gene_dictionary_jsd"],
+                            usage["usage_effective_topics"],
+                        )
+                    window_usage.zero_()
                 if step % settings["save_every_steps"] == 0 or (
                     max_steps is not None and step >= max_steps
                 ):
@@ -233,16 +277,24 @@ def train(config, manifest_path, output_dir, epochs, resume=None, max_steps=None
             if stopped:
                 break
             train_sum, train_cells = reduce_pair(loss_sum, cell_sum, device, distributed)
+            if distributed:
+                dist.all_reduce(epoch_usage)
             validation = evaluate(model, backbone, manifest, genes, settings, rank, world_size)
             improved = validation < best
             best = min(best, validation)
             if rank == 0:
+                with torch.no_grad():
+                    diagnostics = topic_diversity(model.topics, model.dictionary())
                 metrics = {
+                    "event": "epoch",
+                    "model_state": "after_update",
                     "epoch": epoch + 1,
                     "step": step,
                     "train_ce": train_sum / train_cells if train_cells else None,
                     "validation_ce": validation,
                     "topic_update_norm": float((model.topics.detach() - initial_topics).norm()),
+                    **diagnostics,
+                    **topic_usage(epoch_usage),
                 }
                 logger.info("%s", metrics)
                 log_metrics(root, metrics)

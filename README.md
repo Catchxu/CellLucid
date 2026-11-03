@@ -85,6 +85,18 @@ sbatch --account=<account> --partition=<gpu_partition> --gpus=8 \
   --batch-size 128 --encoder-batch-size 16
 ```
 
+For a workstation, run acquisition, preprocessing and pretraining sequentially:
+
+```bash
+NPROC_PER_NODE=4 bash scripts/pretrain_atlas.sh /path/to/HCA /path/to/run
+```
+
+Set `PYTHON_BIN` to the active environment's interpreter when needed. The pipeline
+uses three epochs and the settings in `configs/topic.yaml`. It resumes downloads,
+completed preprocessing sources and an existing latest training checkpoint.
+Progress is recorded in `<run>/pipeline_status.txt`; keep the process running in a
+persistent session or launch it detached with its output redirected to a log.
+
 The epoch count is an explicit experiment choice. `--batch-size` is the number
 of cells per optimizer update per rank; `--encoder-batch-size` controls the frozen
 forward microbatch within that update. Values are used as supplied without
@@ -112,6 +124,30 @@ backbone. Resume with the same corpus/settings/world size and
 optimizer-step limit. Exported banks are named `topic_bank_step_<step>/` and contain
 topics, a fixed gene dictionary, ordered genes and provenance. No cell embeddings
 are written during pretraining.
+
+Training records reconstruction loss and detached topic diagnostics in
+`<run>/metrics.jsonl` at initialization, after the first forward, every logging
+interval and at epoch boundaries. Forward diagnostics are labeled `before_update`;
+checkpoints contain the updated weights. Cell-usage statistics are summed across
+all DDP ranks and cover the cells in the logging window or epoch segment since
+resume. Existing running processes require restart to load the instrumentation.
+
+- `topic_cosine_mean`, `topic_cosine_p95` and
+  `topic_duplicate_pair_fraction_099` measure redundancy of normalized topic vectors.
+- `topic_effective_dimension` is the exponential entropy of the normalized
+  eigenvalues of the topic Gram matrix; identical directions give one.
+- `gene_dictionary_jsd` is the Jensen-Shannon divergence across equally weighted
+  topic-gene distributions in nats; identical programs give zero.
+- `usage_effective_topics` is exp(H(mean cell-topic usage));
+  `cell_effective_topics_mean` is the mean of exp(H(usage)) across cells.
+- `usage_max_probability`, `usage_low_mass_fraction` (mean usage below 0.1/K),
+  `cell_topic_mutual_information` and `topic_mean_usage` describe assignment
+  concentration, low-usage topics and variation across cells.
+
+These are monitoring statistics and do not contribute gradients or penalties.
+High diversity alone does not establish coherent biological programs, and uniform
+cell assignments can inflate the effective topic count. Interpret geometry,
+gene programs and cell usage together with held-out reconstruction.
 
 ## Inference and tests
 

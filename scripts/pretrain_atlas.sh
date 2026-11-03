@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# Run HCA acquisition, count preparation and shared-topic pretraining in sequence.
+# Usage: PYTHON_BIN=/path/to/python NPROC_PER_NODE=4 bash scripts/pretrain_atlas.sh /path/to/HCA /path/to/run
+set -euo pipefail
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "${ROOT_DIR}"
+HCA_ROOT="$(realpath -m "$1")"
+OUTPUT_DIR="$(realpath -m "$2")"
+PYTHON_BIN="${PYTHON_BIN:-python3}"
+export PYTHON_BIN
+export PYTHONDONTWRITEBYTECODE=1
+export PYTHONUNBUFFERED=1
+export PYTHONPATH="${ROOT_DIR}:${ROOT_DIR}/src${PYTHONPATH:+:${PYTHONPATH}}"
+export OMP_NUM_THREADS=4
+mkdir -p "${HCA_ROOT}" "${OUTPUT_DIR}"
+trap 'printf "failed: line %s, exit %s\n" "$LINENO" "$?" > "${OUTPUT_DIR}/pipeline_status.txt"' ERR
+printf 'download\n' > "${OUTPUT_DIR}/pipeline_status.txt"
+bash data/download_hca.sh --output-dir "${HCA_ROOT}"
+printf 'annotation\n' > "${OUTPUT_DIR}/pipeline_status.txt"
+if [[ ! -f assets/gene_symbols.json ]]; then
+  "${PYTHON_BIN}" -B -c 'from data.download import download_file; download_file("https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_49/gencode.v49.annotation.gtf.gz", "assets/gencode.v49.annotation.gtf.gz", max_bytes=200000000)'
+  "${PYTHON_BIN}" -B data/build_gene_mapping.py --gtf assets/gencode.v49.annotation.gtf.gz --output assets/gene_symbols.json
+fi
+printf 'preprocess\n' > "${OUTPUT_DIR}/pipeline_status.txt"
+bash data/prepare_topics.sh --manifest "${HCA_ROOT}/manifest.json" --output-dir "${HCA_ROOT}/pretraining"
+printf 'pretrain\n' > "${OUTPUT_DIR}/pipeline_status.txt"
+RESUME_ARGS=()
+if [[ -f "${OUTPUT_DIR}/checkpoints/latest/checkpoint.json" ]]; then
+  RESUME_ARGS=(--resume "${OUTPUT_DIR}/checkpoints/latest")
+fi
+bash scripts/train_topics.sh --manifest "${HCA_ROOT}/pretraining/manifest.json" --output-dir "${OUTPUT_DIR}" --epochs 3 --batch-size 128 --encoder-batch-size 16 "${RESUME_ARGS[@]}"
+printf 'completed\n' > "${OUTPUT_DIR}/pipeline_status.txt"
