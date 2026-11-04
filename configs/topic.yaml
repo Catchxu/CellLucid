@@ -6,7 +6,7 @@ backbone:
   compile_attention: false
   precision: bfloat16
 model:
-  n_topics: 256
+  n_topics: 128
   temperature: 0.1
   ot_epsilon: 0.03
   ot_iterations: 200

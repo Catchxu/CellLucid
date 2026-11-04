@@ -30,7 +30,7 @@ class TopicModel(nn.Module):
     def __init__(
         self,
         gene_vectors,
-        n_topics=256,
+        n_topics=128,
         *,
         temperature=0.1,
         ot_epsilon=0.03,

@@ -126,7 +126,7 @@ shared gene dictionary. Gradients from reconstruction reach both the topic bank
 and cell projection; OT clustering updates the topic bank. DDP averages the
 shared OT term once and weights reconstruction by each rank's usable cell count.
 
-`configs/topic.yaml` sets 256 topics, residual hidden dimension 512, OT weight
+`configs/topic.yaml` sets 128 topics, residual hidden dimension 512, OT weight
 10.0, epsilon 0.03 and 200 Sinkhorn iterations for the revised experiment. These
 are starting settings, not a guarantee against collapse. Check marginal errors,
 held-out reconstruction and diversity during short validation before a long run.
