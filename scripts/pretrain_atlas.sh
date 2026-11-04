@@ -29,4 +29,6 @@ if [[ -f "${OUTPUT_DIR}/checkpoints/latest/checkpoint.json" ]]; then
   RESUME_ARGS=(--resume "${OUTPUT_DIR}/checkpoints/latest")
 fi
 bash scripts/train_topics.sh --manifest "${HCA_ROOT}/pretraining/manifest.json" --output-dir "${OUTPUT_DIR}" --epochs 3 --batch-size 128 --encoder-batch-size 16 "${RESUME_ARGS[@]}"
+printf 'promote\n' > "${OUTPUT_DIR}/pipeline_status.txt"
+bash scripts/push_ckpt.sh --checkpoint-dir "${OUTPUT_DIR}/topic_bank" --assets-dir "${ROOT_DIR}/assets" --push-hf 0
 printf 'completed\n' > "${OUTPUT_DIR}/pipeline_status.txt"

@@ -42,12 +42,24 @@ def sinkhorn(cost, topic_prior=None, gene_prior=None, *, epsilon=0.1, iterations
     return plan
 
 
-def gene_dictionary(topics, gene_vectors, gene_prior=None, *, epsilon=0.1, iterations=80):
+def gene_dictionary_and_loss(topics, gene_vectors, gene_prior=None, *, epsilon=0.1, iterations=80):
+    """Return the OT dictionary and its regularized transport value."""
     topics = torch.nn.functional.normalize(topics.float(), dim=-1)
     genes = torch.nn.functional.normalize(gene_vectors.float(), dim=-1)
     if topics.shape[1] != genes.shape[1]:
         raise ValueError("Topic and gene embedding dimensions differ")
-    plan = sinkhorn(
-        1 - topics @ genes.T, gene_prior=gene_prior, epsilon=epsilon, iterations=iterations
-    )
-    return plan / plan.sum(dim=1, keepdim=True)
+    cost = 1 - topics @ genes.T
+    plan = sinkhorn(cost, gene_prior=gene_prior, epsilon=epsilon, iterations=iterations)
+    a = torch.full((len(topics),), 1 / len(topics), device=plan.device)
+    b = (torch.full((len(genes),), 1 / len(genes), device=plan.device)
+         if gene_prior is None else gene_prior.to(plan.device))
+    log_ratio = plan.clamp_min(torch.finfo(plan.dtype).tiny).log() - a.log()[:, None] - b.log()[None, :]
+    ot_loss = (plan * cost).sum() + epsilon * (plan * log_ratio).sum()
+    beta = plan / plan.sum(dim=1, keepdim=True)
+    return beta, ot_loss
+
+
+def gene_dictionary(topics, gene_vectors, gene_prior=None, *, epsilon=0.1, iterations=80):
+    return gene_dictionary_and_loss(
+        topics, gene_vectors, gene_prior, epsilon=epsilon, iterations=iterations
+    )[0]

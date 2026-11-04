@@ -35,5 +35,11 @@ def test_dictionary_branch_updates_topics():
     beta = model.dictionary()
     (beta * torch.arange(12)).sum().backward()
     assert model.topics.grad is not None and model.topics.grad.norm() > 0
-    assert list(dict(model.named_parameters())) == ["topics"]
+    assert model.projection.output.weight.grad is None
+    _, ot_loss = model.dictionary_with_loss()
+    model.zero_grad()
+    ot_loss.backward()
+    assert torch.isfinite(model.topics.grad).all()
+    assert model.topics.grad.norm() > 0
+    assert model.projection.output.weight.grad is None
     assert "gene_vectors" not in model.state_dict()

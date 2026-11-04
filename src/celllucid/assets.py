@@ -24,3 +24,20 @@ class BackboneAssets:
 
     def read_config(self):
         return json.loads(self.config.read_text())
+
+
+TOPIC_BANK_FILES = ("topics.safetensors", "genes.json", "manifest.json")
+
+
+def download_topic_bank(repo_id, *, repo_type="space", revision="main", local_dir="assets"):
+    """Download only the topic-bank package into a local assets directory."""
+    from huggingface_hub import snapshot_download
+
+    root = snapshot_download(
+        repo_id=repo_id,
+        repo_type=repo_type,
+        revision=revision,
+        local_dir=str(local_dir),
+        allow_patterns=["topic_bank/" + name for name in TOPIC_BANK_FILES],
+    )
+    return Path(root) / "topic_bank"

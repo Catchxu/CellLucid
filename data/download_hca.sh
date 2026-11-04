@@ -25,17 +25,7 @@ if [[ ! -f "${ROOT_DIR}/data/download_hca.py" ]]; then
 fi
 cd "${ROOT_DIR}"
 ROOT_DIR="${PWD}"
-if [[ -z "${PYTHON_BIN:-}" ]]; then
-  if [[ -x "${ROOT_DIR}/.venv/bin/python" ]]; then
-    PYTHON_BIN="${ROOT_DIR}/.venv/bin/python"
-  else
-    PYTHON_BIN="python3"
-  fi
-fi
-if ! command -v "${PYTHON_BIN}" >/dev/null 2>&1; then
-  echo "Python interpreter not found: ${PYTHON_BIN}" >&2
-  exit 1
-fi
+PYTHON_BIN="${PYTHON_BIN:-python3}"
 export PYTHONPATH="${ROOT_DIR}:${ROOT_DIR}/src${PYTHONPATH:+:${PYTHONPATH}}"
 export PYTHONUNBUFFERED=1
 export OMP_NUM_THREADS="${OMP_NUM_THREADS:-1}"

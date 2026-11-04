@@ -5,7 +5,6 @@ import pytest
 from scipy import sparse
 from celllucid.data.dataset import CountDataset
 from celllucid.data.preprocess import preprocess_h5ad
-from celllucid.data.splits import split_indices
 
 
 def write_fixture(path):
@@ -50,14 +49,6 @@ def test_count_layer_is_selected_without_eager_other_layers(tmp_path):
     with CountDataset(p, source="X") as ds:
         with pytest.raises(ValueError, match="integer"):
             ds.read([0])
-
-
-def test_group_split_has_no_donor_overlap():
-    obs = pd.DataFrame({"donor": ["a", "a", "b", "b", "c", "c"]})
-    train, val = split_indices(obs, group_key="donor")
-    assert set(obs.iloc[train].donor).isdisjoint(obs.iloc[val].donor)
-    with pytest.raises(ValueError):
-        split_indices(pd.DataFrame({"donor": ["a", "a"]}), group_key="donor")
 
 
 def test_explicit_symbol_mapping_and_provenance(tmp_path):

@@ -74,7 +74,7 @@ def reduce_pair(loss, count, device, distributed):
 @torch.no_grad()
 def evaluate(model, backbone, manifest, genes, config, rank, world_size):
     model.eval()
-    beta = model.dictionary()
+    beta, ot_loss = model.dictionary_with_loss()
     total, cells = 0.0, 0
     for batch in loader(manifest, "validation", config, 0, rank, world_size):
         h, x, hidden = forward_batch(backbone, batch, genes, config, 0, validation=True)
@@ -85,7 +85,8 @@ def evaluate(model, backbone, manifest, genes, config, rank, world_size):
     total, cells = reduce_pair(total, cells, backbone.device, world_size > 1)
     if not cells:
         raise ValueError("No valid validation cells")
-    return total / cells
+    return {"ce": total / cells, "ot_loss": float(ot_loss),
+            "loss": total / cells + config["ot_weight"] * float(ot_loss)}
 
 
 def train(config, manifest_path, output_dir, epochs, resume=None, max_steps=None, backbone=None):
@@ -128,9 +129,7 @@ def train(config, manifest_path, output_dir, epochs, resume=None, max_steps=None
         raise ValueError("Corpus gene order differs from the frozen backbone")
     vectors = backbone.gene_vectors(genes)
     model = TopicModel(vectors, seed=settings["seed"], **config["model"]).to(device)
-    if list(dict(model.named_parameters())) != ["topics"]:
-        raise RuntimeError("Only topic embeddings may enter the optimizer")
-    optimizer = torch.optim.AdamW([model.topics], **settings["optimizer"])
+    optimizer = torch.optim.AdamW(model.parameters(), **settings["optimizer"])
     metadata = {
         "corpus_identity": manifest["identity"],
         "genes": genes,
@@ -138,6 +137,8 @@ def train(config, manifest_path, output_dir, epochs, resume=None, max_steps=None
         "training": settings,
         "world_size": world_size,
         "masking": "fresh_per_cell_per_epoch",
+        "objective": "masked_ce + ot_weight * regularized_OT_value",
+        "trainable_parameters": list(dict(model.named_parameters())),
         "distributed_sampling": "Repeat initial batches to fill the final distributed step",
     }
     if rank == 0:
@@ -166,7 +167,7 @@ def train(config, manifest_path, output_dir, epochs, resume=None, max_steps=None
     initial_topics = model.topics.detach().clone()
     if rank == 0:
         with torch.no_grad():
-            diagnostics = topic_diversity(model.topics, model.dictionary())
+            diagnostics = topic_diversity(model.topics, model.dictionary(), model.gene_prior)
         log_metrics(root, {
             "event": "resume" if resume else "initial",
             "step": step,
@@ -187,20 +188,20 @@ def train(config, manifest_path, output_dir, epochs, resume=None, max_steps=None
                 start_batch if epoch == start_epoch else 0,
             )
             model.train()
-            loss_sum = cell_sum = 0.0
+            loss_sum = cell_sum = ot_sum = 0.0
             window_usage = torch.zeros(model.n_topics + 3, dtype=torch.float64, device=device)
             epoch_usage = torch.zeros_like(window_usage)
             cursor = start_batch if epoch == start_epoch else 0
             for batch in stream:
                 h, x, hidden = forward_batch(backbone, batch, genes, settings, epoch)
-                predicted, theta, beta = parallel(h)
+                predicted, theta, beta, ot_loss = parallel(h)
                 batch_usage = topic_usage_sums(theta)
                 window_usage += batch_usage
                 epoch_usage += batch_usage
                 log_step = step == 0 or (step + 1) % settings["log_every_steps"] == 0
                 if log_step and rank == 0:
                     # Geometry and dictionary describe the same pre-update forward state.
-                    diagnostics = topic_diversity(model.topics, beta)
+                    diagnostics = topic_diversity(model.topics, beta, model.gene_prior)
                 count = len(h)
                 loss = (
                     masked_compositional_loss(predicted, x, hidden)
@@ -212,16 +213,21 @@ def train(config, manifest_path, output_dir, epochs, resume=None, max_steps=None
                     dist.all_reduce(global_count)
                 if global_count == 0:
                     raise ValueError("No usable masked cells in the global batch")
-                scaled_loss = loss * (world_size * count / global_count)
+                # DDP averages the identical OT objective once across replicas.
+                scaled_loss = (
+                    loss * (world_size * count / global_count)
+                    + settings["ot_weight"] * ot_loss
+                )
                 optimizer.zero_grad(set_to_none=True)
                 scaled_loss.backward()
                 torch.nn.utils.clip_grad_norm_(
-                    [model.topics], settings["grad_clip"], error_if_nonfinite=True
+                    model.parameters(), settings["grad_clip"], error_if_nonfinite=True
                 )
                 optimizer.step()
                 step += 1
                 cursor = int(batch["batch_index"]) + 1
                 loss_sum += float(loss.detach()) * count
+                ot_sum += float(ot_loss.detach()) * count
                 cell_sum += count
                 if log_step:
                     global_usage = window_usage.clone()
@@ -230,6 +236,7 @@ def train(config, manifest_path, output_dir, epochs, resume=None, max_steps=None
                     train_sum, train_cells = reduce_pair(
                         loss_sum, cell_sum, device, distributed
                     )
+                    global_ot_sum, _ = reduce_pair(ot_sum, cell_sum, device, distributed)
                     if rank == 0:
                         usage = topic_usage(global_usage)
                         log_metrics(root, {
@@ -239,17 +246,20 @@ def train(config, manifest_path, output_dir, epochs, resume=None, max_steps=None
                             "batch_in_epoch": cursor,
                             "model_state": "before_update",
                             "train_ce": train_sum / train_cells,
+                            "train_ot_loss": global_ot_sum / train_cells,
+                            "train_loss": (train_sum + settings["ot_weight"] * global_ot_sum) / train_cells,
                             **diagnostics,
                             **usage,
                         })
                         logger.info(
-                            "epoch=%d step=%d batch=%d train_ce=%.6f "
+                            "epoch=%d step=%d batch=%d train_ce=%.6f train_ot_loss=%.6f "
                             "topic_cosine_mean=%s gene_dictionary_jsd=%.6f "
                             "usage_effective_topics=%.2f",
                             epoch + 1,
                             step,
                             cursor,
                             train_sum / train_cells,
+                            global_ot_sum / train_cells,
                             diagnostics["topic_cosine_mean"],
                             diagnostics["gene_dictionary_jsd"],
                             usage["usage_effective_topics"],
@@ -280,18 +290,23 @@ def train(config, manifest_path, output_dir, epochs, resume=None, max_steps=None
             if distributed:
                 dist.all_reduce(epoch_usage)
             validation = evaluate(model, backbone, manifest, genes, settings, rank, world_size)
-            improved = validation < best
-            best = min(best, validation)
+            global_ot_sum, _ = reduce_pair(ot_sum, cell_sum, device, distributed)
+            improved = validation["ce"] < best
+            best = min(best, validation["ce"])
             if rank == 0:
                 with torch.no_grad():
-                    diagnostics = topic_diversity(model.topics, model.dictionary())
+                    diagnostics = topic_diversity(model.topics, model.dictionary(), model.gene_prior)
                 metrics = {
                     "event": "epoch",
                     "model_state": "after_update",
                     "epoch": epoch + 1,
                     "step": step,
                     "train_ce": train_sum / train_cells if train_cells else None,
-                    "validation_ce": validation,
+                    "train_ot_loss": global_ot_sum / train_cells,
+                    "train_loss": (train_sum + settings["ot_weight"] * global_ot_sum) / train_cells,
+                    "validation_ce": validation["ce"],
+                    "validation_ot_loss": validation["ot_loss"],
+                    "validation_loss": validation["loss"],
                     "topic_update_norm": float((model.topics.detach() - initial_topics).norm()),
                     **diagnostics,
                     **topic_usage(epoch_usage),
@@ -321,13 +336,20 @@ def train(config, manifest_path, output_dir, epochs, resume=None, max_steps=None
                     )
             if distributed:
                 dist.barrier()
-        if rank == 0:
+        if rank == 0 and not stopped:
+            selected = load_checkpoint(
+                root / "checkpoints/best", model, expected_metadata=metadata
+            )
             export_topic_bank(
                 model,
                 genes,
-                root / f"topic_bank_step_{step:09d}",
+                root / "topic_bank",
                 backbone=backbone.identity(),
-                training=metadata,
+                training={
+                    **metadata,
+                    "checkpoint_selection": "best_validation_ce",
+                    "checkpoint_step": selected["step"],
+                },
             )
         return {
             "step": step,

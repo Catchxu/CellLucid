@@ -1,4 +1,4 @@
-"""Topic-only checkpoints: explicit gene vectors, backbone and cache compatibility."""
+"""Topic/projection checkpoints with backbone and corpus identity."""
 
 from pathlib import Path
 import os
@@ -14,11 +14,11 @@ def save_checkpoint(
     path = Path(path)
     path.mkdir(parents=True, exist_ok=True)
     tensors = {k: v.detach().cpu().contiguous() for k, v in model.state_dict().items()}
-    # The gene vectors are a nonpersistent buffer; no encoder is registered here.
+    # Gene vectors are nonpersistent; the frozen backbone is not part of this head.
     save_file(tensors, str(path / "topics.safetensors.tmp"))
     os.replace(path / "topics.safetensors.tmp", path / "topics.safetensors")
     payload = {
-        "format_version": 3,
+        "format_version": 4,
         "model": model.hyperparameters(),
         "epoch": epoch,
         "step": step,
@@ -43,7 +43,7 @@ def save_checkpoint(
 def load_checkpoint(path, model, optimizer=None, *, expected_metadata=None):
     path = Path(path)
     info = json.loads((path / "checkpoint.json").read_text())
-    if info.get("format_version") != 3 or info["model"] != model.hyperparameters():
+    if info["format_version"] != 4 or info["model"] != model.hyperparameters():
         raise ValueError("Checkpoint model configuration differs")
     if expected_metadata is not None and info["metadata"] != expected_metadata:
         raise ValueError("Checkpoint data/backbone/split identity differs")

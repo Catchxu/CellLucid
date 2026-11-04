@@ -1,20 +1,41 @@
-"""Shared topic prototypes: direct per-cell usage and OT-only gene assignment."""
+"""Residual cell inference and a shared, OT-clustered gene-program dictionary."""
 
 import torch
 from torch import nn
 from torch.nn import functional as F
-from .transport import gene_dictionary
+from .transport import gene_dictionary_and_loss
+
+
+class ResidualCellProjection(nn.Module):
+    """A two-layer GELU residual map, initialized as the identity."""
+
+    def __init__(self, dimension, hidden):
+        super().__init__()
+        self.input = nn.Linear(dimension, hidden)
+        self.output = nn.Linear(hidden, dimension)
+        nn.init.zeros_(self.output.weight)
+        nn.init.zeros_(self.output.bias)
+
+    def forward(self, cells):
+        return cells + self.output(F.gelu(self.input(cells)))
+
+
+def cell_topic_usage(cells, topics, projection, temperature):
+    projected = F.normalize(projection(cells.float()), dim=-1)
+    scores = projected @ F.normalize(topics, dim=-1).T
+    return torch.softmax(scores / temperature, dim=-1)
 
 
 class TopicModel(nn.Module):
     def __init__(
         self,
         gene_vectors,
-        n_topics=64,
+        n_topics=256,
         *,
         temperature=0.1,
-        ot_epsilon=0.1,
-        ot_iterations=80,
+        ot_epsilon=0.03,
+        ot_iterations=200,
+        projection_hidden=512,
         gene_prior=None,
         seed=42,
     ):
@@ -41,6 +62,10 @@ class TopicModel(nn.Module):
         initial = F.normalize(vectors.cpu()[indices], dim=-1)
         noise = torch.randn(initial.shape, generator=generator) * 0.01
         self.topics = nn.Parameter(initial + noise)
+        with torch.random.fork_rng(devices=[]):
+            torch.random.default_generator.manual_seed(seed)
+            self.projection = ResidualCellProjection(vectors.shape[1], projection_hidden)
+        self.projection_hidden = int(projection_hidden)
         self.n_topics = n_topics
         self.temperature = float(temperature)
         self.ot_epsilon = float(ot_epsilon)
@@ -51,11 +76,10 @@ class TopicModel(nn.Module):
             raise ValueError("Cell embeddings must be N by D")
         if not torch.isfinite(cells).all() or (cells.norm(dim=1) == 0).any():
             raise ValueError("Cell embeddings must be finite and nonzero")
-        scores = F.normalize(cells.float(), dim=-1) @ F.normalize(self.topics, dim=-1).T
-        return torch.softmax(scores / self.temperature, dim=-1)
+        return cell_topic_usage(cells, self.topics, self.projection, self.temperature)
 
-    def dictionary(self):
-        return gene_dictionary(
+    def dictionary_with_loss(self):
+        return gene_dictionary_and_loss(
             self.topics,
             self.gene_vectors,
             self.gene_prior,
@@ -63,10 +87,13 @@ class TopicModel(nn.Module):
             iterations=self.ot_iterations,
         )
 
+    def dictionary(self):
+        return self.dictionary_with_loss()[0]
+
     def forward(self, cells):
         theta = self.theta(cells)
-        beta = self.dictionary()
-        return theta @ beta, theta, beta
+        beta, ot_loss = self.dictionary_with_loss()
+        return theta @ beta, theta, beta, ot_loss
 
     def hyperparameters(self):
         return {
@@ -74,4 +101,5 @@ class TopicModel(nn.Module):
             "temperature": self.temperature,
             "ot_epsilon": self.ot_epsilon,
             "ot_iterations": self.ot_iterations,
+            "projection_hidden": self.projection_hidden,
         }

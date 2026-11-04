@@ -5,7 +5,7 @@ from torch.nn import functional as F
 
 
 @torch.no_grad()
-def topic_diversity(topics, dictionary):
+def topic_diversity(topics, dictionary, gene_prior):
     """Compute geometry and gene-program statistics for one model state."""
     unit = F.normalize(topics.detach().double(), dim=1)
     gram = unit @ unit.T
@@ -21,6 +21,9 @@ def topic_diversity(topics, dictionary):
         "topic_duplicate_pair_fraction_099": float((pairs > 0.99).double().mean())
         if pairs.numel() else None,
         "topic_effective_dimension": float(torch.special.entr(spectrum).sum().exp()),
+        "dictionary_gene_marginal_max_error": float(
+            (mean_beta - gene_prior.detach().double()).abs().max()
+        ),
         "gene_dictionary_jsd": float(
             torch.special.entr(mean_beta).sum() - torch.special.entr(beta).sum(1).mean()
         ),

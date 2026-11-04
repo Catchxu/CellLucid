@@ -22,12 +22,16 @@ def test_shared_dictionary_and_bank_roundtrip(tmp_path):
     torch.manual_seed(5)
     model = TopicModel(torch.randn(20, 8), n_topics=4)
     h = torch.randn(9, 8)
-    p, theta, beta = model(h)
+    p, theta, beta, ot_loss = model(h)
     torch.testing.assert_close(p.sum(1), torch.ones(9))
     torch.testing.assert_close(theta.sum(1), torch.ones(9))
     torch.testing.assert_close(beta.sum(1), torch.ones(4))
-    _, _, second_beta = model(h[:2])
+    _, _, second_beta, _ = model(h[:2])
     torch.testing.assert_close(beta, second_beta)
+    assert torch.isfinite(ot_loss)
+    with torch.no_grad():
+        model.projection.output.weight.add_(0.05)
+    theta = model.theta(h)
     path = export_topic_bank(
         model, [f"g{i}" for i in range(20)], tmp_path / "bank", backbone={"fingerprint": "test"}
     )
@@ -42,20 +46,21 @@ def test_shared_dictionary_and_bank_roundtrip(tmp_path):
         TopicBank(path)
 
 
-def test_only_topics_change_during_optimization():
+def test_topics_and_projection_change_during_optimization():
     model = TopicModel(torch.randn(15, 7), n_topics=3)
     before = model.topics.detach().clone()
     genes = model.gene_vectors.clone()
     prior = model.gene_prior.clone()
-    optimizer = torch.optim.Adam([model.topics], lr=0.01)
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
     for _ in range(4):
         optimizer.zero_grad()
-        p, _, _ = model(torch.randn(8, 7))
+        p, _, _, ot_loss = model(torch.randn(8, 7))
         loss = masked_compositional_loss(
             p, torch.randint(0, 4, (8, 15)).float(), torch.ones(8, 15, dtype=torch.bool)
         )
-        loss.backward()
+        (loss + ot_loss).backward()
         optimizer.step()
     assert not torch.equal(before, model.topics)
+    assert model.projection.output.weight.count_nonzero() > 0
     torch.testing.assert_close(genes, model.gene_vectors, rtol=0, atol=0)
     torch.testing.assert_close(prior, model.gene_prior, rtol=0, atol=0)

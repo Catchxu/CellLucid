@@ -13,7 +13,14 @@ from .topic_bank import TopicBank
 
 
 def infer(config):
-    bank = TopicBank(config["topic_bank"], device=config.get("device", "cpu"))
+    if "hub_repo_id" in config:
+        bank = TopicBank.from_pretrained(
+            config["hub_repo_id"], repo_type=config["hub_repo_type"],
+            revision=config["hub_revision"], local_dir=config["assets_dir"],
+            device=config["device"],
+        )
+    else:
+        bank = TopicBank(config["topic_bank"], device=config["device"])
     backbone = FrozenTranscriptFormer(**config["backbone"])
     if backbone.identity()["fingerprint"] != bank.manifest["backbone"]["fingerprint"]:
         raise ValueError("Inference backbone or input settings differ from the trained topic bank")
@@ -58,7 +65,12 @@ def main():
     parser.add_argument("--config", required=True)
     parser.add_argument("--input", required=True)
     parser.add_argument("--output", required=True)
-    parser.add_argument("--topic-bank", required=True)
+    source = parser.add_mutually_exclusive_group()
+    source.add_argument("--topic-bank", help="Local bank; defaults to assets/topic_bank")
+    source.add_argument("--hub-repo-id", help="Existing Hugging Face repository")
+    parser.add_argument("--hub-repo-type", choices=["space", "model"], default="space")
+    parser.add_argument("--hub-revision", default="main")
+    parser.add_argument("--assets-dir", default="assets")
     args = parser.parse_args()
     config = load_config(args.config)
     settings = dict(config["inference"])
@@ -67,8 +79,12 @@ def main():
         device=config["backbone"]["device"],
         dataset=args.input,
         output=args.output,
-        topic_bank=args.topic_bank,
     )
+    if args.topic_bank is not None:
+        settings["topic_bank"] = args.topic_bank
+    if args.hub_repo_id is not None:
+        settings.update(hub_repo_id=args.hub_repo_id, hub_repo_type=args.hub_repo_type,
+                        hub_revision=args.hub_revision, assets_dir=args.assets_dir)
     print(json.dumps(infer(settings)))
 
 

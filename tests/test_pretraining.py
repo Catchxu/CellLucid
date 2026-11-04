@@ -106,13 +106,14 @@ def corpus(tmp_path):
 def settings():
     return {
         "backbone": {"device": "cpu"},
-        "model": {"n_topics": 3, "ot_iterations": 20},
+        "model": {"n_topics": 3, "ot_iterations": 20, "projection_hidden": 8},
         "training": {
             "seed": 42,
             "batch_size": 4,
             "encoder_batch_size": 2,
             "workers": 0,
             "mask_fraction": 0.4,
+            "ot_weight": 1.0,
             "optimizer": {"lr": 0.005},
             "grad_clip": 1.0,
             "save_every_steps": 2,
@@ -137,7 +138,7 @@ def test_inventory_coverage_shards_and_distributed_partition(tmp_path):
     assert len(cells) == 20
 
 
-def test_online_masking_and_topic_only_training(tmp_path):
+def test_online_masking_and_topic_head_training(tmp_path):
     path, manifest = corpus(tmp_path)
     config = settings()
     encoder = VisibleEncoder()
@@ -158,6 +159,7 @@ def test_online_resume_matches_continuous(tmp_path):
     path, _ = corpus(tmp_path)
     config = settings()
     train(config, path, tmp_path / "resumed", 2, max_steps=1, backbone=VisibleEncoder())
+    assert not (tmp_path / "resumed/topic_bank").exists()
     resumed = train(
         config,
         path,
@@ -167,6 +169,9 @@ def test_online_resume_matches_continuous(tmp_path):
         backbone=VisibleEncoder(),
     )
     continuous = train(config, path, tmp_path / "continuous", 2, backbone=VisibleEncoder())
-    a = TopicBank(Path(resumed["output_dir"]) / f"topic_bank_step_{resumed['step']:09d}")
-    b = TopicBank(Path(continuous["output_dir"]) / f"topic_bank_step_{continuous['step']:09d}")
+    a = TopicBank(Path(resumed["output_dir"]) / "topic_bank")
+    b = TopicBank(Path(continuous["output_dir"]) / "topic_bank")
+    assert a.manifest["training"]["checkpoint_selection"] == "best_validation_ce"
     torch.testing.assert_close(a.topics, b.topics, rtol=0, atol=0)
+    for name, value in a.projection.state_dict().items():
+        torch.testing.assert_close(value, b.projection.state_dict()[name], rtol=0, atol=0)

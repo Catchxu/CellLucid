@@ -1,4 +1,4 @@
-"""A single objective: conditional expression proportions on hidden measured genes."""
+"""Masked reconstruction of conditional expression proportions on measured genes."""
 
 import torch
 
@@ -16,7 +16,7 @@ def masked_compositional_loss(probabilities, counts, hidden):
     mass = selected.sum(dim=-1)
     valid = (mass > 0) & (hidden.sum(dim=-1) >= 2)
     if not valid.any():
-        raise ValueError("No cells have positive expression in at least two hidden gene slots")
+        raise ValueError("No cells have positive hidden expression mass and at least two hidden gene slots")
     p = probabilities[valid].float()
     mask = hidden[valid]
     target = selected[valid] / mass[valid, None]

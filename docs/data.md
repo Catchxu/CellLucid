@@ -1,6 +1,6 @@
 # HCA acquisition and atlas preprocessing
 
-This directory contains the HCA downloader, its configuration, gene annotation
+The `data/` directory contains the HCA downloader, its configuration, gene annotation
 mapping and full-inventory preprocessing. Sparse training counts are consumed
 online by the topic trainer; there is no embedding-extraction stage.
 
@@ -104,5 +104,5 @@ This job reads raw-count shards, creates fresh masks, runs frozen TranscriptForm
 forwards and updates the shared topics in the same loop. It does not create an
 embedding cache or train independent topic models for individual H5AD files.
 Forward microbatches and topic optimization batches are controls within that one
-process per GPU. DDP synchronizes the topic gradients across allocated GPUs.
-See the root README for checkpoint/resume semantics and inference.
+process per GPU. DDP synchronizes topic and residual-projection gradients across allocated GPUs.
+See [pretraining](pretraining.md) for checkpoint/resume semantics and the [root README](../README.md) for inference.
