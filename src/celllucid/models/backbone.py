@@ -113,13 +113,13 @@ class FrozenTranscriptFormer(nn.Module):
             runtime["upstream_sources"] = {
                 name: file_digest(source_root / name) for name in source_files
             }
-            runtime["torch_version"] = str(torch.__version__)
-
             assets = self.assets.identity()
             self._identity = {
                 "assets": assets,
                 "runtime": runtime,
                 "fingerprint": fingerprint({"assets": assets, "runtime": runtime}),
+                # Recorded, not fingerprinted: a bank stays usable across PyTorch builds.
+                "torch_version": str(torch.__version__),
             }
         return self._identity
 

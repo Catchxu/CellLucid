@@ -10,30 +10,29 @@ interpretation and the query agent will be added later.
 
 ## Install
 
-Use Python >=3.11 with a CUDA-enabled PyTorch build for your hardware. Install
-CellLucid and its frozen backbone dependency in the active environment:
+Install as in the [README](../README.md):
 
 ```bash
 python -m pip install -e ".[backbone]"
-mkdir -p assets
-git clone https://github.com/czi-ai/transcriptformer.git assets/transcriptformer_source
-git -C assets/transcriptformer_source checkout c943a89a4de9511a8ab1010715bf1cfa8827cc99
-python -m pip install --no-deps -e assets/transcriptformer_source
+python -m pip install --no-deps transcriptformer==0.6.1
+hf download kaichenxu/CellLucid --local-dir assets
 ```
 
-The pinned upstream version is 0.6.1. It declares older scientific-package pins;
-the `backbone` extra installs the Lightning, Scanpy and Hydra runtime dependencies
-needed by the adapter without imposing the upstream's older PyTorch pins. Core
-CellLucid requirements provide OmegaConf and the count-matrix libraries. Install
-the source with `--no-deps` as shown above. Current validation uses PyTorch 2.11
-and AnnData 0.12. Upstream
-source and backbone weights are not modified.
+TranscriptFormer 0.6.1 on PyPI matches upstream commit `c943a89` in every module the backbone
+fingerprint covers. It pins older scientific packages, so it is installed with `--no-deps`. The
+`backbone` extra supplies the Lightning, Scanpy and Hydra runtime it needs, without the upstream
+PyTorch pin. Current validation uses PyTorch 2.11 and AnnData 0.12. Upstream code and backbone
+weights are not modified.
 
-The released assets (TF-Sapiens weights, both topic banks and the gene-symbol mapping) are
-downloaded as described in the [README](../README.md). TF-Sapiens can also be fetched from
-[CZI](https://czi-transcriptformer.s3.amazonaws.com/weights/tf_sapiens.tar.gz) and extracted
-under `assets/tf_sapiens/` (`config.json`, `model_weights.pt`, `vocabs/`). Building the gene
-annotation from GENCODE is described in [the data guide](data.md).
+The backbone fingerprint, which a topic bank must match, covers the TF-Sapiens files, the
+upstream modules and the input settings. It records the PyTorch version without fingerprinting
+it, so a bank works across PyTorch builds.
+
+`hf download` fetches the TF-Sapiens weights, both topic banks and the gene-symbol mapping in
+one step. The weights are byte-identical to CZI's
+[tf_sapiens.tar.gz](https://czi-transcriptformer.s3.amazonaws.com/weights/tf_sapiens.tar.gz),
+which is needed only on a machine that cannot reach the Hub. Building the gene annotation from
+GENCODE is described in [the data guide](data.md).
 
 ## Repository
 

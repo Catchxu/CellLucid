@@ -10,24 +10,20 @@ under development.
 
 ## Installation
 
-Use Python ≥ 3.11 with a CUDA build of PyTorch for your GPU, then install CellLucid and the
-pinned TranscriptFormer source:
+Use Python ≥ 3.11 with a CUDA build of PyTorch for your GPU. Install CellLucid, then the
+TranscriptFormer code (`--no-deps`, because it pins an older PyTorch), then download the model
+assets:
 
 ```bash
 git clone https://github.com/Catchxu/CellLucid.git && cd CellLucid
 python -m pip install -e ".[backbone]"
-git clone https://github.com/czi-ai/transcriptformer.git assets/transcriptformer_source
-git -C assets/transcriptformer_source checkout c943a89a4de9511a8ab1010715bf1cfa8827cc99
-python -m pip install --no-deps -e assets/transcriptformer_source
-```
-
-Download the model assets from [Hugging Face](https://huggingface.co/kaichenxu/CellLucid) into
-`assets/`. They contain the TF-Sapiens weights, redistributed unmodified from TranscriptFormer,
-and both CellLucid topic banks:
-
-```bash
+python -m pip install --no-deps transcriptformer==0.6.1
 hf download kaichenxu/CellLucid --local-dir assets
 ```
+
+The [Hugging Face repository](https://huggingface.co/kaichenxu/CellLucid) holds everything
+inference needs: the TF-Sapiens weights, redistributed unmodified from TranscriptFormer, and
+both CellLucid topic banks. Do not download TF-Sapiens separately.
 
 ## Usage
 
