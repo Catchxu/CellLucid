@@ -1,31 +1,45 @@
-# Online pretraining: frozen encoder forwards and topic updates in the same loop.
+# Cache-based pretraining: encode a study-balanced cache of frozen embeddings once, then train
+# the topic model on it. Inference encodes unmasked counts and needs no cache.
 backbone:
   checkpoint: assets/tf_sapiens
   device: cuda
   max_length: null
-  compile_attention: false
+  compile_attention: true
+  compile_model: true
   precision: bfloat16
+cache:
+  seed: 42
+  samples_per_study: 100000
+  mask_fraction: 0.25
+  encoder_batch_size: 64
+  chunk_samples: 8192
+  initialization_cells_per_study: 256
+  duplicates: runs/corpus_dedup/duplicates.json
+  evaluation_pools: runs/eval_pools
 model:
   n_topics: 128
   temperature: 0.1
   ot_epsilon: 0.03
   ot_iterations: 200
-  projection_hidden: 512
+  gene_prior_uniform_share: 0.01
+  kmeans_iterations: 100
 training:
   seed: 42
-  batch_size: 128
-  encoder_batch_size: 16
-  workers: 2
-  mask_fraction: 0.25
-  ot_weight: 10.0
+  device: cuda
+  batch_size: 2048
+  steps: 1000
+  compile_sinkhorn: true
   optimizer:
     lr: 0.001
     weight_decay: 0.0
   grad_clip: 1.0
-  log_every_steps: 10
+  log_every_steps: 50
+  eval_every_steps: 200
   save_every_steps: 1000
+evaluation:
+  pools: runs/eval_pools
 inference:
   topic_bank: assets/topic_bank
   gene_key: feature_id
   count_source: X
-  batch_size: 2
+  batch_size: 64

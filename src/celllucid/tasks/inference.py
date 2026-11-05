@@ -53,7 +53,7 @@ def infer(config):
                 counts = ds.read(rows)
                 if (counts.sum(axis=1) <= 0).any():
                     raise ValueError("An input cell has no expression in the bank vocabulary")
-                h = backbone.encode(counts, bank.genes, ds.obs(rows))
+                h = backbone.encode(counts, bank.genes, ds.obs(rows), pad_to=size)
                 theta[start : start + len(rows)] = bank.transform(h).cpu().numpy()
             handle.attrs["complete"] = True
     os.replace(temporary, output)

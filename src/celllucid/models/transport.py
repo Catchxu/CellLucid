@@ -1,65 +1,38 @@
-"""Entropy-regularized OT with fixed marginals and differentiable log-Sinkhorn."""
+"""Entropy-regularized OT with fixed marginals and the topic-gene dictionary built from it."""
 
 import torch
 
 
-def sinkhorn(cost, topic_prior=None, gene_prior=None, *, epsilon=0.1, iterations=80):
-    if cost.ndim != 2 or min(cost.shape) < 1:
-        raise ValueError("cost must be a nonempty K by G matrix")
-    if not torch.isfinite(cost).all():
-        raise ValueError("Nonfinite transport cost")
-    if epsilon <= 0 or iterations < 1:
-        raise ValueError("epsilon and iterations must be positive")
-    dtype = torch.float64 if cost.dtype == torch.float64 else torch.float32
-    cost = cost.to(dtype)
-    k, g = cost.shape
-    a = (
-        torch.full((k,), 1 / k, device=cost.device, dtype=dtype)
-        if topic_prior is None
-        else topic_prior.to(device=cost.device, dtype=dtype)
-    )
-    b = (
-        torch.full((g,), 1 / g, device=cost.device, dtype=dtype)
-        if gene_prior is None
-        else gene_prior.to(device=cost.device, dtype=dtype)
-    )
-    for prior, size in ((a, k), (b, g)):
-        if prior.shape != (size,) or not torch.isfinite(prior).all() or (prior <= 0).any():
-            raise ValueError("OT priors must be finite, strictly positive and correctly shaped")
-        if not torch.allclose(prior.sum(), prior.new_tensor(1), atol=1e-6):
-            raise ValueError("OT priors must sum to one")
-        if prior.requires_grad:
-            raise ValueError("Marginals are fixed hyperparameters, not trainable")
+def _iteration(log_kernel, v, log_a, log_b):
+    u = log_a - torch.logsumexp(log_kernel + v[None, :], dim=1)
+    v = log_b - torch.logsumexp(log_kernel + u[:, None], dim=0)
+    return u, v
+
+
+# Fusing one log-domain iteration avoids materializing the broadcast sums; the unrolled
+# loop itself stays in Python so compilation time does not grow with the iteration count.
+_compiled_iteration = torch.compile(_iteration)
+
+
+def sinkhorn(cost, a, b, *, epsilon, iterations, compiled=False):
+    """Log-domain Sinkhorn plan with row marginal a and column marginal b, differentiable in cost."""
+    step = _compiled_iteration if compiled else _iteration
     log_kernel = -cost / epsilon
-    u = torch.zeros_like(a)
+    log_a, log_b = a.log(), b.log()
     v = torch.zeros_like(b)
     for _ in range(iterations):
-        u = a.log() - torch.logsumexp(log_kernel + v[None, :], dim=1)
-        v = b.log() - torch.logsumexp(log_kernel + u[:, None], dim=0)
-    plan = torch.exp(log_kernel + u[:, None] + v[None, :])
-    if not torch.isfinite(plan).all():
-        raise FloatingPointError("Nonfinite OT plan")
-    return plan
+        u, v = step(log_kernel, v, log_a, log_b)
+    return torch.exp(log_kernel + u[:, None] + v[None, :])
 
 
-def gene_dictionary_and_loss(topics, gene_vectors, gene_prior=None, *, epsilon=0.1, iterations=80):
-    """Return the OT dictionary and its regularized transport value."""
-    topics = torch.nn.functional.normalize(topics.float(), dim=-1)
-    genes = torch.nn.functional.normalize(gene_vectors.float(), dim=-1)
-    if topics.shape[1] != genes.shape[1]:
-        raise ValueError("Topic and gene embedding dimensions differ")
-    cost = 1 - topics @ genes.T
-    plan = sinkhorn(cost, gene_prior=gene_prior, epsilon=epsilon, iterations=iterations)
-    a = torch.full((len(topics),), 1 / len(topics), device=plan.device)
-    b = (torch.full((len(genes),), 1 / len(genes), device=plan.device)
-         if gene_prior is None else gene_prior.to(plan.device))
-    log_ratio = plan.clamp_min(torch.finfo(plan.dtype).tiny).log() - a.log()[:, None] - b.log()[None, :]
-    ot_loss = (plan * cost).sum() + epsilon * (plan * log_ratio).sum()
-    beta = plan / plan.sum(dim=1, keepdim=True)
-    return beta, ot_loss
+def topic_gene_dictionary(topics, mapped_genes, gene_prior, *, epsilon, iterations, compiled=False):
+    """Row-normalized OT plan between unit topics and unit mapped genes, cost 1 - cosine.
 
-
-def gene_dictionary(topics, gene_vectors, gene_prior=None, *, epsilon=0.1, iterations=80):
-    return gene_dictionary_and_loss(
-        topics, gene_vectors, gene_prior, epsilon=epsilon, iterations=iterations
-    )[0]
+    The topic marginal is uniform and the gene marginal is gene_prior, so the topic-averaged
+    dictionary equals gene_prior. The plan is a constrained normalization of the cosines, not
+    an objective: reconstruction gradients reach the topics and the gene map through it.
+    """
+    cost = 1 - topics @ mapped_genes.T
+    uniform = torch.full((len(topics),), 1 / len(topics), device=cost.device)
+    plan = sinkhorn(cost, uniform, gene_prior, epsilon=epsilon, iterations=iterations, compiled=compiled)
+    return plan / plan.sum(dim=1, keepdim=True)

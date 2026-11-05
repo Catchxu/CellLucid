@@ -1,33 +1,6 @@
-"""Detached diagnostics for topic geometry, gene programs and cell usage."""
+"""Detached diagnostics for cell-topic usage."""
 
 import torch
-from torch.nn import functional as F
-
-
-@torch.no_grad()
-def topic_diversity(topics, dictionary, gene_prior):
-    """Compute geometry and gene-program statistics for one model state."""
-    unit = F.normalize(topics.detach().double(), dim=1)
-    gram = unit @ unit.T
-    indices = torch.triu_indices(len(unit), len(unit), 1, device=unit.device)
-    pairs = gram[indices[0], indices[1]]
-    eigenvalues = torch.linalg.eigvalsh(gram).clamp_min(0)
-    spectrum = eigenvalues / eigenvalues.sum()
-    beta = dictionary.detach().double()
-    mean_beta = beta.mean(0)
-    return {
-        "topic_cosine_mean": float(pairs.mean()) if pairs.numel() else None,
-        "topic_cosine_p95": float(torch.quantile(pairs, 0.95)) if pairs.numel() else None,
-        "topic_duplicate_pair_fraction_099": float((pairs > 0.99).double().mean())
-        if pairs.numel() else None,
-        "topic_effective_dimension": float(torch.special.entr(spectrum).sum().exp()),
-        "dictionary_gene_marginal_max_error": float(
-            (mean_beta - gene_prior.detach().double()).abs().max()
-        ),
-        "gene_dictionary_jsd": float(
-            torch.special.entr(mean_beta).sum() - torch.special.entr(beta).sum(1).mean()
-        ),
-    }
 
 
 @torch.no_grad()

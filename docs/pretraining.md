@@ -2,10 +2,11 @@
 
 CellLucid enables natural-language querying of single-cell atlases through interpretable topic modeling.
 
-The current implementation pretrains a shared topic model across an HCA atlas.
-Each training batch contains raw counts: fresh masking, a frozen TranscriptFormer
-forward, and a topic update happen in one loop. No offline embedding cache is
-required. Pathway interpretation and the query agent will be added later.
+The current implementation pretrains a shared topic model across an HCA atlas in two
+stages. A study-balanced cache of frozen TranscriptFormer embeddings is encoded once, with a
+fresh mask for every occurrence of a cell; the topic model is then trained on that cache.
+Inference on new datasets encodes unmasked counts directly and needs no cache. Pathway
+interpretation and the query agent will be added later.
 
 ## Install
 
@@ -39,10 +40,14 @@ as described in [the data guide](data.md).
 | --- | --- |
 | `data/` | HCA acquisition, annotation mapping and full-inventory corpus preparation |
 | `configs/preprocess.yaml` | Count-source policy, QC, sharding and study split |
-| `configs/topic.yaml` | Frozen backbone, topic model and online pretraining settings |
-| `scripts/train_topics.sh` | Single-process or multi-GPU pretraining entrypoint |
-| `src/celllucid/data/atlas.py` | Streaming raw-count batches partitioned across ranks/workers |
-| `src/celllucid/trainer/topic.py` | Frozen forwards and topic updates in one training loop |
+| `configs/topic.yaml` | Frozen backbone, cache, topic model, training and evaluation settings |
+| `scripts/build_cache.sh` | Multi-GPU, resumable encoding of the training cache |
+| `scripts/train_topics.sh` | Single-GPU topic training on a completed cache |
+| `src/celllucid/data/dedup.py` | Cells stored in more than one source file of a study |
+| `src/celllucid/data/cache.py` | Study-balanced cache plan, build and in-memory reader |
+| `src/celllucid/models/topic.py` | Topic model on frozen cells with an OT topic-gene dictionary |
+| `src/celllucid/trainer/topic.py` | Training loop, monitoring, evaluation and checkpoints |
+| `src/celllucid/evaluation.py` | Fixed evaluation pools and their metrics |
 | `tests/` | Numerical and pipeline tests |
 | `docs/` | Flat data, pretraining and future tutorial/figure documentation |
 
@@ -75,111 +80,102 @@ interrupted file is rebuilt. Preserve the original download manifest and matrice
 
 ## Pretrain
 
-Activate the environment before submission. After count preparation, submit one
-GPU job for the complete online training workflow. The training and preparation
-scripts request email on completion or failure; supply the recipient at submission:
+Pretraining runs in three steps after count preparation:
 
 ```bash
-sbatch --account=<account> --partition=<gpu_partition> --gpus=8 \
-  --mail-user=<email> \
-  scripts/train_topics.sh --manifest /path/to/atlas/manifest.json \
-  --output-dir /path/to/run --epochs 3 \
-  --batch-size 128 --encoder-batch-size 16
+python -m celllucid.data.dedup --manifest /path/to/atlas/manifest.json \
+  --output runs/corpus_dedup/duplicates.json
+NPROC_PER_NODE=4 bash scripts/build_cache.sh --manifest /path/to/atlas/manifest.json \
+  --output /path/to/run/cache
+bash scripts/train_topics.sh --cache /path/to/run/cache --output-dir /path/to/run
 ```
 
-For a workstation, run acquisition, preprocessing and pretraining sequentially:
+For a workstation, `NPROC_PER_NODE=4 bash scripts/pretrain_atlas.sh /path/to/HCA /path/to/run`
+runs acquisition, preprocessing, deduplication, cache building, training and export in
+sequence. Each step resumes: completed downloads, preprocessing sources, the duplicate list,
+finished cache parts and the latest training checkpoint are reused. Progress is recorded in
+`<run>/pipeline_status.txt`.
 
-```bash
-NPROC_PER_NODE=4 bash scripts/pretrain_atlas.sh /path/to/HCA /path/to/run
-```
+### Training cache
 
-Set `PYTHON_BIN` to the active environment's interpreter when needed. The pipeline
-uses three epochs and the settings in `configs/topic.yaml`. It resumes downloads,
-completed preprocessing sources and an existing latest training checkpoint.
-Progress is recorded in `<run>/pipeline_status.txt`; keep the process running in a
-persistent session or launch it detached with its output redirected to a log.
+Every training study contributes `cache.samples_per_study` samples. A study's eligible cells
+exclude dropped duplicates, the evaluation-pool cells and every duplicate copy of an
+evaluation cell. They are shuffled in passes, and pass p gives each cell its p-th occurrence
+with mask view 1000 + p, so small studies are upsampled without ever repeating a mask. A part
+stores FP16 embeddings, the hidden-gene set as packed bits and the nonzero hidden counts.
+`identity.json` records the corpus, backbone, duplicate list, evaluation cells and plan;
+training and export check it.
 
-The epoch count is an explicit experiment choice. `--batch-size` is the number
-of cells per optimizer update per rank; `--encoder-batch-size` controls the frozen
-forward microbatch within that update. Values are used as supplied without
-memory-based reduction. `NPROC_PER_NODE` defaults to the number of allocated
-Slurm GPUs; it can be set explicitly for direct `torchrun` use. Single-node
-multi-GPU training uses DDP for topic and projection parameters and one frozen backbone
-replica per GPU. Submit from the repository root or set `CELLLUCID_ROOT`.
+The cache also holds a study-balanced initialization sample (mask view 1, plus an unmasked
+encoding of the same cells). It gives the k-means topics, the training mean of masked
+embeddings, the inference mean of unmasked embeddings and the empirical gene marginal.
 
-All training shards contribute to one shared topic bank. Shards and cell rows
-are shuffled each epoch without building an atlas-wide cell index in RAM. Masks
-are fresh per cell and epoch; validation uses fixed masks on held-out studies.
-Measured zero expression and unavailable genes remain distinct. Distributed
-training repeats initial batches only to fill its final synchronized step; all
-validation cells are evaluated once globally.
+The backbone compiles flex attention and the whole model (`compile_attention`,
+`compile_model`). Inputs are padded to a fixed sequence length and the last microbatch is
+padded to `encoder_batch_size`, so shapes stay static. On one GPU this encodes about 106
+cells per second against 11 with eager attention, with embeddings within cosine 0.99999.
 
-Trainable parameters are topic embeddings and a residual cell projection
-(2048 -> 512 -> 2048 with GELU). Its final layer starts at zero, making the
-projection initially the identity. Cell-topic assignments use cosine softmax on
-projected cells. Gene vectors and TranscriptFormer remain frozen.
+### Model and objective
 
-The objective is `masked_ce + ot_weight * ot_clustering`. The second term is the
-regularized OT value `<P,C> + epsilon * KL(P || a*b)` with cosine cost, uniform
-topic marginal and the fixed gene marginal. The same transport plan defines the
-shared gene dictionary. Gradients from reconstruction reach both the topic bank
-and cell projection; OT clustering updates the topic bank. DDP averages the
-shared OT term once and weights reconstruction by each rank's usable cell count.
+Cells keep their frozen geometry: an embedding minus the training mean is scored against unit
+topic vectors by cosine, and a softmax at temperature 0.1 gives the assignment. There is no
+cell projection. A gene tower maps the frozen gene vectors through an orthogonal linear map
+(identity at initialization), which preserves every cosine between genes. Entropic OT
+(epsilon 0.03, 200 iterations) with a uniform topic marginal and the empirical gene marginal
+turns cos(topic, mapped gene) into the dictionary. The topic-averaged dictionary therefore
+equals the gene marginal, so balanced topic usage reproduces the population expression
+profile.
 
-`configs/topic.yaml` sets 128 topics, residual hidden dimension 512, OT weight
-10.0, epsilon 0.03 and 200 Sinkhorn iterations for the revised experiment. These
-are starting settings, not a guarantee against collapse. Check marginal errors,
-held-out reconstruction and diversity during short validation before a long run.
+The only loss is masked compositional CE on hidden genes. The OT plan is a constrained
+normalization of the cosines, not an objective. Row-normalized, it is a softmax over genes of
+cos(topic, mapped gene) / epsilon plus a gene bias shared by all topics, which Sinkhorn sets so
+that the topics average to the gene marginal. CE reaches the topics through both the
+assignment and the dictionary, and reaches the gene map through the unrolled Sinkhorn
+iterations. One iteration is compiled (`compile_sinkhorn`).
 
-Checkpoints save topic/projection/optimizer state and the next batch cursor, not the frozen
-backbone. Resume with the same corpus/settings/world size and
-`--resume /path/to/run/checkpoints/latest`. `--max-steps` sets an explicit total
-optimizer-step limit. After all epochs finish, the best validation-CE checkpoint is exported to
-`<run>/topic_bank/`. Explicit `--max-steps` stops save resumable checkpoints
-without creating a release bank. Completed banks contain
-topics, the residual projection, a fixed gene dictionary, ordered genes and provenance. No cell embeddings
-are written during pretraining.
+The OT value is deliberately not minimized. The dictionary depends only on how a topic's
+cosines differ across genes, while the OT value rewards their absolute level, so it pulls
+topics out of the cell space toward their genes. In a 1000-step pilot with weight 3, two thirds
+of each topic's norm left the cell subspace, assignments flattened (held-out cell-topic MI
+0.35 against 0.81 without it), and held-out CE gain and pair-ranking AUC were lower.
 
-Training records reconstruction loss and detached topic diagnostics in
-`<run>/metrics.jsonl` at initialization, after the first forward, every logging
-interval and at epoch boundaries. Forward diagnostics are labeled `before_update`;
-checkpoints contain the updated weights. Cell-usage statistics are summed across
-all DDP ranks and cover the cells in the logging window or epoch segment since
-resume. Existing running processes require restart to load the instrumentation.
+Training uses one device. Samples are read in a fixed random order and each is used at most
+once; the step budget must fit in the cache. Checkpoints in
+`<run>/checkpoints/latest` hold weights, optimizer and RNG state and the step; `--resume`
+continues from them and reproduces an uninterrupted run. `--max-steps` stops early without
+changing the schedule.
 
-- `topic_cosine_mean`, `topic_cosine_p95` and
-  `topic_duplicate_pair_fraction_099` measure redundancy of normalized topic vectors.
-- `topic_effective_dimension` is the exponential entropy of the normalized
-  eigenvalues of the topic Gram matrix; identical directions give one.
-- `gene_dictionary_jsd` is the Jensen-Shannon divergence across equally weighted
-  topic-gene distributions in nats; identical programs give zero.
-- `usage_effective_topics` is exp(H(mean cell-topic usage));
-  `cell_effective_topics_mean` is the mean of exp(H(usage)) across cells.
-- `usage_max_probability`, `usage_low_mass_fraction` (mean usage below 0.1/K),
-  `cell_topic_mutual_information` and `topic_mean_usage` describe assignment
-  concentration, low-usage topics and variation across cells.
+### Monitoring
 
-These are monitoring statistics and do not contribute gradients or penalties.
-High diversity alone does not establish coherent biological programs, and uniform
-cell assignments can inflate the effective topic count. Interpret geometry,
-gene programs and cell usage together with held-out reconstruction.
+`<run>/metrics.jsonl` records, on training batches: CE, its gain over predicting the gene
+marginal for every cell, the mean cell effective number of topics, the mean cosine between a
+cell and its best topic, and the largest topic mass. Falling cell-topic cosine and rising
+cell effective topics indicate topics drifting away from cells and flattening assignments.
+Every `eval_every_steps`, the fixed evaluation pools (`evaluation.pools`) are scored:
+held-out CE gain over the gene marginal, within- and cross-study pair-ranking AUC and cell-topic
+mutual information, with full per-pool results and the unmasked inference readout.
+
+The pools are a fixed local artifact (`runs/eval_pools`, described by its README), not built by
+this repository. The cache excludes their cells (`cache.evaluation_pools`) so they never enter
+training. Set both `cache.evaluation_pools` and `evaluation.pools` to `null` to train without
+them.
 
 ## Promote and publish a completed bank
 
 The standard local run directory is `runs/hca_pretraining`. Its checkpoints and
-logs remain there. After the three-epoch pipeline completes, it promotes the
-selected topic bank to `assets/topic_bank` automatically. Promotion validates the
+logs remain there. After training completes, the pipeline exports the latest checkpoint and promotes the
+topic bank to `assets/topic_bank` automatically. Promotion validates the
 package and copies only `topics.safetensors`, `genes.json` and `manifest.json`.
 A repeated promotion replaces those release files without copying training state.
 
 ```text
 runs/hca_pretraining/
+  cache/                      # Training cache and initialization sample
   checkpoints/latest/
-  checkpoints/best/
-  topic_bank/                 # Best validation-CE checkpoint exported at completion
+  topic_bank/                 # Exported from the final checkpoint
 assets/
   tf_sapiens/                 # Separate frozen backbone
-  topic_bank/                 # User-facing topic bank and residual projection
+  topic_bank/                 # User-facing topic bank
 ```
 
 This follows scCAFM's checkpoint-package -> local-assets -> explicit Hub upload
@@ -226,13 +222,6 @@ preserving scientific results. The marked integration test requires real backbon
 assets and an accelerator. Full GPU throughput should be benchmarked for the
 chosen context, precision and batch sizes before a long pretraining run.
 
-Revised checkpoints use format 4 and topic banks use format 3 to include the
-projection. Earlier architecture checkpoints cannot resume the revised model. Select the best bank using held-out reconstruction,
-with diversity diagnostics used to identify degenerate solutions. The initial
-OT weight was chosen from a real masked-batch gradient check: unweighted OT
-prototype gradients were about 40 times smaller than reconstruction gradients.
-Weight 10 makes the OT contribution about one quarter of that reconstruction
-prototype gradient norm on this batch. This calibration is not evidence of an
-optimal weight. At epsilon 0.03, 200 Sinkhorn iterations reduced the initial
-maximum topic-marginal error to about 5.4e-8. The dictionary gene-marginal error is
-also recorded during training as `dictionary_gene_marginal_max_error`.
+Checkpoints use format 5 and topic banks format 4. A bank stores normalized topics, the
+dictionary, the gene marginal, both cell means and the gene map; `TopicBank.transform` centers
+unmasked embeddings by the inference mean. Earlier checkpoints and banks cannot be loaded.

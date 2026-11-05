@@ -1,5 +1,4 @@
 import json
-from pathlib import Path
 import anndata as ad
 import h5py
 import numpy as np
@@ -7,9 +6,12 @@ import pandas as pd
 import torch
 from scipy import sparse
 from data.prepare_topics import prepare
-from celllucid.data.atlas import AtlasBatches
-from celllucid.trainer.topic import train, forward_batch
-from celllucid.tasks.topic_bank import TopicBank
+from celllucid.checkpoint import load_checkpoint
+from celllucid.data.cache import TrainingCache, build_cache, cache_initialization, excluded_cells
+from celllucid.data.masking import TRAINING_VIEW_OFFSET, hidden_mask, masked_views
+from celllucid.models.initialization import empty_model
+from celllucid.trainer.topic import train
+from celllucid.tasks.topic_bank import TopicBank, export_topic_bank
 
 
 class VisibleEncoder(torch.nn.Module):
@@ -29,7 +31,7 @@ class VisibleEncoder(torch.nn.Module):
         return torch.tensor([[i + 1, i % 2 + 1, i % 3 + 1] for i in range(len(genes))]).float()
 
     @torch.no_grad()
-    def encode(self, counts, genes, obs=None):
+    def encode(self, counts, genes, obs=None, pad_to=None):
         return torch.tensor(
             np.column_stack([counts.sum(1), counts[:, 0] + 1, counts[:, 1] + 1])
         ).float()
@@ -103,75 +105,96 @@ def corpus(tmp_path):
     return output / "manifest.json", manifest
 
 
-def settings():
+def settings(tmp_path, manifest):
+    duplicates = tmp_path / "duplicates.json"
+    duplicates.write_text(json.dumps({"manifest_identity": manifest["identity"], "duplicate_of": {}}))
     return {
         "backbone": {"device": "cpu"},
-        "model": {"n_topics": 3, "ot_iterations": 20, "projection_hidden": 8},
-        "training": {
-            "seed": 42,
-            "batch_size": 4,
-            "encoder_batch_size": 2,
-            "workers": 0,
-            "mask_fraction": 0.4,
-            "ot_weight": 1.0,
-            "optimizer": {"lr": 0.005},
-            "grad_clip": 1.0,
-            "save_every_steps": 2,
-            "log_every_steps": 100,
-        },
+        "cache": {"seed": 42, "samples_per_study": 30, "mask_fraction": 0.4, "encoder_batch_size": 4,
+                  "chunk_samples": 16, "initialization_cells_per_study": 16, "duplicates": str(duplicates),
+                  "evaluation_pools": None},
+        "model": {"n_topics": 3, "temperature": 0.1, "ot_epsilon": 0.1, "ot_iterations": 50,
+                  "gene_prior_uniform_share": 0.01, "kmeans_iterations": 10},
+        "training": {"seed": 42, "device": "cpu", "batch_size": 8, "steps": 3,
+                     "compile_sinkhorn": False, "optimizer": {"lr": 0.01, "weight_decay": 0.0},
+                     "grad_clip": 1.0, "log_every_steps": 1, "eval_every_steps": 1, "save_every_steps": 1},
+        "evaluation": {"pools": None},
     }
 
 
-def test_inventory_coverage_shards_and_distributed_partition(tmp_path):
+def test_inventory_coverage_and_study_split(tmp_path):
     _, manifest = corpus(tmp_path)
     assert manifest["source_files"] == 4 and manifest["included_files"] == 2
     assert manifest["excluded_files"] == 1 and manifest["cells"] == 40
-    train = {s["study_id"] for s in manifest["shards"] if s["split"] == "train"}
-    val = {s["study_id"] for s in manifest["shards"] if s["split"] == "validation"}
-    assert train.isdisjoint(val)
+    train_studies = {s["study_id"] for s in manifest["shards"] if s["split"] == "train"}
+    validation = {s["study_id"] for s in manifest["shards"] if s["split"] == "validation"}
+    assert train_studies.isdisjoint(validation)
     for shard in manifest["shards"]:
         assert shard["cells"] <= 7
-    rank0 = list(AtlasBatches(manifest, "train", 4, 42, rank=0, world_size=2))
-    rank1 = list(AtlasBatches(manifest, "train", 4, 42, rank=1, world_size=2))
-    assert len(rank0) == len(rank1)
-    cells = {v for batch in rank0 + rank1 for v in batch["cell_ids"]}
-    assert len(cells) == 20
 
 
-def test_online_masking_and_topic_head_training(tmp_path):
+def test_excluded_cells_cover_evaluation_twins():
+    duplicate_of = {"copy_a": "kept_a", "copy_b": "kept_b"}
+    assert excluded_cells(duplicate_of, ["copy_a", "kept_b", "other"]) == {
+        "copy_a", "copy_b", "kept_a", "kept_b", "other"}
+
+
+def test_cache_is_study_balanced_and_never_repeats_a_mask(tmp_path):
     path, manifest = corpus(tmp_path)
-    config = settings()
-    encoder = VisibleEncoder()
-    from torch.utils.data import DataLoader
+    config = settings(tmp_path, manifest)
+    result = build_cache(config, path, tmp_path / "cache", backbone=VisibleEncoder())
+    cache = TrainingCache(tmp_path / "cache")
+    studies = {s["study_id"] for s in manifest["shards"] if s["split"] == "train"}
+    assert len(cache) == result["samples"] == 30 * len(studies)
+    assert all((cache.study == study).sum() == 30 for study in studies)
+    records = []
+    for part in sorted((tmp_path / "cache").glob("part_*.h5")):
+        with h5py.File(part, "r") as handle:
+            records += list(zip(handle["cell_id"].asstr()[:], handle["view"][:], handle["hidden_bits"][:]))
+    occurrences = {}
+    for cell, view, bits in records:
+        occurrences.setdefault(cell, []).append((int(view), bits.tobytes()))
+    assert max(len(v) for v in occurrences.values()) == 2
+    for found in occurrences.values():
+        assert sorted(view for view, _ in found) == list(range(TRAINING_VIEW_OFFSET, TRAINING_VIEW_OFFSET + len(found)))
+        assert len({bits for _, bits in found}) == len(found)
+    first = next(s["path"] for s in manifest["shards"] if s["split"] == "train")
+    with h5py.File(first, "r") as handle:
+        cell = handle["cell_ids"].asstr()[0]
+        counts = ad.io.sparse_dataset(handle["X"])[np.array([0]), :].toarray().astype("f4")
+        available = handle["available"][:]
+    index = next(i for i, (c, _, _) in enumerate(records) if c == cell)
+    view = int(records[index][1])
+    visible, hidden = masked_views(counts, [cell], available, fraction=0.4, seed=42, view=view)
+    h, x, hidden_batch = cache.batch(np.array([index]), "cpu")
+    torch.testing.assert_close(h, VisibleEncoder().encode(visible, VisibleEncoder.genes).half().float())
+    torch.testing.assert_close(hidden_batch, torch.from_numpy(hidden))
+    torch.testing.assert_close(x, torch.from_numpy(counts * hidden))
+    np.testing.assert_array_equal(hidden, hidden_mask([cell], available, fraction=0.4, seed=42, view=view))
+    initialization = cache_initialization(tmp_path / "cache")
+    assert initialization["masked"].shape == (16 * len(studies), 3)
+    assert np.isclose(initialization["proportion_mean"].sum(), 1)
 
-    batch = next(iter(DataLoader(AtlasBatches(manifest, "train", 4, 42), batch_size=None)))
-    h, counts, hidden = forward_batch(encoder, batch, encoder.genes, config["training"], 0)
-    torch.testing.assert_close(h[:, 0], (counts * ~hidden).sum(1))
-    _, _, other = forward_batch(encoder, batch, encoder.genes, config["training"], 1)
-    assert not torch.equal(hidden, other)
-    result = train(config, path, tmp_path / "run", 1, backbone=encoder)
-    assert result["topic_update_norm"] > 0 and encoder.anchor.grad is None
-    assert not encoder.anchor.requires_grad
-    assert not list((tmp_path / "run").glob("*.h5"))
 
-
-def test_online_resume_matches_continuous(tmp_path):
-    path, _ = corpus(tmp_path)
-    config = settings()
-    train(config, path, tmp_path / "resumed", 2, max_steps=1, backbone=VisibleEncoder())
-    assert not (tmp_path / "resumed/topic_bank").exists()
-    resumed = train(
-        config,
-        path,
-        tmp_path / "resumed",
-        2,
-        resume=tmp_path / "resumed/checkpoints/latest",
-        backbone=VisibleEncoder(),
-    )
-    continuous = train(config, path, tmp_path / "continuous", 2, backbone=VisibleEncoder())
-    a = TopicBank(Path(resumed["output_dir"]) / "topic_bank")
-    b = TopicBank(Path(continuous["output_dir"]) / "topic_bank")
-    assert a.manifest["training"]["checkpoint_selection"] == "best_validation_ce"
-    torch.testing.assert_close(a.topics, b.topics, rtol=0, atol=0)
-    for name, value in a.projection.state_dict().items():
-        torch.testing.assert_close(value, b.projection.state_dict()[name], rtol=0, atol=0)
+def test_training_resume_matches_continuous_and_exports(tmp_path):
+    path, manifest = corpus(tmp_path)
+    config = settings(tmp_path, manifest)
+    build_cache(config, path, tmp_path / "cache", backbone=VisibleEncoder())
+    continuous = train(config, tmp_path / "cache", tmp_path / "continuous")
+    train(config, tmp_path / "cache", tmp_path / "resumed", max_steps=1)
+    resumed = train(config, tmp_path / "cache", tmp_path / "resumed", resume=True)
+    assert continuous["step"] == resumed["step"] == 3
+    gene_vectors = cache_initialization(tmp_path / "cache")["gene_vectors"]
+    models = []
+    for run in ("continuous", "resumed"):
+        model = empty_model(gene_vectors, config["model"], "cpu", False)
+        load_checkpoint(tmp_path / run / "checkpoints/latest", model)
+        models.append(model)
+    for name, value in models[0].state_dict().items():
+        torch.testing.assert_close(value, models[1].state_dict()[name], rtol=0, atol=0)
+    log = [json.loads(line) for line in (tmp_path / "continuous/metrics.jsonl").open()]
+    assert {"ce_gain_over_background", "cell_effective_topics", "cell_topic_cosine", "max_topic_mass"} <= set(log[0])
+    bank = TopicBank(export_topic_bank(models[0], VisibleEncoder.genes, tmp_path / "bank",
+                                       backbone={"fingerprint": "fixed-test-backbone"}))
+    h = torch.randn(5, 3) + 10
+    torch.testing.assert_close(bank.transform(h), models[0].theta(h, inference=True))

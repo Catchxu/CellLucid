@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Run HCA acquisition, count preparation and shared-topic pretraining in sequence.
+# Run HCA acquisition, count preparation, deduplication, cache building and topic pretraining in sequence.
 # Usage: PYTHON_BIN=/path/to/python NPROC_PER_NODE=4 bash scripts/pretrain_atlas.sh /path/to/HCA /path/to/run
 set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -23,12 +23,25 @@ if [[ ! -f assets/gene_symbols.json ]]; then
 fi
 printf 'preprocess\n' > "${OUTPUT_DIR}/pipeline_status.txt"
 bash data/prepare_topics.sh --manifest "${HCA_ROOT}/manifest.json" --output-dir "${HCA_ROOT}/pretraining"
+printf 'deduplicate\n' > "${OUTPUT_DIR}/pipeline_status.txt"
+if [[ ! -f runs/corpus_dedup/duplicates.json ]]; then
+  mkdir -p runs/corpus_dedup
+  "${PYTHON_BIN}" -m celllucid.data.dedup --manifest "${HCA_ROOT}/pretraining/manifest.json" \
+    --output runs/corpus_dedup/duplicates.json
+fi
+printf 'cache\n' > "${OUTPUT_DIR}/pipeline_status.txt"
+bash scripts/build_cache.sh --manifest "${HCA_ROOT}/pretraining/manifest.json" --output "${OUTPUT_DIR}/cache"
 printf 'pretrain\n' > "${OUTPUT_DIR}/pipeline_status.txt"
 RESUME_ARGS=()
 if [[ -f "${OUTPUT_DIR}/checkpoints/latest/checkpoint.json" ]]; then
-  RESUME_ARGS=(--resume "${OUTPUT_DIR}/checkpoints/latest")
+  RESUME_ARGS=(--resume)
 fi
-bash scripts/train_topics.sh --manifest "${HCA_ROOT}/pretraining/manifest.json" --output-dir "${OUTPUT_DIR}" --epochs 3 --batch-size 128 --encoder-batch-size 16 "${RESUME_ARGS[@]}"
+bash scripts/train_topics.sh --cache "${OUTPUT_DIR}/cache" --output-dir "${OUTPUT_DIR}" "${RESUME_ARGS[@]}"
+printf 'export\n' > "${OUTPUT_DIR}/pipeline_status.txt"
+if [[ ! -d "${OUTPUT_DIR}/topic_bank" ]]; then
+  "${PYTHON_BIN}" -m celllucid.tasks.topic_bank --checkpoint "${OUTPUT_DIR}/checkpoints/latest" \
+    --cache "${OUTPUT_DIR}/cache" --output "${OUTPUT_DIR}/topic_bank"
+fi
 printf 'promote\n' > "${OUTPUT_DIR}/pipeline_status.txt"
 bash scripts/push_ckpt.sh --checkpoint-dir "${OUTPUT_DIR}/topic_bank" --assets-dir "${ROOT_DIR}/assets" --push-hf 0
 printf 'completed\n' > "${OUTPUT_DIR}/pipeline_status.txt"

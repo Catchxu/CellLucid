@@ -1,8 +1,9 @@
 # HCA acquisition and atlas preprocessing
 
 The `data/` directory contains the HCA downloader, its configuration, gene annotation
-mapping and full-inventory preprocessing. Sparse training counts are consumed
-online by the topic trainer; there is no embedding-extraction stage.
+mapping and full-inventory preprocessing. Pretraining then deduplicates cells stored in
+several source files, encodes a study-balanced embedding cache and trains on that cache; see
+[pretraining](pretraining.md).
 
 ## Acquire data and annotation
 
@@ -88,21 +89,20 @@ requires a new output directory. Original downloads and metadata are read-only.
 Sparse payloads are streamed in bounded batches. Cell metadata is held for the
 current source file rather than materializing metadata for the whole atlas.
 
-## One online pretraining job
+## Deduplicate, cache and pretrain
 
 After preparation finishes:
 
 ```bash
-sbatch --account=<account> --partition=<gpu_partition> --gpus=8 \
-  --mail-user=<email> \
-  scripts/train_topics.sh --manifest /path/to/atlas/manifest.json \
-  --output-dir /path/to/run --epochs 3 \
-  --batch-size 128 --encoder-batch-size 16
+python -m celllucid.data.dedup --manifest /path/to/atlas/manifest.json \
+  --output runs/corpus_dedup/duplicates.json
+NPROC_PER_NODE=4 bash scripts/build_cache.sh --manifest /path/to/atlas/manifest.json \
+  --output /path/to/run/cache
+bash scripts/train_topics.sh --cache /path/to/run/cache --output-dir /path/to/run
 ```
 
-This job reads raw-count shards, creates fresh masks, runs frozen TranscriptFormer
-forwards and updates the shared topics in the same loop. It does not create an
-embedding cache or train independent topic models for individual H5AD files.
-Forward microbatches and topic optimization batches are controls within that one
-process per GPU. DDP synchronizes topic and residual-projection gradients across allocated GPUs.
-See [pretraining](pretraining.md) for checkpoint/resume semantics and the [root README](../README.md) for inference.
+Deduplication finds cells deposited in more than one file of a study (the same barcode with
+matching counts on shared genes) and keeps the copy with the most measured genes. Prepared
+shards are not modified. The cache builder reads raw-count shards, masks each occurrence of a
+cell with its own view and encodes it once with the frozen TranscriptFormer; training then
+reads only the cache. See [pretraining](pretraining.md) for checkpoint/resume semantics and the [root README](../README.md) for inference.

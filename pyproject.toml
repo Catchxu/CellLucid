@@ -22,6 +22,8 @@ dev = ["pytest>=8", "ruff>=0.9"]
 # see docs/pretraining.md for upstream dependency compatibility.
 [project.scripts]
 celllucid-preprocess = "celllucid.tasks.preprocess:main"
+celllucid-dedup = "celllucid.data.dedup:main"
+celllucid-build-cache = "celllucid.data.cache:main"
 celllucid-train-topics = "celllucid.trainer.topic:main"
 celllucid-export-topics = "celllucid.tasks.topic_bank:main"
 celllucid-infer = "celllucid.tasks.inference:main"

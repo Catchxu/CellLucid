@@ -20,6 +20,7 @@ class FrozenTranscriptFormer(nn.Module):
         device="cuda",
         max_length=None,
         compile_attention=False,
+        compile_model=False,
         precision="float32",
     ):
         super().__init__()
@@ -56,6 +57,10 @@ class FrozenTranscriptFormer(nn.Module):
         model.load_state_dict(weights, strict=True)
         del weights, matrix
         self.model = model.requires_grad_(False).to(device)
+        if compile_model:
+            # Every cell is padded to the fixed sequence length, so shapes stay static as long
+            # as callers keep the microbatch size fixed (see pad_to in encode).
+            self.model = torch.compile(self.model)
         self.device = torch.device(device)
         self.precision = precision
         if precision not in {"float32", "bfloat16"}:
@@ -131,7 +136,7 @@ class FrozenTranscriptFormer(nn.Module):
         return torch.cat(chunks)
 
     @torch.no_grad()
-    def encode(self, counts, genes, obs=None):
+    def encode(self, counts, genes, obs=None, pad_to=None):
         from transcriptformer.data.dataloader import process_batch
         from transcriptformer.data.dataclasses import BatchData
         from transcriptformer.tokenizer.tokenizer import BatchGeneTokenizer, BatchObsTokenizer
@@ -151,6 +156,12 @@ class FrozenTranscriptFormer(nn.Module):
             if obs is None
             else obs.reset_index(drop=True).copy()
         )
+        cells = len(counts)
+        if pad_to is not None and cells < pad_to:
+            # Repeat the last cell to keep a compiled model on one static batch shape.
+            fill = pad_to - cells
+            counts = np.concatenate([counts, np.repeat(counts[-1:], fill, axis=0)])
+            obs = pd.concat([obs, obs.iloc[[-1] * fill]], ignore_index=True)
         if self.aux_vocab:
             for column in self.aux_vocab:
                 if column not in obs:
@@ -181,7 +192,7 @@ class FrozenTranscriptFormer(nn.Module):
         )
         with context:
             result = self.model(batch, embed=True)
-        embeddings = result["embeddings"].float().detach().cpu()
+        embeddings = result["embeddings"][:cells].float().detach().cpu()
         if not torch.isfinite(embeddings).all():
             raise FloatingPointError("Frozen backbone returned nonfinite embeddings")
         return embeddings
