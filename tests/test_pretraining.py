@@ -7,10 +7,10 @@ import torch
 from scipy import sparse
 from data.prepare_topics import prepare
 from celllucid.checkpoint import load_checkpoint
-from celllucid.data.cache import TrainingCache, build_cache, cache_initialization, excluded_cells
+from celllucid.data.cache import TrainingCache, build_cache, cache_initialization
 from celllucid.data.masking import TRAINING_VIEW, hidden_mask, masked_views
 from celllucid.models.initialization import empty_model
-from celllucid.trainer.topic import train
+from celllucid.trainer.topic import learning_rate, train
 from celllucid.tasks.topic_bank import TopicBank, export_topic_bank
 
 
@@ -106,17 +106,15 @@ def corpus(tmp_path):
 
 
 def settings(tmp_path, manifest):
-    duplicates = tmp_path / "duplicates.json"
-    duplicates.write_text(json.dumps({"manifest_identity": manifest["identity"], "duplicate_of": {}}))
     return {
         "backbone": {"device": "cpu"},
         "cache": {"seed": 42, "mask_fraction": 0.4, "encoder_batch_size": 4,
-                  "chunk_samples": 16, "initialization_cells_per_study": 16, "duplicates": str(duplicates),
+                  "chunk_samples": 16, "initialization_cells_per_study": 16,
                   "evaluation_pools": None},
         "model": {"n_topics": 3, "temperature": 0.1, "ot_epsilon": 0.1, "ot_iterations": 50,
                   "gene_prior_uniform_share": 0.01, "kmeans_iterations": 10},
         "training": {"seed": 42, "device": "cpu", "batch_size": 8,
-                     "compile_sinkhorn": False, "optimizer": {"lr": 0.01, "weight_decay": 0.0},
+                     "compile_sinkhorn": False, "optimizer": {"lr": 0.01, "weight_decay": 0.0}, "warmup_steps": 0, "min_lr": 0.001,
                      "grad_clip": 1.0, "log_every_steps": 1, "eval_every_steps": 1, "save_every_steps": 1},
         "evaluation": {"pools": None},
     }
@@ -131,12 +129,6 @@ def test_inventory_coverage_and_study_split(tmp_path):
     assert train_studies.isdisjoint(validation)
     for shard in manifest["shards"]:
         assert shard["cells"] <= 7
-
-
-def test_excluded_cells_cover_evaluation_twins():
-    duplicate_of = {"copy_a": "kept_a", "copy_b": "kept_b"}
-    assert excluded_cells(duplicate_of, ["copy_a", "kept_b", "other"]) == {
-        "copy_a", "copy_b", "kept_a", "kept_b", "other"}
 
 
 def test_cache_holds_every_eligible_cell_once_with_its_mask(tmp_path):
@@ -171,6 +163,14 @@ def test_cache_holds_every_eligible_cell_once_with_its_mask(tmp_path):
     initialization = cache_initialization(tmp_path / "cache")
     assert initialization["masked"].shape == (16 * len(studies), 3)
     assert np.isclose(initialization["proportion_mean"].sum(), 1)
+
+
+def test_learning_rate_warmup_and_cosine_decay():
+    rates = [learning_rate(step, 10, 1.0, 4, 0.1) for step in range(10)]
+    assert rates[:4] == [0.25, 0.5, 0.75, 1.0]
+    assert rates[4] == 1.0 and abs(rates[-1] - 0.1) < 1e-12
+    assert all(a > b for a, b in zip(rates[4:], rates[5:]))
+    assert {learning_rate(step, 10, 0.5, 0, 0.5) for step in range(10)} == {0.5}
 
 
 def test_training_resume_matches_continuous_and_exports(tmp_path):

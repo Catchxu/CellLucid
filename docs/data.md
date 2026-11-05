@@ -1,10 +1,8 @@
 # HCA acquisition and atlas preprocessing
 
 The `data/` directory contains the HCA downloader, its configuration, gene annotation
-mapping and full-inventory preprocessing. Pretraining then deduplicates cells stored in
-several source files, encodes every remaining cell once into an embedding cache and trains on
-that cache; see
-[pretraining](pretraining.md).
+mapping and full-inventory preprocessing. Pretraining then encodes every prepared training
+cell once into an embedding cache and trains on that cache; see [pretraining](pretraining.md).
 
 ## Acquire data and annotation
 
@@ -90,20 +88,15 @@ requires a new output directory. Original downloads and metadata are read-only.
 Sparse payloads are streamed in bounded batches. Cell metadata is held for the
 current source file rather than materializing metadata for the whole atlas.
 
-## Deduplicate, cache and pretrain
+## Cache and pretrain
 
 After preparation finishes:
 
 ```bash
-python -m celllucid.data.dedup --manifest /path/to/atlas/manifest.json \
-  --output runs/corpus_dedup/duplicates.json
 NPROC_PER_NODE=4 bash scripts/build_cache.sh --manifest /path/to/atlas/manifest.json \
   --output /path/to/run/cache
 bash scripts/train_topics.sh --cache /path/to/run/cache --output-dir /path/to/run
 ```
 
-Deduplication finds cells deposited in more than one file of a study (the same barcode with
-matching counts on shared genes) and keeps the copy with the most measured genes. Prepared
-shards are not modified. The cache builder reads raw-count shards, masks each cell once and
-encodes it with the frozen TranscriptFormer; training then
-reads only the cache. See [pretraining](pretraining.md) for checkpoint/resume semantics and the [root README](../README.md) for inference.
+The cache builder reads raw-count shards, masks each cell once and encodes it with the frozen
+TranscriptFormer; training then reads only the cache. Prepared shards are not modified. See [pretraining](pretraining.md) for checkpoint/resume semantics and the [root README](../README.md) for inference.

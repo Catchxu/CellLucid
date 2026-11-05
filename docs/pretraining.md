@@ -43,7 +43,6 @@ as described in [the data guide](data.md).
 | `configs/topic.yaml` | Frozen backbone, cache, topic model, training and evaluation settings |
 | `scripts/build_cache.sh` | Multi-GPU, resumable encoding of the training cache |
 | `scripts/train_topics.sh` | Single-GPU topic training on a completed cache |
-| `src/celllucid/data/dedup.py` | Cells stored in more than one source file of a study |
 | `src/celllucid/data/cache.py` | Cache plan, build and in-memory reader |
 | `src/celllucid/models/topic.py` | Topic model on frozen cells with an OT topic-gene dictionary |
 | `src/celllucid/trainer/topic.py` | Training loop, monitoring, evaluation and checkpoints |
@@ -80,30 +79,26 @@ interrupted file is rebuilt. Preserve the original download manifest and matrice
 
 ## Pretrain
 
-Pretraining runs in three steps after count preparation:
+Pretraining runs in two steps after count preparation:
 
 ```bash
-python -m celllucid.data.dedup --manifest /path/to/atlas/manifest.json \
-  --output runs/corpus_dedup/duplicates.json
 NPROC_PER_NODE=4 bash scripts/build_cache.sh --manifest /path/to/atlas/manifest.json \
   --output /path/to/run/cache
 bash scripts/train_topics.sh --cache /path/to/run/cache --output-dir /path/to/run
 ```
 
 For a workstation, `NPROC_PER_NODE=4 bash scripts/pretrain_atlas.sh /path/to/HCA /path/to/run`
-runs acquisition, preprocessing, deduplication, cache building, training and export in
-sequence. Each step resumes: completed downloads, preprocessing sources, the duplicate list,
-finished cache parts and the latest training checkpoint are reused. Progress is recorded in
+runs acquisition, preprocessing, cache building, training and export in sequence. Each step
+resumes: completed downloads, preprocessing sources, finished cache parts and the latest training checkpoint are reused. Progress is recorded in
 `<run>/pipeline_status.txt`.
 
 ### Training cache
 
 The cache holds every eligible cell of the training split exactly once, masked with view 2.
-Eligible cells exclude dropped duplicates, the evaluation-pool cells and every duplicate copy
-of an evaluation cell. Studies are neither upsampled nor downsampled, so each enters training in
+Eligible cells exclude the evaluation-pool cells. Studies are neither upsampled nor downsampled, so each enters training in
 proportion to its size. A part stores FP16 embeddings, the hidden-gene set as packed bits and
 the nonzero hidden counts; training holds the whole cache in memory (about 10 KB per cell).
-`identity.json` records the corpus, backbone, duplicate list, evaluation cells and plan;
+`identity.json` records the corpus, backbone, evaluation cells and plan;
 training and export check it.
 
 The cache also holds a study-balanced initialization sample (mask view 1, plus an unmasked
@@ -143,7 +138,13 @@ Training uses one device and is one pass over the cache: the cells are read in a
 permutation (seeded by `training.seed`) in batches of `training.batch_size`, so the number of
 steps is the cache size divided by the batch size, and the last partial batch is dropped.
 Because the permutation is global, a batch's study composition differs from the corpus
-proportions only by sampling noise, and no study arrives in long runs. Checkpoints in
+proportions only by sampling noise, and no study arrives in long runs.
+
+The AdamW learning rate rises linearly to `training.optimizer.lr` over `training.warmup_steps`
+and then follows a cosine decay to `training.min_lr` at the last step; `warmup_steps: 0` with
+`min_lr` equal to the peak gives a constant rate. Warmup keeps the first updates from pulling
+the k-means topics away from the cells before the gene map has aligned; the decay lets the
+topics settle instead of drifting at a constant rate. Checkpoints in
 `<run>/checkpoints/latest` hold weights, optimizer and RNG state and the step; `--resume`
 continues from them and reproduces an uninterrupted run. `--max-steps` stops early without
 changing the schedule.

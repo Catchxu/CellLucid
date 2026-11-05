@@ -1,7 +1,7 @@
 """Training cache of frozen embeddings: every eligible cell once, with its own mask.
 
-Plan. The cache holds every eligible cell exactly once (train split, not a dropped duplicate,
-not an evaluation-pool cell or a duplicate copy of one), masked with TRAINING_VIEW. Studies
+Plan. The cache holds every eligible cell exactly once (train split, not an evaluation-pool
+cell), masked with TRAINING_VIEW. Studies
 therefore enter training in proportion to their size; training reads the cache in one random
 order. A study-balanced initialization sample is encoded with INITIALIZATION_VIEW and without a
 mask; it provides the k-means topics, the training and inference cell means and the empirical
@@ -26,18 +26,11 @@ import pandas as pd
 import torch
 import torch.distributed as dist
 
-from ..config import file_digest, fingerprint, load_config, write_json
+from ..config import fingerprint, load_config, write_json
 from .masking import INITIALIZATION_VIEW, TRAINING_VIEW, masked_views
 
 VIEW_RULE = (f"each training cell uses mask view {TRAINING_VIEW}; "
              f"the initialization sample uses view {INITIALIZATION_VIEW} and an unmasked encoding")
-
-
-def excluded_cells(duplicate_of, evaluation_ids):
-    """Dropped duplicates, evaluation cells, and every duplicate copy of an evaluation cell."""
-    evaluation_ids = set(evaluation_ids)
-    twins = {kept for dropped, kept in duplicate_of.items() if dropped in evaluation_ids}
-    return set(duplicate_of) | evaluation_ids | twins
 
 
 def eligible_cells(manifest, excluded):
@@ -166,12 +159,9 @@ def build_cache(config, manifest_path, output, *, backbone=None):
     settings = config["cache"]
     output = Path(output).resolve()
     manifest = json.loads(Path(manifest_path).read_text())
-    duplicates = json.loads(Path(settings["duplicates"]).read_text())
-    if duplicates["manifest_identity"] != manifest["identity"]:
-        raise ValueError("Duplicate list was computed for a different corpus")
     evaluation = ([] if settings["evaluation_pools"] is None else
                   [c["cell_id"] for c in json.loads((Path(settings["evaluation_pools"]) / "cells.json").read_text())["cells"]])
-    eligible = eligible_cells(manifest, excluded_cells(duplicates["duplicate_of"], evaluation))
+    eligible = eligible_cells(manifest, set(evaluation))
     samples = training_plan(eligible)
     chunks = [samples[i:i + settings["chunk_samples"]] for i in range(0, len(samples), settings["chunk_samples"])]
     genes = json.loads(Path(manifest["genes_path"]).read_text())
@@ -183,7 +173,6 @@ def build_cache(config, manifest_path, output, *, backbone=None):
         "manifest_identity": manifest["identity"],
         "backbone_fingerprint": backbone.identity()["fingerprint"],
         "genes": genes,
-        "duplicates_digest": file_digest(settings["duplicates"]),
         "evaluation_cells_digest": fingerprint(sorted(evaluation)),
         "settings": {k: settings[k] for k in ("seed", "mask_fraction", "chunk_samples",
                                                "initialization_cells_per_study")},

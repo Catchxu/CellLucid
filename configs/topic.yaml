@@ -14,7 +14,6 @@ cache:
   encoder_batch_size: 64
   chunk_samples: 8192
   initialization_cells_per_study: 256
-  duplicates: runs/corpus_dedup/duplicates.json
   evaluation_pools: runs/eval_pools
 model:
   n_topics: 128
@@ -29,8 +28,10 @@ training:
   batch_size: 2048
   compile_sinkhorn: true
   optimizer:
-    lr: 0.001
+    lr: 0.001  # peak learning rate
     weight_decay: 0.0
+  warmup_steps: 200
+  min_lr: 1.0e-05
   grad_clip: 1.0
   log_every_steps: 50
   eval_every_steps: 200

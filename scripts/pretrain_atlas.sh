@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Run HCA acquisition, count preparation, deduplication, cache building and topic pretraining in sequence.
+# Run HCA acquisition, count preparation, cache building and topic pretraining in sequence.
 # Usage: PYTHON_BIN=/path/to/python NPROC_PER_NODE=4 bash scripts/pretrain_atlas.sh /path/to/HCA /path/to/run
 set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -23,12 +23,6 @@ if [[ ! -f assets/gene_symbols.json ]]; then
 fi
 printf 'preprocess\n' > "${OUTPUT_DIR}/pipeline_status.txt"
 bash data/prepare_topics.sh --manifest "${HCA_ROOT}/manifest.json" --output-dir "${HCA_ROOT}/pretraining"
-printf 'deduplicate\n' > "${OUTPUT_DIR}/pipeline_status.txt"
-if [[ ! -f runs/corpus_dedup/duplicates.json ]]; then
-  mkdir -p runs/corpus_dedup
-  "${PYTHON_BIN}" -m celllucid.data.dedup --manifest "${HCA_ROOT}/pretraining/manifest.json" \
-    --output runs/corpus_dedup/duplicates.json
-fi
 printf 'cache\n' > "${OUTPUT_DIR}/pipeline_status.txt"
 bash scripts/build_cache.sh --manifest "${HCA_ROOT}/pretraining/manifest.json" --output "${OUTPUT_DIR}/cache"
 printf 'pretrain\n' > "${OUTPUT_DIR}/pipeline_status.txt"
