@@ -1,105 +1,76 @@
 # CellLucid
 
-**CellLucid enables natural-language querying of single-cell atlases through interpretable topic modeling.**
+**Interpretable topic modeling for single-cell atlases, built toward natural-language querying.**
 
-Use a shared topic bank to describe cells in your own single-cell dataset,
-compare their gene programs, and inspect the genes associated with each topic.
-The current release supports topic-bank inference and inspection. Natural-language
-querying and pathway interpretation are under development.
+CellLucid describes each cell as a mixture of 128 gene programs (topics) learned across the
+Human Cell Atlas. A frozen [TranscriptFormer](https://github.com/czi-ai/transcriptformer)
+(TF-Sapiens) encodes the cells, and a pretrained topic bank turns each embedding into topic
+usage. Each topic is defined by a distribution over genes. The natural-language query agent is
+under development.
 
 ## Installation
 
-Use Python >=3.11 and a CUDA-enabled PyTorch installation compatible with your GPU:
+Use Python ≥ 3.11 with a CUDA build of PyTorch for your GPU, then install CellLucid and the
+pinned TranscriptFormer source:
 
 ```bash
+git clone https://github.com/Catchxu/CellLucid.git && cd CellLucid
 python -m pip install -e ".[backbone]"
+git clone https://github.com/czi-ai/transcriptformer.git assets/transcriptformer_source
+git -C assets/transcriptformer_source checkout c943a89a4de9511a8ab1010715bf1cfa8827cc99
+python -m pip install --no-deps -e assets/transcriptformer_source
 ```
 
-Inference requires an exported CellLucid topic bank and its matching frozen
-[TranscriptFormer TF-Sapiens](https://virtualcellmodels.cziscience.com/model/transcriptformer)
-backbone. Keep the bank's files together, including `manifest.json`, `genes.json`
-and `topics.safetensors`. Backbone dependency and asset setup are described in
-[the setup guide](docs/pretraining.md#install). A public CellLucid topic-bank
-release is not yet available.
-
-## Topic-bank assets
-
-The local release package lives in `assets/topic_bank/`. Once the dedicated
-Hugging Face repository is available, download and load the same package with:
-
-```python
-from celllucid.tasks.topic_bank import TopicBank
-
-bank = TopicBank.from_pretrained(
-    "your-org/CellLucid", repo_type="space", local_dir="assets"
-)
-```
-
-`your-org/CellLucid` is a placeholder for the future repository. A model repository
-is also supported by setting `repo_type="model"`. Downloads select only the three
-files under `topic_bank/`; the frozen backbone remains a separate dependency.
-
-## Apply a topic bank to your data
-
-Start with an H5AD containing raw integer counts and Ensembl gene identifiers.
-The example below reads counts from `layers/counts` and gene IDs from
-`adata.var["feature_id"]`:
+Download the model assets into `assets/`. They contain the TF-Sapiens weights and both topic
+banks:
 
 ```bash
-bash scripts/preprocess.sh \
-  --input /path/to/input.h5ad --output /path/to/counts.h5ad \
+hf download <repo-id> --local-dir assets
+```
+
+## Usage
+
+Start from an H5AD with raw integer counts and Ensembl gene IDs. Preprocess it, then assign
+topics:
+
+```bash
+bash scripts/preprocess.sh --input data.h5ad --output counts.h5ad \
   --count-source layers/counts --gene-key feature_id
-
-bash scripts/infer_topics.sh \
-  --input /path/to/counts.h5ad \
-  --topic-bank assets/topic_bank \
-  --output /path/to/topic_usage.h5
+bash scripts/infer_topics.sh --input counts.h5ad --output usage.h5 \
+  --topic-bank assets/topic_banks/default
 ```
 
-Choose `--count-source X` when raw counts are stored in `adata.X`. Gene-symbol
-inputs require an explicit mapping; see [the data guide](docs/data.md).
-`--topic-bank` defaults to `assets/topic_bank`. To download the bank during CLI
-inference, use `--hub-repo-id your-org/CellLucid --hub-repo-type space` instead.
-Set the backbone asset path and inference batch size in `configs/topic.yaml` to
-match the supplied bank. Preprocessing writes a new file and preserves the input.
+Use `--count-source X` when the counts are in `adata.X`. Gene-symbol inputs need an explicit
+mapping; see the [data guide](docs/data.md).
 
-## Read cell-topic assignments
-
-The output stores one row per retained cell and one column per topic:
+Read the usage table and the genes of each topic:
 
 ```python
-import h5py
-import pandas as pd
+import h5py, pandas as pd
+from celllucid import TopicBank
 
-with h5py.File("/path/to/topic_usage.h5", "r") as handle:
-    cell_ids = handle["cell_ids"].asstr()[:]
-    usage = pd.DataFrame(handle["theta"][:], index=cell_ids)
+with h5py.File("usage.h5") as f:
+    usage = pd.DataFrame(f["theta"][:], index=f["cell_ids"].asstr()[:])  # cells x topics, rows sum to 1
 
-usage.columns = [f"topic_{i}" for i in usage.columns]
-print(usage.head())
+bank = TopicBank("assets/topic_banks/default")
+for topic, genes in enumerate(bank.top_genes(n=10)):
+    print(topic, [g["gene"] for g in genes])
 ```
 
-Each row sums to one and represents a mixture of gene programs. Align cells to
-your annotations using the saved cell IDs. `gene_available` records which bank
-genes were measured in the input dataset.
+## Choosing a topic bank
 
-## Inspect topic-associated genes
+| Bank | Topics are defined without | Best for |
+| --- | --- | --- |
+| `default` | mitochondrial, ribosomal-protein and TCR/BCR V-segment genes | interpreting programs, comparing cell types across studies, querying |
+| `all_genes` | (nothing excluded) | quality control, technical or sample-level analysis, full-profile reconstruction |
 
-```python
-from celllucid.tasks.topic_bank import TopicBank
+Both banks assign topics from the same embeddings, and each takes about 30 MB.
 
-bank = TopicBank("assets/topic_bank")
-for topic_id, genes in enumerate(bank.top_genes(n=20)):
-    print(topic_id, genes)
-```
-
-Gene weights describe each shared program; they are not pathway annotations or
-statistical enrichment results. Topic usage can be summarized by sample, cell
-type or another annotation in your dataset.
-
-## Further documentation
+## More
 
 - [Data sources and gene mapping](docs/data.md)
-- [Pretraining and development](docs/pretraining.md)
+- [Pretraining, design decisions and publishing assets](docs/pretraining.md)
 
-Large datasets, model assets and experiment outputs are excluded from Git.
+CellLucid code is released under GPL-3.0. TF-Sapiens is released by the Chan Zuckerberg
+Initiative under the MIT license, and its use follows CZI's
+[Acceptable Use Policy](https://virtualcellmodels.cziscience.com/acceptable-use-policy).

@@ -29,10 +29,11 @@ the source with `--no-deps` as shown above. Current validation uses PyTorch 2.11
 and AnnData 0.12. Upstream
 source and backbone weights are not modified.
 
-Download [TF-Sapiens](https://czi-transcriptformer.s3.amazonaws.com/weights/tf_sapiens.tar.gz)
-and extract under `assets/tf_sapiens/`, containing `config.json`,
-`model_weights.pt` and `vocabs/`. Obtain the pinned gene annotation and mapping
-as described in [the data guide](data.md).
+The released assets (TF-Sapiens weights, both topic banks and the gene-symbol mapping) are
+downloaded as described in the [README](../README.md). TF-Sapiens can also be fetched from
+[CZI](https://czi-transcriptformer.s3.amazonaws.com/weights/tf_sapiens.tar.gz) and extracted
+under `assets/tf_sapiens/` (`config.json`, `model_weights.pt`, `vocabs/`). Building the gene
+annotation from GENCODE is described in [the data guide](data.md).
 
 ## Repository
 
@@ -113,7 +114,7 @@ cells per second against 11 with eager attention, with embeddings within cosine 
 ### Model and objective
 
 Cells keep their frozen geometry: an embedding minus the training mean is scored against unit
-topic vectors by cosine, and a softmax at temperature 0.1 gives the assignment. There is no
+topic vectors by cosine, and a softmax at temperature 0.05 gives the assignment. There is no
 cell projection. A gene tower maps the frozen gene vectors through an orthogonal linear map
 (identity at initialization), which preserves every cosine between genes. Entropic OT
 (epsilon 0.03, 200 iterations) with a uniform topic marginal and the empirical gene marginal
@@ -127,6 +128,21 @@ cos(topic, mapped gene) / epsilon plus a gene bias shared by all topics, which S
 that the topics average to the gene marginal. CE reaches the topics through both the
 assignment and the dictionary, and reaches the gene map through the unrolled Sinkhorn
 iterations. One iteration is compiled (`compile_sinkhorn`).
+
+`model.excluded_genes` leaves technical genes out of the loss: matching genes are not scored
+and keep only the uniform share of the gene marginal, so no topic is defined by them. The
+default rule matches gene symbols from `model.gene_symbols`:
+- the 13 mtDNA protein genes (`MT-`), which track cell stress and lysis;
+- 79 canonical cytosolic ribosomal protein genes (`RPL`/`RPS` with a number, their X/Y
+  isoforms, `RPLP0-2`, `RPSA`), which track cell size and sequencing depth;
+- 250 TCR and BCR V segments (`TRAV`, `TRBV`, `TRDV`, `TRGV`, `IGHV`, `IGKV`, `IGLV`), whose use
+  marks a clone rather than a cell type.
+
+The rule keeps constant-region genes (`TRAC`, `IGHM`, `IGKC` and the like), J and D segments
+(not expressed in this corpus; an `IGHD` prefix would also catch the IgD constant gene), and the
+tissue-restricted or functionally distinct ribosomal paralogs (`RPL3L`, `RPL10L`, `RPL39L`,
+`RPL22L1`, `RPL26L1`, `RPL7L1`, `RPS27L`). Cell assignment is unaffected, since the frozen
+embeddings still see every gene. Setting `excluded_genes: null` trains the `all_genes` bank.
 
 The OT value is deliberately not minimized. The dictionary depends only on how a topic's
 cosines differ across genes, while the OT value rewards their absolute level, so it pulls
@@ -164,50 +180,58 @@ this repository. The cache excludes their cells (`cache.evaluation_pools`) so th
 training. Set both `cache.evaluation_pools` and `evaluation.pools` to `null` to train without
 them.
 
-## Promote and publish a completed bank
+## Topic banks and assets
 
-The standard local run directory is `runs/hca_pretraining`. Its checkpoints and
-logs remain there. After training completes, the pipeline exports the latest checkpoint and promotes the
-topic bank to `assets/topic_bank` automatically. Promotion validates the
-package and copies only `topics.safetensors`, `genes.json` and `manifest.json`.
-A repeated promotion replaces those release files without copying training state.
+Two banks are released, trained identically except for `model.excluded_genes`:
+
+| Bank | Genes in the loss | Use |
+| --- | --- | --- |
+| `default` | technical genes excluded | interpretation, querying, comparing cell types across studies |
+| `all_genes` | every gene | quality control, technical and sample-level analysis, full-profile reconstruction |
+
+After training, `celllucid.tasks.topic_bank` exports the checkpoint and
+`scripts/promote_bank.sh` copies it into `assets/topic_banks/<name>`:
+
+```bash
+python -m celllucid.tasks.topic_bank --checkpoint /path/to/run/checkpoints/latest \
+  --cache /path/to/run/cache --output /path/to/run/topic_bank
+bash scripts/promote_bank.sh --bank /path/to/run/topic_bank --name default
+```
+
+The published assets folder holds the backbone and both banks:
 
 ```text
-runs/hca_pretraining/
-  cache/                      # Training cache and initialization sample
-  checkpoints/latest/
-  topic_bank/                 # Exported from the final checkpoint
 assets/
-  tf_sapiens/                 # Separate frozen backbone
-  topic_bank/                 # User-facing topic bank
+  tf_sapiens/                 # TF-Sapiens weights and vocabularies (MIT, CZI)
+  topic_banks/default/        # topics.safetensors, genes.json, symbols.json, manifest.json
+  topic_banks/all_genes/
+  gene_symbols.json           # GENCODE v49 symbol-to-Ensembl mapping
 ```
 
-This follows scCAFM's checkpoint-package -> local-assets -> explicit Hub upload
-workflow. To promote an already completed bank manually:
+Upload it to the Hub with the `hf` CLI (`hf auth login` first; the repository must exist):
 
 ```bash
-bash scripts/push_ckpt.sh --push-hf 0
+hf upload <repo-id> assets . --repo-type model \
+  --include "tf_sapiens/**" --include "topic_banks/**" --include "gene_symbols.json*"
 ```
 
-Create the dedicated Hugging Face Space later and authenticate with `hf auth login`.
-Then explicitly upload the bank (replace the placeholder repository ID):
+## Design decisions
 
-```bash
-bash scripts/push_ckpt.sh --push-hf 1 \
-  --hf-repo-id your-org/CellLucid --hf-repo-type space
-```
+Each choice below was tested on the full corpus or a pilot. Each row compares one setting
+change with all other settings fixed. AUCs are held-out within-/cross-study pair ranking.
 
-The Space must already exist. No repository is created and no upload is triggered
-by training. For a model repository, use `--hf-repo-type model`. `CKPT_DIR`,
-`ASSETS_DIR`, `HF_REPO_ID` and `HF_REPO_TYPE` can also be supplied as environment
-variables. `CKPT_DIR` refers to the exported bank package, defaulting to
-`runs/hca_pretraining/topic_bank`; `ASSETS_DIR` defaults to `assets`.
+| Decision | Alternative tested | Result |
+| --- | --- | --- |
+| No OT value term in the loss | OT weight 3 | Flattened assignments; MI 0.35 vs 0.81, cross AUC 0.83 vs 0.88 |
+| One pass, every cell once, natural study proportions | study-balanced upsampling | Chosen for simplicity; batch composition differs from the corpus only by sampling noise |
+| Warmup 200 steps, cosine decay from 1e-3 | constant 1e-3; peak 3e-4 | Small but consistent gains; drift saturates by step 1200 |
+| τ 0.05 | τ 0.1, 0.03 | AUC 0.853 / 0.911 vs 0.826 / 0.890 at τ 0.1; τ 0.03 adds little and separates same-type cells across studies |
+| 128 topics | 256 topics | 256 adds reconstruction, not cross-study ranking, and leaves 39 topics nearly unused |
+| Exclude technical genes (`default` bank) | all genes | Within AUC 0.863 vs 0.853, cell-type MI 0.60 vs 0.56; no ribosomal, mitochondrial, V-segment or flat topics (about 45% of usage otherwise); reference cross-study AUC 0.917 vs 0.929 |
 
-Uploads place only the three bank files under `topic_bank/` in the remote
-repository. They exclude backbone weights, annotations, source code, optimizer
-state and logs. The matching `TopicBank.from_pretrained` API or CLI
-`--hub-repo-id` downloads the same subfolder into local assets. Pin
-`revision` / `--hub-revision` to a tag or commit for reproducible inference.
+Cardiac topics illustrate the resolution. Cardiomyocytes load on atrial, excitation–contraction
+and maturation programs. TBX5, GATA4 and TBX20 rank among the top genes of these topics, and the
+CollecTRI targets of NKX2-5, TBX5, MEF2C and GATA4 are enriched most in them.
 
 ## Inference and tests
 
@@ -217,7 +241,7 @@ For new datasets, preprocess raw counts, then apply an exported bank:
 bash scripts/preprocess.sh --input /path/to/input.h5ad --output /path/to/counts.h5ad \
   --count-source layers/counts --gene-key feature_id
 bash scripts/infer_topics.sh --input /path/to/counts.h5ad \
-  --topic-bank assets/topic_bank --output /path/to/usage.h5
+  --topic-bank assets/topic_banks/default --output /path/to/usage.h5
 PYTHONDONTWRITEBYTECODE=1 python -m pytest -p no:cacheprovider -q -m 'not integration'
 ```
 
@@ -226,6 +250,7 @@ preserving scientific results. The marked integration test requires real backbon
 assets and an accelerator. Full GPU throughput should be benchmarked for the
 chosen context, precision and batch sizes before a long pretraining run.
 
-Checkpoints use format 5 and topic banks format 4. A bank stores normalized topics, the
-dictionary, the gene marginal, both cell means and the gene map; `TopicBank.transform` centers
-unmasked embeddings by the inference mean. Earlier checkpoints and banks cannot be loaded.
+Checkpoints use format 5 and topic banks format 5. A bank stores normalized topics, the
+dictionary, the gene marginal, both cell means and the gene map, with Ensembl IDs and gene
+symbols; `TopicBank.transform` centers unmasked embeddings by the inference mean. Earlier
+checkpoints and banks cannot be loaded.
