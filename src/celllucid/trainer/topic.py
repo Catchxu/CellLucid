@@ -1,10 +1,10 @@
-"""Topic pretraining on a study-balanced embedding cache (single process, one device).
+"""Topic pretraining on an embedding cache (single process, one device).
 
-Samples are read in one fixed random order and each is used at most once, so every
-occurrence of a cell carries its own mask. Topics and the gene map follow the gradient of
-masked CE, which reaches the gene map through the Sinkhorn dictionary. Training logs a few
-drift indicators; periodic evaluation scores the fixed pools. Checkpoints hold weights,
-optimizer, RNG and the step.
+Training is one pass over the cache in a fixed random order: every eligible cell is used
+once, with its own mask, in batches of training.batch_size; the last partial batch is
+dropped. Topics and the gene map follow the gradient of masked CE, which reaches the gene
+map through the Sinkhorn dictionary. Training logs a few drift indicators; periodic
+evaluation scores the fixed pools. Checkpoints hold weights, optimizer, RNG and the step.
 """
 
 import argparse
@@ -48,15 +48,13 @@ def train(config, cache_dir, output_dir, *, resume=False, max_steps=None):
     prepare_run(root, config)
     logger = get_logger(root)
     cache = TrainingCache(cache_dir)
-    steps = settings["steps"]
     batch_size = settings["batch_size"]
-    if steps * batch_size > len(cache):
-        raise ValueError("The step budget would reuse cache samples and repeat their masks")
+    steps = len(cache) // batch_size
     metadata = json.loads(json.dumps({
         "cache": {k: cache.identity[k] for k in ("manifest_identity", "backbone_fingerprint", "duplicates_digest",
                                                  "evaluation_cells_digest", "settings", "views", "samples")},
         "model": model_config,
-        "training": {k: settings[k] for k in ("seed", "batch_size", "steps", "optimizer", "grad_clip")},
+        "training": {**{k: settings[k] for k in ("seed", "batch_size", "optimizer", "grad_clip")}, "steps": steps},
     }))
     initialization = cache.initialization()
     if resume:

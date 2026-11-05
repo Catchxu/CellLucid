@@ -1,12 +1,11 @@
-"""Study-balanced training cache of frozen embeddings with a fresh mask for every occurrence.
+"""Training cache of frozen embeddings: every eligible cell once, with its own mask.
 
-Plan. Every training study contributes the same number of samples. Its eligible cells (train
-split, not dropped duplicates, not evaluation-pool cells or their duplicate copies) are
-shuffled in passes; pass p gives each cell its p-th occurrence, masked with view
-TRAINING_VIEW_OFFSET + p. Large studies use part of one pass and small studies repeat in
-later passes, never with the same mask. A study-balanced initialization sample is encoded
-with INITIALIZATION_VIEW and without a mask; it provides the k-means topics, the training and
-inference cell means and the empirical gene marginal.
+Plan. The cache holds every eligible cell exactly once (train split, not a dropped duplicate,
+not an evaluation-pool cell or a duplicate copy of one), masked with TRAINING_VIEW. Studies
+therefore enter training in proportion to their size; training reads the cache in one random
+order. A study-balanced initialization sample is encoded with INITIALIZATION_VIEW and without a
+mask; it provides the k-means topics, the training and inference cell means and the empirical
+gene marginal.
 
 Build. Ranks encode disjoint chunks and write each chunk atomically as one HDF5 part, so an
 interrupted build resumes by skipping finished parts. A part stores FP16 embeddings, the
@@ -28,10 +27,9 @@ import torch
 import torch.distributed as dist
 
 from ..config import file_digest, fingerprint, load_config, write_json
-from .masking import INITIALIZATION_VIEW, TRAINING_VIEW_OFFSET, masked_views
+from .masking import INITIALIZATION_VIEW, TRAINING_VIEW, masked_views
 
-INITIALIZATION_STREAM = 2**31 - 1  # seed stream of the initialization sample, apart from passes
-VIEW_RULE = (f"occurrence p of a cell uses mask view {TRAINING_VIEW_OFFSET} + p; "
+VIEW_RULE = (f"each training cell uses mask view {TRAINING_VIEW}; "
              f"the initialization sample uses view {INITIALIZATION_VIEW} and an unmasked encoding")
 
 
@@ -54,25 +52,16 @@ def eligible_cells(manifest, excluded):
     return dict(sorted(studies.items()))
 
 
-def training_plan(eligible, samples_per_study, seed):
-    """(path, row, cell_id, study, view) for each sample, study-balanced by upsampling."""
-    samples = []
-    for position, (study, cells) in enumerate(eligible.items()):
-        taken, occurrence = 0, 0
-        while taken < samples_per_study:
-            order = np.random.default_rng(np.random.SeedSequence([seed, position, occurrence])).permutation(len(cells))
-            for index in order[: samples_per_study - taken]:
-                samples.append((*cells[index], study, TRAINING_VIEW_OFFSET + occurrence))
-            taken += min(len(cells), samples_per_study - taken)
-            occurrence += 1
-    return samples
+def training_plan(eligible):
+    """(path, row, cell_id, study) for every eligible cell, in shard order for reading."""
+    return [(*cell, study) for study, cells in eligible.items() for cell in cells]
 
 
 def initialization_plan(eligible, cells_per_study, seed):
     picks = []
     for position, (study, cells) in enumerate(eligible.items()):
-        rng = np.random.default_rng(np.random.SeedSequence([seed, position, INITIALIZATION_STREAM]))
-        picks.extend((*cells[index], study, INITIALIZATION_VIEW) for index in rng.permutation(len(cells))[:cells_per_study])
+        rng = np.random.default_rng(np.random.SeedSequence([seed, position]))
+        picks.extend((*cells[index], study) for index in rng.permutation(len(cells))[:cells_per_study])
     return picks
 
 
@@ -93,21 +82,20 @@ def read_samples(samples):
         yield positions, counts, ids, assay, available
 
 
-def masked_inputs(samples, n_genes, settings):
+def masked_inputs(samples, n_genes, settings, view):
     """Counts, masked inputs, hidden masks and assays of the samples, in sample order.
 
-    Masks are drawn per shard (its availability) and per sample (its view); encoding then
-    runs over all samples together so microbatches stay full across shards.
+    Masks are drawn per shard (its availability); encoding then runs over all samples
+    together so microbatches stay full across shards.
     """
     n = len(samples)
     counts = np.empty((n, n_genes), dtype="f4")
     visible = np.empty_like(counts)
     hidden = np.empty((n, n_genes), dtype=bool)
     assay = np.empty(n, dtype=object)
-    views = np.array([s[4] for s in samples])
     for positions, rows, ids, assays, available in read_samples(samples):
         visible[positions], hidden[positions] = masked_views(
-            rows, ids, available, fraction=settings["mask_fraction"], seed=settings["seed"], view=views[positions])
+            rows, ids, available, fraction=settings["mask_fraction"], seed=settings["seed"], view=view)
         counts[positions], assay[positions] = rows, assays
     return counts, visible, hidden, assay
 
@@ -120,7 +108,7 @@ def encode(backbone, genes, inputs, assay, microbatch):
 
 
 def encode_training_chunk(backbone, genes, samples, settings):
-    counts, visible, hidden, assay = masked_inputs(samples, len(genes), settings)
+    counts, visible, hidden, assay = masked_inputs(samples, len(genes), settings, TRAINING_VIEW)
     embeddings = encode(backbone, genes, visible, assay, settings["encoder_batch_size"]).astype("f2")
     targets = counts * hidden
     nonzero = []
@@ -149,12 +137,11 @@ def write_training_part(path, samples, embeddings, bits, nonzero):
         "nonzero_count": np.concatenate([count for _, count in nonzero]).astype("f4"),
         "cell_id": np.array([s[2] for s in samples], dtype=strings),
         "study": np.array([s[3] for s in samples], dtype=strings),
-        "view": np.array([s[4] for s in samples], dtype="i4"),
     })
 
 
 def build_initialization(path, backbone, genes, samples, settings):
-    counts, visible, _, assay = masked_inputs(samples, len(genes), settings)
+    counts, visible, _, assay = masked_inputs(samples, len(genes), settings, INITIALIZATION_VIEW)
     strings = h5py.string_dtype("utf-8")
     write_atomic(path, {
         "masked": encode(backbone, genes, visible, assay, settings["encoder_batch_size"]),
@@ -185,21 +172,20 @@ def build_cache(config, manifest_path, output, *, backbone=None):
     evaluation = ([] if settings["evaluation_pools"] is None else
                   [c["cell_id"] for c in json.loads((Path(settings["evaluation_pools"]) / "cells.json").read_text())["cells"]])
     eligible = eligible_cells(manifest, excluded_cells(duplicates["duplicate_of"], evaluation))
-    samples = sorted(training_plan(eligible, settings["samples_per_study"], settings["seed"]),
-                     key=lambda s: (s[0], s[1], s[4]))
+    samples = training_plan(eligible)
     chunks = [samples[i:i + settings["chunk_samples"]] for i in range(0, len(samples), settings["chunk_samples"])]
     genes = json.loads(Path(manifest["genes_path"]).read_text())
     backbone = backbone if backbone is not None else _backbone(config, device)
     if backbone.genes != genes:
         raise ValueError("Corpus gene order differs from the frozen backbone")
     identity = {
-        "format_version": 1,
+        "format_version": 2,
         "manifest_identity": manifest["identity"],
         "backbone_fingerprint": backbone.identity()["fingerprint"],
         "genes": genes,
         "duplicates_digest": file_digest(settings["duplicates"]),
         "evaluation_cells_digest": fingerprint(sorted(evaluation)),
-        "settings": {k: settings[k] for k in ("seed", "samples_per_study", "mask_fraction", "chunk_samples",
+        "settings": {k: settings[k] for k in ("seed", "mask_fraction", "chunk_samples",
                                                "initialization_cells_per_study")},
         "views": VIEW_RULE,
         "eligible_cells": {study: len(cells) for study, cells in eligible.items()},
@@ -256,19 +242,17 @@ class TrainingCache:
         complete = json.loads((self.path / "complete.json").read_text())
         if complete["parts"] != self.identity["parts"] or complete["samples"] != self.identity["samples"]:
             raise ValueError("Cache build did not finish")
-        parts = {name: [] for name in ("embeddings", "hidden_bits", "nonzero_index", "nonzero_count", "study")}
+        parts = {name: [] for name in ("embeddings", "hidden_bits", "nonzero_index", "nonzero_count")}
         lengths = []
         for index in range(complete["parts"]):
             with h5py.File(self.path / f"part_{index:05d}.h5", "r") as handle:
-                for name in ("embeddings", "hidden_bits", "nonzero_index", "nonzero_count"):
+                for name in parts:
                     parts[name].append(handle[name][:])
-                parts["study"].append(handle["study"].asstr()[:])
                 lengths.append(np.diff(handle["nonzero_ptr"][:]))
         self.embeddings = np.concatenate(parts["embeddings"])
         self.hidden_bits = np.concatenate(parts["hidden_bits"])
         self.nonzero_index = np.concatenate(parts["nonzero_index"])
         self.nonzero_count = np.concatenate(parts["nonzero_count"])
-        self.study = np.concatenate(parts["study"])
         self.nonzero_ptr = np.concatenate([[0], np.cumsum(np.concatenate(lengths))])
         self.genes = len(self.identity["genes"])
 

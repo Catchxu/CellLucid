@@ -8,7 +8,7 @@ from scipy import sparse
 from data.prepare_topics import prepare
 from celllucid.checkpoint import load_checkpoint
 from celllucid.data.cache import TrainingCache, build_cache, cache_initialization, excluded_cells
-from celllucid.data.masking import TRAINING_VIEW_OFFSET, hidden_mask, masked_views
+from celllucid.data.masking import TRAINING_VIEW, hidden_mask, masked_views
 from celllucid.models.initialization import empty_model
 from celllucid.trainer.topic import train
 from celllucid.tasks.topic_bank import TopicBank, export_topic_bank
@@ -110,12 +110,12 @@ def settings(tmp_path, manifest):
     duplicates.write_text(json.dumps({"manifest_identity": manifest["identity"], "duplicate_of": {}}))
     return {
         "backbone": {"device": "cpu"},
-        "cache": {"seed": 42, "samples_per_study": 30, "mask_fraction": 0.4, "encoder_batch_size": 4,
+        "cache": {"seed": 42, "mask_fraction": 0.4, "encoder_batch_size": 4,
                   "chunk_samples": 16, "initialization_cells_per_study": 16, "duplicates": str(duplicates),
                   "evaluation_pools": None},
         "model": {"n_topics": 3, "temperature": 0.1, "ot_epsilon": 0.1, "ot_iterations": 50,
                   "gene_prior_uniform_share": 0.01, "kmeans_iterations": 10},
-        "training": {"seed": 42, "device": "cpu", "batch_size": 8, "steps": 3,
+        "training": {"seed": 42, "device": "cpu", "batch_size": 8,
                      "compile_sinkhorn": False, "optimizer": {"lr": 0.01, "weight_decay": 0.0},
                      "grad_clip": 1.0, "log_every_steps": 1, "eval_every_steps": 1, "save_every_steps": 1},
         "evaluation": {"pools": None},
@@ -139,38 +139,35 @@ def test_excluded_cells_cover_evaluation_twins():
         "copy_a", "copy_b", "kept_a", "kept_b", "other"}
 
 
-def test_cache_is_study_balanced_and_never_repeats_a_mask(tmp_path):
+def test_cache_holds_every_eligible_cell_once_with_its_mask(tmp_path):
     path, manifest = corpus(tmp_path)
     config = settings(tmp_path, manifest)
     result = build_cache(config, path, tmp_path / "cache", backbone=VisibleEncoder())
     cache = TrainingCache(tmp_path / "cache")
-    studies = {s["study_id"] for s in manifest["shards"] if s["split"] == "train"}
-    assert len(cache) == result["samples"] == 30 * len(studies)
-    assert all((cache.study == study).sum() == 30 for study in studies)
+    train_cells = []
+    for shard in manifest["shards"]:
+        if shard["split"] == "train":
+            with h5py.File(shard["path"], "r") as handle:
+                train_cells += list(handle["cell_ids"].asstr()[:])
     records = []
     for part in sorted((tmp_path / "cache").glob("part_*.h5")):
         with h5py.File(part, "r") as handle:
-            records += list(zip(handle["cell_id"].asstr()[:], handle["view"][:], handle["hidden_bits"][:]))
-    occurrences = {}
-    for cell, view, bits in records:
-        occurrences.setdefault(cell, []).append((int(view), bits.tobytes()))
-    assert max(len(v) for v in occurrences.values()) == 2
-    for found in occurrences.values():
-        assert sorted(view for view, _ in found) == list(range(TRAINING_VIEW_OFFSET, TRAINING_VIEW_OFFSET + len(found)))
-        assert len({bits for _, bits in found}) == len(found)
+            records += list(zip(handle["cell_id"].asstr()[:], handle["hidden_bits"][:]))
+    assert len(cache) == result["samples"] == len(records) == len(train_cells)
+    assert sorted(cell for cell, _ in records) == sorted(train_cells)
     first = next(s["path"] for s in manifest["shards"] if s["split"] == "train")
     with h5py.File(first, "r") as handle:
         cell = handle["cell_ids"].asstr()[0]
         counts = ad.io.sparse_dataset(handle["X"])[np.array([0]), :].toarray().astype("f4")
         available = handle["available"][:]
-    index = next(i for i, (c, _, _) in enumerate(records) if c == cell)
-    view = int(records[index][1])
-    visible, hidden = masked_views(counts, [cell], available, fraction=0.4, seed=42, view=view)
+    index = next(i for i, (c, _) in enumerate(records) if c == cell)
+    visible, hidden = masked_views(counts, [cell], available, fraction=0.4, seed=42, view=TRAINING_VIEW)
     h, x, hidden_batch = cache.batch(np.array([index]), "cpu")
     torch.testing.assert_close(h, VisibleEncoder().encode(visible, VisibleEncoder.genes).half().float())
     torch.testing.assert_close(hidden_batch, torch.from_numpy(hidden))
     torch.testing.assert_close(x, torch.from_numpy(counts * hidden))
-    np.testing.assert_array_equal(hidden, hidden_mask([cell], available, fraction=0.4, seed=42, view=view))
+    np.testing.assert_array_equal(hidden, hidden_mask([cell], available, fraction=0.4, seed=42, view=TRAINING_VIEW))
+    studies = {s["study_id"] for s in manifest["shards"] if s["split"] == "train"}
     initialization = cache_initialization(tmp_path / "cache")
     assert initialization["masked"].shape == (16 * len(studies), 3)
     assert np.isclose(initialization["proportion_mean"].sum(), 1)
@@ -183,7 +180,8 @@ def test_training_resume_matches_continuous_and_exports(tmp_path):
     continuous = train(config, tmp_path / "cache", tmp_path / "continuous")
     train(config, tmp_path / "cache", tmp_path / "resumed", max_steps=1)
     resumed = train(config, tmp_path / "cache", tmp_path / "resumed", resume=True)
-    assert continuous["step"] == resumed["step"] == 3
+    steps = len(TrainingCache(tmp_path / "cache")) // 8
+    assert steps >= 2 and continuous["step"] == resumed["step"] == steps
     gene_vectors = cache_initialization(tmp_path / "cache")["gene_vectors"]
     models = []
     for run in ("continuous", "resumed"):

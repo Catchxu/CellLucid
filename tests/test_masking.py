@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 from celllucid.data.masking import (
-    INITIALIZATION_VIEW, PROBE_VIEW, STABILITY_VIEW, TRAINING_VIEW_OFFSET, hidden_mask, masked_views,
+    INITIALIZATION_VIEW, PROBE_VIEW, STABILITY_VIEW, TRAINING_VIEW, hidden_mask, masked_views,
 )
 
 
@@ -19,14 +19,12 @@ def test_mask_is_independent_of_target_values_and_batch_order():
     assert not np.array_equal(hidden, hidden_mask(["a", "b"], available, seed=2, view=1))
 
 
-def test_per_cell_views_give_each_occurrence_its_own_mask():
+def test_views_give_distinct_masks():
     available = np.ones(40, dtype=bool)
-    views = TRAINING_VIEW_OFFSET + np.arange(5)
-    masks = hidden_mask(["a"] * 5, available, seed=2, view=views)
-    assert len({m.tobytes() for m in masks}) == 5
-    for view, mask in zip(views, masks):
-        np.testing.assert_array_equal(mask, hidden_mask(["a"], available, seed=2, view=int(view))[0])
-    assert len({PROBE_VIEW, INITIALIZATION_VIEW, STABILITY_VIEW}) == 3 and TRAINING_VIEW_OFFSET > STABILITY_VIEW
+    views = (PROBE_VIEW, INITIALIZATION_VIEW, TRAINING_VIEW, STABILITY_VIEW)
+    assert len(set(views)) == 4
+    masks = [hidden_mask(["a"], available, seed=2, view=v)[0] for v in views]
+    assert len({m.tobytes() for m in masks}) == 4
 
 
 def test_mask_requires_usable_gene_set():

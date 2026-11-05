@@ -7,7 +7,7 @@
 #SBATCH --time=24:00:00
 #SBATCH --gpus=1
 #SBATCH --mail-type=END,FAIL
-# Encode the study-balanced training cache with one frozen backbone replica per GPU.
+# Encode the training cache (every eligible cell once) with one frozen backbone replica per GPU.
 # Usage: NPROC_PER_NODE=4 bash scripts/build_cache.sh --manifest /path/to/atlas/manifest.json --output /path/to/cache
 # An interrupted build resumes when rerun with the same arguments.
 set -euo pipefail

@@ -3,8 +3,8 @@
 CellLucid enables natural-language querying of single-cell atlases through interpretable topic modeling.
 
 The current implementation pretrains a shared topic model across an HCA atlas in two
-stages. A study-balanced cache of frozen TranscriptFormer embeddings is encoded once, with a
-fresh mask for every occurrence of a cell; the topic model is then trained on that cache.
+stages. Every eligible cell is masked and encoded once into a cache of frozen TranscriptFormer
+embeddings; the topic model is then trained in one pass over that cache.
 Inference on new datasets encodes unmasked counts directly and needs no cache. Pathway
 interpretation and the query agent will be added later.
 
@@ -44,7 +44,7 @@ as described in [the data guide](data.md).
 | `scripts/build_cache.sh` | Multi-GPU, resumable encoding of the training cache |
 | `scripts/train_topics.sh` | Single-GPU topic training on a completed cache |
 | `src/celllucid/data/dedup.py` | Cells stored in more than one source file of a study |
-| `src/celllucid/data/cache.py` | Study-balanced cache plan, build and in-memory reader |
+| `src/celllucid/data/cache.py` | Cache plan, build and in-memory reader |
 | `src/celllucid/models/topic.py` | Topic model on frozen cells with an OT topic-gene dictionary |
 | `src/celllucid/trainer/topic.py` | Training loop, monitoring, evaluation and checkpoints |
 | `src/celllucid/evaluation.py` | Fixed evaluation pools and their metrics |
@@ -98,11 +98,11 @@ finished cache parts and the latest training checkpoint are reused. Progress is 
 
 ### Training cache
 
-Every training study contributes `cache.samples_per_study` samples. A study's eligible cells
-exclude dropped duplicates, the evaluation-pool cells and every duplicate copy of an
-evaluation cell. They are shuffled in passes, and pass p gives each cell its p-th occurrence
-with mask view 1000 + p, so small studies are upsampled without ever repeating a mask. A part
-stores FP16 embeddings, the hidden-gene set as packed bits and the nonzero hidden counts.
+The cache holds every eligible cell of the training split exactly once, masked with view 2.
+Eligible cells exclude dropped duplicates, the evaluation-pool cells and every duplicate copy
+of an evaluation cell. Studies are neither upsampled nor downsampled, so each enters training in
+proportion to its size. A part stores FP16 embeddings, the hidden-gene set as packed bits and
+the nonzero hidden counts; training holds the whole cache in memory (about 10 KB per cell).
 `identity.json` records the corpus, backbone, duplicate list, evaluation cells and plan;
 training and export check it.
 
@@ -139,8 +139,11 @@ topics out of the cell space toward their genes. In a 1000-step pilot with weigh
 of each topic's norm left the cell subspace, assignments flattened (held-out cell-topic MI
 0.35 against 0.81 without it), and held-out CE gain and pair-ranking AUC were lower.
 
-Training uses one device. Samples are read in a fixed random order and each is used at most
-once; the step budget must fit in the cache. Checkpoints in
+Training uses one device and is one pass over the cache: the cells are read in a fixed random
+permutation (seeded by `training.seed`) in batches of `training.batch_size`, so the number of
+steps is the cache size divided by the batch size, and the last partial batch is dropped.
+Because the permutation is global, a batch's study composition differs from the corpus
+proportions only by sampling noise, and no study arrives in long runs. Checkpoints in
 `<run>/checkpoints/latest` hold weights, optimizer and RNG state and the step; `--resume`
 continues from them and reproduces an uninterrupted run. `--max-steps` stops early without
 changing the schedule.

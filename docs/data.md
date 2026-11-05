@@ -2,7 +2,8 @@
 
 The `data/` directory contains the HCA downloader, its configuration, gene annotation
 mapping and full-inventory preprocessing. Pretraining then deduplicates cells stored in
-several source files, encodes a study-balanced embedding cache and trains on that cache; see
+several source files, encodes every remaining cell once into an embedding cache and trains on
+that cache; see
 [pretraining](pretraining.md).
 
 ## Acquire data and annotation
@@ -103,6 +104,6 @@ bash scripts/train_topics.sh --cache /path/to/run/cache --output-dir /path/to/ru
 
 Deduplication finds cells deposited in more than one file of a study (the same barcode with
 matching counts on shared genes) and keeps the copy with the most measured genes. Prepared
-shards are not modified. The cache builder reads raw-count shards, masks each occurrence of a
-cell with its own view and encodes it once with the frozen TranscriptFormer; training then
+shards are not modified. The cache builder reads raw-count shards, masks each cell once and
+encodes it with the frozen TranscriptFormer; training then
 reads only the cache. See [pretraining](pretraining.md) for checkpoint/resume semantics and the [root README](../README.md) for inference.

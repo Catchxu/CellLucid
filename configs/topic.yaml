@@ -1,5 +1,6 @@
-# Cache-based pretraining: encode a study-balanced cache of frozen embeddings once, then train
-# the topic model on it. Inference encodes unmasked counts and needs no cache.
+# Cache-based pretraining: encode every eligible cell once into a cache of frozen embeddings,
+# then train the topic model in one pass over it. Inference encodes unmasked counts and needs
+# no cache.
 backbone:
   checkpoint: assets/tf_sapiens
   device: cuda
@@ -9,7 +10,6 @@ backbone:
   precision: bfloat16
 cache:
   seed: 42
-  samples_per_study: 100000
   mask_fraction: 0.25
   encoder_batch_size: 64
   chunk_samples: 8192
@@ -27,7 +27,6 @@ training:
   seed: 42
   device: cuda
   batch_size: 2048
-  steps: 1000
   compile_sinkhorn: true
   optimizer:
     lr: 0.001
