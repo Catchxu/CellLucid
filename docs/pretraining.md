@@ -208,11 +208,14 @@ assets/
   gene_symbols.json           # GENCODE v49 symbol-to-Ensembl mapping
 ```
 
-Upload it to the Hub with the `hf` CLI (`hf auth login` first; the repository must exist):
+`scripts/push_assets.sh` uploads these files and the model card (`docs/model_card.md`) to
+[kaichenxu/CellLucid](https://huggingface.co/kaichenxu/CellLucid). It needs `hf auth login`
+and a network route to huggingface.co. Sunlab has none, since its `HF_ENDPOINT` mirror is
+download-only, so run it from a machine that has a route. The repository must already exist:
+`hf repos create kaichenxu/CellLucid --repo-type model`.
 
 ```bash
-hf upload <repo-id> assets . --repo-type model \
-  --include "tf_sapiens/**" --include "topic_banks/**" --include "gene_symbols.json*"
+bash scripts/push_assets.sh
 ```
 
 ## Design decisions

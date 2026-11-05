@@ -21,11 +21,12 @@ git -C assets/transcriptformer_source checkout c943a89a4de9511a8ab1010715bf1cfa8
 python -m pip install --no-deps -e assets/transcriptformer_source
 ```
 
-Download the model assets into `assets/`. They contain the TF-Sapiens weights and both topic
-banks:
+Download the model assets from [Hugging Face](https://huggingface.co/kaichenxu/CellLucid) into
+`assets/`. They contain the TF-Sapiens weights, redistributed unmodified from TranscriptFormer,
+and both CellLucid topic banks:
 
 ```bash
-hf download <repo-id> --local-dir assets
+hf download kaichenxu/CellLucid --local-dir assets
 ```
 
 ## Usage
