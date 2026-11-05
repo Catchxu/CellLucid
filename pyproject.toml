@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "celllucid"
 version = "0.1.0"
-description = "Natural-language querying of single-cell atlases through interpretable topic modeling"
+description = "CellLucid enables natural-language querying of single-cell atlases through interpretable topic modeling"
 readme = "README.md"
 requires-python = ">=3.11"
 license = "GPL-3.0-only"

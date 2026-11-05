@@ -1,6 +1,6 @@
 # CellLucid
 
-**Interpretable topic modeling for single-cell atlases, built toward natural-language querying.**
+**CellLucid enables natural-language querying of single-cell atlases through interpretable topic modeling.**
 
 CellLucid describes each cell as a mixture of 128 gene programs (topics) learned across the
 Human Cell Atlas. A frozen [TranscriptFormer](https://github.com/czi-ai/transcriptformer)

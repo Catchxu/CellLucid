@@ -11,9 +11,11 @@ tags:
 
 # CellLucid model assets
 
-These are the assets for [CellLucid](https://github.com/Catchxu/CellLucid): interpretable topic
-modeling of single-cell atlases, built toward natural-language querying. Each cell is described
-as a mixture of 128 gene programs (topics).
+**CellLucid enables natural-language querying of single-cell atlases through interpretable topic
+modeling.**
+
+These are the model assets for [CellLucid](https://github.com/Catchxu/CellLucid). Each cell is
+described as a mixture of 128 gene programs (topics).
 
 ## Contents
 
