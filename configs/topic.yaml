@@ -17,11 +17,13 @@ cache:
   evaluation_pools: runs/eval_pools
 model:
   n_topics: 128
-  temperature: 0.1
+  temperature: 0.05
   ot_epsilon: 0.03
   ot_iterations: 200
   gene_prior_uniform_share: 0.01
-  excluded_genes: null  # regex over gene symbols, e.g. "^(MT-|RP[LS][0-9]+[AXYL]?[0-9]*$)"
+  # Genes left out of the loss (regex over symbols): mtDNA protein genes, canonical cytosolic
+  # ribosomal proteins and TCR/BCR V segments. null keeps every gene (the all_genes bank).
+  excluded_genes: "^(MT-|RP[LS][0-9]+[AXY]?[0-9]*$|RPLP[0-2]$|RPSA$|TR[ABDG]V|IG[HKL]V)"
   gene_symbols: assets/gene_symbols.json
   kmeans_iterations: 100
 training:
@@ -41,7 +43,7 @@ training:
 evaluation:
   pools: runs/eval_pools
 inference:
-  topic_bank: assets/topic_bank
+  topic_bank: assets/topic_banks/default
   gene_key: feature_id
   count_source: X
   batch_size: 64

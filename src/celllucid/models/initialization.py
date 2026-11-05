@@ -31,14 +31,18 @@ def spherical_kmeans(x, k, iterations, seed):
     return centers
 
 
+def gene_symbols(genes, path):
+    """Symbols for Ensembl gene IDs from a symbol-to-ID mapping; unannotated genes keep their ID."""
+    symbol = {ensembl: name for name, ensembl in json.loads(Path(path).read_text()).items()}
+    return [symbol.get(gene, gene) for gene in genes]
+
+
 def target_genes(genes, model_config):
     """Genes scored by masked CE: all genes except those whose symbol matches model.excluded_genes."""
     if model_config["excluded_genes"] is None:
         return torch.ones(len(genes), dtype=torch.bool)
-    # Genes without an annotated symbol are named by their Ensembl ID.
-    symbol = {ensembl: name for name, ensembl in json.loads(Path(model_config["gene_symbols"]).read_text()).items()}
     pattern = re.compile(model_config["excluded_genes"])
-    return torch.tensor([pattern.match(symbol.get(gene, gene)) is None for gene in genes])
+    return torch.tensor([pattern.match(name) is None for name in gene_symbols(genes, model_config["gene_symbols"])])
 
 
 def gene_prior(proportion_mean, targets, uniform_share):

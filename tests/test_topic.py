@@ -6,6 +6,7 @@ import json
 from celllucid.models.initialization import gene_prior, target_genes
 from celllucid.models.topic import TopicModel
 from celllucid.losses.masked import masked_compositional_loss
+from celllucid.tasks.publish import promote_topic_bank
 from celllucid.tasks.topic_bank import export_topic_bank, TopicBank
 
 
@@ -43,13 +44,18 @@ def test_dictionary_marginal_centering_and_bank_roundtrip(tmp_path):
     expected = torch.softmax(F.normalize(h - m.inference_mean, dim=-1) @ F.normalize(m.topics, dim=-1).T / 0.1, -1)
     torch.testing.assert_close(m.theta(h, inference=True), expected)
     assert not torch.allclose(m.theta(h, inference=True), theta)
-    path = export_topic_bank(m, [f"g{i}" for i in range(20)], tmp_path / "bank", backbone={"fingerprint": "test"})
+    genes = [f"ENSG{i:011d}" for i in range(20)]
+    path = export_topic_bank(m, genes, [f"G{i}" for i in range(20)], tmp_path / "bank", backbone={"fingerprint": "test"})
     bank = TopicBank(path)
     torch.testing.assert_close(bank.dictionary, beta)
     torch.testing.assert_close(bank.transform(h), m.theta(h, inference=True))
-    assert len(bank.top_genes(3)) == 4
+    top = bank.top_genes(3)
+    assert len(top) == 4 and all(g["gene"] == "G" + str(genes.index(g["gene_id"])) for g in top[0])
+    promoted = promote_topic_bank(path, "default", tmp_path / "assets")
+    assert promoted == (tmp_path / "assets/topic_banks/default").resolve()
+    assert TopicBank(promoted).manifest["bank_id"] == bank.manifest["bank_id"]
     with pytest.raises(FileExistsError):
-        export_topic_bank(m, bank.genes, path, backbone={})
+        export_topic_bank(m, bank.genes, bank.symbols, path, backbone={})
     (path / "genes.json").write_text("[]")
     with pytest.raises(ValueError, match="checksum"):
         TopicBank(path)

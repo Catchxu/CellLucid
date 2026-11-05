@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Run HCA acquisition, count preparation, cache building and topic pretraining in sequence.
-# Usage: PYTHON_BIN=/path/to/python NPROC_PER_NODE=4 bash scripts/pretrain_atlas.sh /path/to/HCA /path/to/run
+# Usage: PYTHON_BIN=/path/to/python NPROC_PER_NODE=4 BANK_NAME=default bash scripts/pretrain_atlas.sh /path/to/HCA /path/to/run
 set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "${ROOT_DIR}"
@@ -37,5 +37,5 @@ if [[ ! -d "${OUTPUT_DIR}/topic_bank" ]]; then
     --cache "${OUTPUT_DIR}/cache" --output "${OUTPUT_DIR}/topic_bank"
 fi
 printf 'promote\n' > "${OUTPUT_DIR}/pipeline_status.txt"
-bash scripts/push_ckpt.sh --checkpoint-dir "${OUTPUT_DIR}/topic_bank" --assets-dir "${ROOT_DIR}/assets" --push-hf 0
+bash scripts/promote_bank.sh --bank "${OUTPUT_DIR}/topic_bank" --name "${BANK_NAME:-default}" --assets-dir "${ROOT_DIR}/assets"
 printf 'completed\n' > "${OUTPUT_DIR}/pipeline_status.txt"

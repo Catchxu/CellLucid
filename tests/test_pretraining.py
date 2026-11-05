@@ -192,7 +192,7 @@ def test_training_resume_matches_continuous_and_exports(tmp_path):
         torch.testing.assert_close(value, models[1].state_dict()[name], rtol=0, atol=0)
     log = [json.loads(line) for line in (tmp_path / "continuous/metrics.jsonl").open()]
     assert {"ce_gain_over_background", "cell_effective_topics", "cell_topic_cosine", "max_topic_mass"} <= set(log[0])
-    bank = TopicBank(export_topic_bank(models[0], VisibleEncoder.genes, tmp_path / "bank",
+    bank = TopicBank(export_topic_bank(models[0], VisibleEncoder.genes, VisibleEncoder.genes, tmp_path / "bank",
                                        backbone={"fingerprint": "fixed-test-backbone"}))
     h = torch.randn(5, 3) + 10
     torch.testing.assert_close(bank.transform(h), models[0].theta(h, inference=True))

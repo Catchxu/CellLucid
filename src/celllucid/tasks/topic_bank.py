@@ -1,22 +1,26 @@
-"""Portable topic definitions and cell assignment without frozen backbone weights."""
+"""Portable topic definitions and cell assignment without frozen backbone weights.
+
+A bank folder holds topics.safetensors, genes.json (Ensembl IDs in backbone input order),
+symbols.json (gene symbols aligned with genes.json) and manifest.json (settings and checksums).
+"""
 
 from pathlib import Path
 import argparse
 import json
 import torch
 from torch.nn import functional as F
-from ..assets import download_topic_bank
 from safetensors.torch import save_file, load_file
 from ..config import file_digest, write_json, fingerprint
 
-FORMAT_VERSION = 4
+FORMAT_VERSION = 5
+FILES = ("topics.safetensors", "genes.json", "symbols.json", "manifest.json")
 
 
-def export_topic_bank(model, genes, output_dir, *, backbone, training=None):
+def export_topic_bank(model, genes, symbols, output_dir, *, backbone, training=None):
     output = Path(output_dir)
     if output.exists():
         raise FileExistsError(output)
-    if len(genes) != len(model.gene_vectors) or len(set(genes)) != len(genes):
+    if len(genes) != len(model.gene_vectors) or len(set(genes)) != len(genes) or len(symbols) != len(genes):
         raise ValueError("Invalid ordered gene vocabulary")
     output.mkdir(parents=True)
     with torch.no_grad():
@@ -30,6 +34,7 @@ def export_topic_bank(model, genes, output_dir, *, backbone, training=None):
         }
     save_file(tensors, str(output / "topics.safetensors"))
     write_json(output / "genes.json", list(genes))
+    write_json(output / "symbols.json", list(symbols))
     payload = {
         "format_version": FORMAT_VERSION,
         "model": model.hyperparameters(),
@@ -38,7 +43,7 @@ def export_topic_bank(model, genes, output_dir, *, backbone, training=None):
         "gene_representation": "projected_input",
         "cell_input": "unmasked counts, centered by inference_mean",
         "files": {
-            name: file_digest(output / name) for name in ("topics.safetensors", "genes.json")
+            name: file_digest(output / name) for name in FILES[:-1]
         },
     }
     payload["bank_id"] = fingerprint(payload)
@@ -47,7 +52,7 @@ def export_topic_bank(model, genes, output_dir, *, backbone, training=None):
 
 
 class TopicBank:
-    def __init__(self, path="assets/topic_bank", device="cpu"):
+    def __init__(self, path="assets/topic_banks/default", device="cpu"):
         self.path = Path(path)
         self.manifest = json.loads((self.path / "manifest.json").read_text())
         unsigned = {k: v for k, v in self.manifest.items() if k != "bank_id"}
@@ -59,6 +64,7 @@ class TopicBank:
             if file_digest(self.path / name) != expected:
                 raise ValueError(f"Topic bank checksum mismatch: {name}")
         self.genes = json.loads((self.path / "genes.json").read_text())
+        self.symbols = json.loads((self.path / "symbols.json").read_text())
         tensors = load_file(str(self.path / "topics.safetensors"), device=str(device))
         self.topics = tensors["topics"]
         self.dictionary = tensors["dictionary"]
@@ -78,13 +84,6 @@ class TopicBank:
         ):
             raise ValueError("Invalid dictionary probabilities")
 
-    @classmethod
-    def from_pretrained(cls, repo_id, *, repo_type="space", revision="main", local_dir="assets", device="cpu"):
-        path = download_topic_bank(
-            repo_id, repo_type=repo_type, revision=revision, local_dir=local_dir
-        )
-        return cls(path, device=device)
-
     @torch.no_grad()
     def transform(self, embeddings):
         """Topic usage of cells encoded from unmasked counts."""
@@ -98,7 +97,7 @@ class TopicBank:
         values, indices = self.dictionary.topk(min(n, len(self.genes)), dim=-1)
         return [
             [
-                {"gene": self.genes[j], "weight": float(v)}
+                {"gene": self.symbols[j], "gene_id": self.genes[j], "weight": float(v)}
                 for j, v in zip(ii.tolist(), vv.tolist(), strict=True)
             ]
             for ii, vv in zip(indices, values, strict=True)
@@ -113,7 +112,7 @@ def main():
     args = parser.parse_args()
     from ..checkpoint import load_checkpoint
     from ..data.cache import cache_identity, cache_initialization
-    from ..models.initialization import empty_model
+    from ..models.initialization import empty_model, gene_symbols
 
     info = json.loads((Path(args.checkpoint) / "checkpoint.json").read_text())
     identity = cache_identity(args.cache)
@@ -122,7 +121,8 @@ def main():
     model = empty_model(cache_initialization(args.cache)["gene_vectors"], identity["genes"], info["metadata"]["model"],
                         "cpu", False)
     load_checkpoint(args.checkpoint, model)
-    print(export_topic_bank(model, identity["genes"], args.output,
+    symbols = gene_symbols(identity["genes"], info["metadata"]["model"]["gene_symbols"])
+    print(export_topic_bank(model, identity["genes"], symbols, args.output,
                             backbone={"fingerprint": identity["backbone_fingerprint"]},
                             training=info["metadata"]))
 

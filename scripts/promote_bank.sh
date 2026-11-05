@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Promote the completed topic bank; upload only when --push-hf 1 is explicit.
+# Copy an exported topic bank into assets/topic_banks/<name>.
+# Usage: bash scripts/promote_bank.sh --bank /path/to/run/topic_bank --name default
 set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "${ROOT_DIR}"
