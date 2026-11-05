@@ -19,7 +19,7 @@ from .transport import topic_gene_dictionary
 
 
 class TopicModel(nn.Module):
-    def __init__(self, gene_vectors, topics, train_mean, inference_mean, gene_prior, *, temperature,
+    def __init__(self, gene_vectors, topics, train_mean, inference_mean, gene_prior, target_genes, *, temperature,
                  ot_epsilon, ot_iterations, compile_sinkhorn=False):
         super().__init__()
         vectors = torch.as_tensor(gene_vectors, dtype=torch.float32).detach().clone()
@@ -27,6 +27,8 @@ class TopicModel(nn.Module):
         self.register_buffer("train_mean", torch.as_tensor(train_mean, dtype=torch.float32).clone())
         self.register_buffer("inference_mean", torch.as_tensor(inference_mean, dtype=torch.float32).clone())
         self.register_buffer("gene_prior", torch.as_tensor(gene_prior, dtype=torch.float32).clone())
+        # Genes scored by the loss; rebuilt from the model configuration, so not saved.
+        self.register_buffer("target_genes", torch.as_tensor(target_genes, dtype=torch.bool).clone(), persistent=False)
         self.topics = nn.Parameter(F.normalize(torch.as_tensor(topics, dtype=torch.float32), dim=-1).clone())
         dimension = vectors.shape[1]
         self.gene_map = nn.Linear(dimension, dimension, bias=False)

@@ -8,7 +8,7 @@ def make():
     generator = torch.Generator().manual_seed(2)
     return TopicModel(
         torch.randn(10, 6, generator=generator), torch.randn(3, 6, generator=generator), torch.zeros(6), torch.ones(6),
-        torch.full((10,), 0.1), temperature=0.1, ot_epsilon=0.1, ot_iterations=50,
+        torch.full((10,), 0.1), torch.ones(10, dtype=torch.bool), temperature=0.1, ot_epsilon=0.1, ot_iterations=50,
     )
 
 

@@ -70,9 +70,11 @@ def train(config, cache_dir, output_dir, *, resume=False, max_steps=None):
     }))
     initialization = cache.initialization()
     if resume:
-        model = empty_model(initialization["gene_vectors"], model_config, device, settings["compile_sinkhorn"])
+        model = empty_model(initialization["gene_vectors"], cache.identity["genes"], model_config, device,
+                            settings["compile_sinkhorn"])
     else:
-        model = initial_model(initialization, model_config, settings["seed"], device, settings["compile_sinkhorn"])
+        model = initial_model(initialization, cache.identity["genes"], model_config, settings["seed"], device,
+                              settings["compile_sinkhorn"])
     optimizer = torch.optim.AdamW(model.parameters(), **settings["optimizer"])
     step = 0
     if resume:
@@ -93,6 +95,7 @@ def train(config, cache_dir, output_dir, *, resume=False, max_steps=None):
         evaluate()
     while step < end:
         h, x, hidden = cache.batch(order[step * batch_size:(step + 1) * batch_size], device)
+        hidden &= model.target_genes
         optimizer.zero_grad(set_to_none=True)
         lr = learning_rate(step, steps, settings["optimizer"]["lr"], settings["warmup_steps"], settings["min_lr"])
         for group in optimizer.param_groups:

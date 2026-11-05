@@ -106,11 +106,6 @@ class Pool:
         self.x = torch.from_numpy(x).to(self.raw.device)
         self.hidden = torch.from_numpy(hidden).to(self.raw.device)
 
-    def target_profile(self):
-        """Mean hidden-gene target distribution over the pool's cells."""
-        selected = self.x * self.hidden
-        return (selected / selected.sum(1, keepdim=True)).mean(0)
-
     def pair_metrics(self, distance, view_distance):
         """Pair-level structure for one N x N distance matrix and per-cell view distances."""
         values = distance[self.i, self.j]
@@ -164,13 +159,13 @@ class Pool:
         out["study_tv_different_tissue"] = float(np.mean([t for t, same in tv if not same]))
         return out
 
-    def reconstruction(self, rows, beta):
+    def reconstruction(self, rows, beta, hidden):
         def ce(theta):
             total = 0.0
             for start in range(0, len(theta), 512):
                 part = slice(start, start + 512)
                 total += float(masked_compositional_loss(
-                    theta[part].float() @ beta, self.x[part], self.hidden[part])) * len(theta[part])
+                    theta[part].float() @ beta, self.x[part], hidden[part])) * len(theta[part])
             return total / len(theta)
         p = rows[:, 0]
         raw = ce(p)
@@ -184,20 +179,20 @@ class Pool:
             shuffled.append(ce(p[perm.to(p.device)]))
         return {"ce": raw, "shuffled_minus_raw_ce": float(np.mean(shuffled) - raw)}
 
-    def background_ce(self, profile):
+    def background_ce(self, profile, hidden):
         """Masked CE when every cell predicts the same gene profile (no cell information)."""
         total = 0.0
         for start in range(0, len(self.cells), 512):
             part = slice(start, start + 512)
             n = len(self.x[part])
             total += float(masked_compositional_loss(
-                profile.expand(n, -1).contiguous(), self.x[part], self.hidden[part])) * n
+                profile.expand(n, -1).contiguous(), self.x[part], hidden[part])) * n
         return total / len(self.cells)
 
-    def evaluate(self, rows, beta):
+    def evaluate(self, rows, beta, hidden):
         distance = 0.5 * torch.cdist(rows[:, 0].float(), rows[:, 0].float(), p=1)
         view_distance = 0.5 * (rows[:, 0] - rows[:, 1]).abs().sum(-1)
-        return {**self.usage_metrics(rows), **self.reconstruction(rows, beta),
+        return {**self.usage_metrics(rows), **self.reconstruction(rows, beta, hidden),
                 **self.pair_metrics(distance, view_distance)}
 
 
@@ -219,8 +214,9 @@ class EvaluationPools:
         results, key = {}, {}
         for name, pool in self.pools.items():
             rows = torch.stack([model.theta(pool.raw[:, v]) for v in range(pool.raw.shape[1])], 1).double()
-            metrics = pool.evaluate(rows, beta)
-            metrics["ce_gain_over_background"] = pool.background_ce(model.gene_prior) - metrics["ce"]
+            hidden = pool.hidden & model.target_genes
+            metrics = pool.evaluate(rows, beta, hidden)
+            metrics["ce_gain_over_background"] = pool.background_ce(model.gene_prior, hidden) - metrics["ce"]
             inference = model.theta(pool.unmasked, inference=True).double()
             distance = 0.5 * torch.cdist(inference.float(), inference.float(), p=1)
             shift = 0.5 * (inference - rows[:, 0]).abs().sum(-1)

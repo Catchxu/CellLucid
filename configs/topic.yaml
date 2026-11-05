@@ -21,6 +21,8 @@ model:
   ot_epsilon: 0.03
   ot_iterations: 200
   gene_prior_uniform_share: 0.01
+  excluded_genes: null  # regex over gene symbols, e.g. "^(MT-|RP[LS][0-9]+[AXYL]?[0-9]*$)"
+  gene_symbols: assets/gene_symbols.json
   kmeans_iterations: 100
 training:
   seed: 42

@@ -112,7 +112,7 @@ def settings(tmp_path, manifest):
                   "chunk_samples": 16, "initialization_cells_per_study": 16,
                   "evaluation_pools": None},
         "model": {"n_topics": 3, "temperature": 0.1, "ot_epsilon": 0.1, "ot_iterations": 50,
-                  "gene_prior_uniform_share": 0.01, "kmeans_iterations": 10},
+                  "gene_prior_uniform_share": 0.01, "excluded_genes": None, "kmeans_iterations": 10},
         "training": {"seed": 42, "device": "cpu", "batch_size": 8,
                      "compile_sinkhorn": False, "optimizer": {"lr": 0.01, "weight_decay": 0.0}, "warmup_steps": 0, "min_lr": 0.001,
                      "grad_clip": 1.0, "log_every_steps": 1, "eval_every_steps": 1, "save_every_steps": 1},
@@ -185,7 +185,7 @@ def test_training_resume_matches_continuous_and_exports(tmp_path):
     gene_vectors = cache_initialization(tmp_path / "cache")["gene_vectors"]
     models = []
     for run in ("continuous", "resumed"):
-        model = empty_model(gene_vectors, config["model"], "cpu", False)
+        model = empty_model(gene_vectors, VisibleEncoder.genes, config["model"], "cpu", False)
         load_checkpoint(tmp_path / run / "checkpoints/latest", model)
         models.append(model)
     for name, value in models[0].state_dict().items():

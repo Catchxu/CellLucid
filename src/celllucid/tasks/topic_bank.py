@@ -119,7 +119,8 @@ def main():
     identity = cache_identity(args.cache)
     if info["metadata"]["cache"]["manifest_identity"] != identity["manifest_identity"]:
         raise ValueError("Checkpoint was trained on a different cache")
-    model = empty_model(cache_initialization(args.cache)["gene_vectors"], info["metadata"]["model"], "cpu", False)
+    model = empty_model(cache_initialization(args.cache)["gene_vectors"], identity["genes"], info["metadata"]["model"],
+                        "cpu", False)
     load_checkpoint(args.checkpoint, model)
     print(export_topic_bank(model, identity["genes"], args.output,
                             backbone={"fingerprint": identity["backbone_fingerprint"]},

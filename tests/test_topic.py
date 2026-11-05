@@ -2,6 +2,8 @@ import math
 import pytest
 import torch
 from torch.nn import functional as F
+import json
+from celllucid.models.initialization import gene_prior, target_genes
 from celllucid.models.topic import TopicModel
 from celllucid.losses.masked import masked_compositional_loss
 from celllucid.tasks.topic_bank import export_topic_bank, TopicBank
@@ -13,7 +15,7 @@ def model(genes=20, dimension=8, topics=4, seed=5):
     return TopicModel(
         torch.randn(genes, dimension, generator=generator), torch.randn(topics, dimension, generator=generator),
         torch.randn(dimension, generator=generator), torch.randn(dimension, generator=generator), prior / prior.sum(),
-        temperature=0.1, ot_epsilon=0.1, ot_iterations=200,
+        torch.ones(genes, dtype=torch.bool), temperature=0.1, ot_epsilon=0.1, ot_iterations=200,
     )
 
 
@@ -78,3 +80,16 @@ def test_dictionary_passes_gradients_to_topics_and_gene_map():
     assert m.topics.grad.norm() > 0
     assert all(p.grad.norm() > 0 for p in m.gene_map.parameters())
 
+
+
+def test_excluded_genes_leave_the_loss_and_keep_only_the_uniform_share(tmp_path):
+    symbols = tmp_path / "symbols.json"
+    symbols.write_text(json.dumps({"MT-CO1": "E1", "RPL3": "E2", "RPS6KA1": "E3", "CD3E": "E4", "RPS4X": "E5"}))
+    genes = ["E1", "E2", "E3", "E4", "E5", "E6"]
+    config = {"excluded_genes": "^(MT-|RP[LS][0-9]+[AXYL]?[0-9]*$)", "gene_symbols": str(symbols)}
+    targets = target_genes(genes, config)
+    assert targets.tolist() == [False, False, True, True, False, True]
+    assert target_genes(genes, {"excluded_genes": None}).all()
+    prior = gene_prior([0.4, 0.3, 0.1, 0.1, 0.05, 0.05], targets, 0.06)
+    torch.testing.assert_close(prior[~targets], torch.full((3,), 0.01))
+    torch.testing.assert_close(prior[targets], torch.tensor([0.94 * 0.4 + 0.01, 0.94 * 0.4 + 0.01, 0.94 * 0.2 + 0.01]))
