@@ -1,0 +1,501 @@
+dataset_name,topic_index,pathway_id,pathway_name,depth,top_level,p,overlap,pathway_size_used,overlap_genes,n_significant,n_top_in_reactome,n_zero_weight_in_top100,n_zero_weight_in_overlap
+biliary_system,0,R-HSA-1369062,ABC transporters in lipid homeostasis,2,Transport of small molecules,1.4763185276637823e-31,15,18,ABCA10 ABCA12 ABCA2 ABCA3 ABCA5 ABCA6 ABCA7 ABCA9 ABCD1 ABCD2 ABCD3 ABCG1 ABCG4 ABCG5 ABCG8,18,66,99,15
+biliary_system,1,R-HSA-72702,Ribosomal scanning and start codon recognition,4,Metabolism of proteins,4.276453517271926e-07,7,58,EIF1AX EIF2S2 EIF3K EIF4A2 EIF4B EIF5 RPS27L,25,86,0,0
+biliary_system,2,R-HSA-6804116,TP53 Regulates Transcription of Genes Involved in G1 Cell Cycle Arrest,5,Gene expression (Transcription),0.001668295190640678,2,14,CDK2 ZNF385A,6,46,0,0
+biliary_system,3,R-HSA-9732724,IFNG signaling activates MAPKs,4,Immune System,0.0008879745233107696,2,8,IFNGR2 MAPK1,3,60,0,0
+biliary_system,4,R-HSA-5696395,Formation of Incision Complex in GG-NER,3,DNA Repair,0.00015800988801710334,3,43,RNF111 RPA3 USP45,5,26,0,0
+biliary_system,5,R-HSA-110357,Displacement of DNA glycosylase by APEX1,3,DNA Repair,0.001027024114578328,2,9,MBD4 TDG,6,57,0,0
+biliary_system,6,R-HSA-390522,Striated Muscle Contraction,1,Muscle contraction,0.004725104534377758,2,36,MYH3 TNNC2,4,30,0,0
+biliary_system,7,R-HSA-9018519,Estrogen-dependent gene expression,3,Signal Transduction,1.8956809832059223e-05,6,90,CTSD HSP90AA1 JUND POLR2G POLR2K TFF3,14,65,0,0
+biliary_system,8,R-HSA-3000171,Non-integrin membrane-ECM interactions,1,Extracellular matrix organization,6.614651051677383e-06,6,80,COL4A2 COL5A1 DMD ITGA6 LAMA4 NRXN1,17,61,0,0
+biliary_system,9,R-HSA-9633012,Response of EIF2AK4 (GCN2) to amino acid deficiency,3,Cellular responses to stimuli,9.486256901334916e-38,28,100,ATF4 RPL10 RPL12 RPL13 RPL13A RPL14 RPL23 RPL24 RPL26 RPL31 RPL34 RPL35 RPL37A RPL39 RPL4 RPL41 RPL7 RPL7A RPLP2 RPS11 RPS13 RPS14 RPS17 RPS20 RPS28 RPS29 RPS3 RPS9,43,80,0,0
+biliary_system,10,R-HSA-5173214,O-glycosylation of TSR domain-containing proteins,3,Metabolism of proteins,2.101646089112836e-06,5,38,ADAMTS10 ADAMTS15 ADAMTS19 ADAMTSL2 THSD7B,7,59,0,0
+biliary_system,11,R-HSA-9764725,Negative Regulation of CDH1 Gene Transcription,8,Cell-Cell communication,0.0005046600824344493,3,35,CTBP2 SMARCA4 ZMYM2,7,47,0,0
+biliary_system,12,R-HSA-8948216,Collagen chain trimerization,3,Extracellular matrix organization,4.691197707963025e-12,9,44,COL14A1 COL1A2 COL21A1 COL3A1 COL4A1 COL4A2 COL5A2 COL6A3 COL8A1,28,65,0,0
+biliary_system,13,R-HSA-2395516,Electron transport from NADPH to Ferredoxin,2,Metabolism,0.006303706353345428,1,3,FDX2,1,22,0,0
+biliary_system,14,R-HSA-77285,Beta oxidation of myristoyl-CoA to lauroyl-CoA,5,Metabolism,0.007161244583673384,1,3,ACADL,2,25,0,0
+biliary_system,15,R-HSA-391906,Leukotriene receptors,5,Signal Transduction,9.615602723812653e-05,2,5,CYSLTR2 LTB4R,7,33,0,0
+biliary_system,16,R-HSA-983695,Antigen activates B Cell Receptor (BCR) leading to generation of second messengers,3,Immune System,5.66380608392388e-05,5,69,BLNK ITPR2 LYN PIK3AP1 PLCG2,23,63,0,0
+biliary_system,17,R-HSA-202733,Cell surface interactions at the vascular wall,1,Hemostasis,0.00017957181159657438,7,178,CD44 CD47 GYPC IGKC ITGA6 ITGAV PIK3R1,10,70,0,0
+biliary_system,18,R-HSA-445095,Interaction between L1 and Ankyrins,4,Developmental Biology,0.00032924542111004417,3,31,ANK1 SPTA1 SPTB,11,46,0,0
+biliary_system,19,R-HSA-419037,NCAM1 interactions,4,Developmental Biology,2.4550536856749747e-09,7,41,CACNA1C CACNB2 COL4A1 COL4A2 COL4A5 COL6A1 COL6A2,26,59,0,0
+biliary_system,20,R-HSA-9912633,"Antigen processing: Ub, ATP-independent proteasomal degradation",3,Immune System,1.0892810788234297e-07,5,19,PSMB1 PSMB6 PSMB8 PSME1 PSME2,42,68,0,0
+biliary_system,21,R-HSA-1963642,PI3K events in ERBB2 signaling,3,Signal Transduction,7.362493558938109e-05,3,16,ERBB3 GAB1 NRG3,18,55,0,0
+biliary_system,22,R-HSA-9013149,RAC1 GTPase cycle,4,Signal Transduction,1.9162658916879455e-07,10,183,ARAP2 ARHGAP15 ARHGEF6 DOCK10 DOCK11 DOCK2 DOCK8 IQGAP2 PREX1 WIPF1,31,66,0,0
+biliary_system,23,R-HSA-9974237,Negative Regulation of DNA Double Strand Break Response,3,DNA Repair,0.00010255239237705948,4,43,DDB1 PSMD13 PSMD8 SEM1,57,60,0,0
+biliary_system,24,R-HSA-9937383,Mitochondrial ribosome-associated quality control,3,Metabolism of proteins,1.3960757848923635e-06,7,87,GADD45GIP1 MRPL11 MRPL18 MRPL24 MRPL32 MRPS30 MRPS33,7,68,0,0
+biliary_system,25,R-HSA-376172,DSCAM interactions,4,Developmental Biology,0.00010342694204279187,2,4,DSCAM DSCAML1,11,44,0,0
+biliary_system,26,R-HSA-77288,mitochondrial fatty acid beta-oxidation of unsaturated fatty acids,4,Metabolism,3.632905970147831e-08,4,6,ACADM DECR1 HADHA HADHB,34,75,0,0
+biliary_system,27,R-HSA-6783310,Fanconi Anemia Pathway,1,DNA Repair,0.0031050430747930646,2,38,FANCB FANCE,2,23,0,0
+biliary_system,28,R-HSA-1236974,ER-Phagosome pathway,4,Immune System,3.177993429556886e-05,6,82,HLA-E PDIA3 PSMA4 PSMB4 SEC61B SEC61G,33,78,0,0
+biliary_system,29,R-HSA-674695,RNA Polymerase II Pre-transcription Events,2,Gene expression (Transcription),0.00024573877154700354,5,81,CCNH CDC73 GTF2F2 TAF2 TAF3,20,73,0,0
+biliary_system,30,R-HSA-2022870,CS-GAG biosynthesis,4,Metabolism,1.3358354848124424e-05,4,21,CHST11 CHSY1 CSGALNACT1 VCAN,13,75,0,0
+biliary_system,31,R-HSA-8875656,MET receptor recycling,3,Signal Transduction,3.341098720944986e-05,3,10,CRK GGA3 RAB4A,7,70,0,0
+biliary_system,32,R-HSA-9958810,"SRC activates STAT3 in a quantitative manner, through Cadherin-11 (CDH11), RAC1 and gp130 (IL6ST)",5,Cell-Cell communication,0.00037229255980353624,3,23,CTNNA1 FARP2 VAV2,6,65,0,0
+biliary_system,33,R-HSA-9830674,Formation of the ureteric bud,2,Developmental Biology,8.494240559698397e-06,3,18,RET SIX1 WNT11,7,24,0,0
+biliary_system,34,R-HSA-196780,Biotin transport and metabolism,3,Metabolism,0.0016128199210316224,2,11,HLCS PCCA,3,58,0,0
+biliary_system,35,R-HSA-163210,Formation of ATP by chemiosmotic coupling,2,Metabolism,4.17326364752476e-05,2,2,MT-ATP6 MT-ATP8,24,68,0,0
+biliary_system,36,R-HSA-9758919,Epithelial-Mesenchymal Transition (EMT) during gastrulation,2,Developmental Biology,0.0004792353252784744,2,6,CDH1 OCLN,9,60,0,0
+biliary_system,37,R-HSA-5625900,RHO GTPases activate CIT,4,Signal Transduction,0.0001633813176820951,3,19,MYH10 PPP1R12A PPP1R12B,10,60,0,0
+biliary_system,38,R-HSA-193648,NRAGE signals death through JNK,4,Signal Transduction,0.00030988380548064047,4,59,AKAP13 ARHGEF3 MAGED1 SOS1,21,58,0,0
+biliary_system,39,R-HSA-69481,G2/M Checkpoints,2,Cell Cycle,0.0054996439874246085,3,122,CLSPN GTSE1 RMI2,2,31,0,0
+biliary_system,40,R-HSA-156902,Peptide chain elongation,3,Metabolism of proteins,5.842395396185804e-44,30,88,FAU RPL12 RPL13 RPL13A RPL15 RPL22 RPL23 RPL24 RPL26 RPL27A RPL31 RPL34 RPL37 RPL37A RPL4 RPL41 RPL7A RPL8 RPLP2 RPS10 RPS11 RPS12 RPS14 RPS16 RPS20 RPS27 RPS28 RPS29 RPS3A RPS9,36,78,0,0
+biliary_system,41,R-HSA-3247509,Chromatin modifying enzymes,1,Chromatin organization,5.157233422683108e-05,8,205,ARID1A ARID4B ASH1L ATF7IP GATAD2B KANSL1 OGT PHF20,21,68,0,0
+biliary_system,42,R-HSA-9706374,FLT3 signaling through SRC family kinases,3,Immune System,0.0007484644517923041,2,6,HCK SYK,18,75,0,0
+biliary_system,43,R-HSA-9013149,RAC1 GTPase cycle,4,Signal Transduction,8.849451972311078e-05,7,183,ARHGAP26 ARHGAP29 CDC42BPA FARP1 KALRN MCF2L NCKAP1,20,61,0,0
+biliary_system,44,R-HSA-380994,ATF4 activates genes in response to endoplasmic reticulum  stress,4,Cellular responses to stimuli,0.00038932747639038555,3,27,ATF3 EXOSC6 EXOSC9,13,56,0,0
+biliary_system,45,R-HSA-6793080,rRNA modification in the mitochondrion,3,Metabolism of RNA,0.0010317028468566712,2,13,MTERF3 RPUSD4,4,39,0,0
+biliary_system,46,R-HSA-9770562,mRNA Polyadenylation,3,Metabolism of RNA,2.9379309571978472e-06,8,127,DHX9 HNRNPA3 HNRNPM HNRNPR HNRNPU SF3B1 SRSF5 XRN2,63,74,0,0
+biliary_system,47,R-HSA-9749641,Aspirin ADME,1,Drug ADME,0.00042165689582221043,3,43,CYP2C19 UGT2B11 UGT2B17,6,36,0,0
+biliary_system,48,R-HSA-156588,Glucuronidation,3,Metabolism,7.776380033787289e-05,3,26,UGT1A4 UGT1A5 UGT1A7,3,34,0,0
+biliary_system,49,R-HSA-211981,Xenobiotics,4,Metabolism,0.0037392597071128995,2,24,CYP2J2 CYP3A4,4,40,0,0
+biliary_system,50,R-HSA-418594,G alpha (i) signalling events,3,Signal Transduction,0.0012240120502595877,5,287,BDKRB1 GNG4 GPR18 GPSM1 HTR1E,4,30,0,0
+biliary_system,51,R-HSA-6807878,COPI-mediated anterograde transport,3,Metabolism of proteins; Vesicle-mediated transport,4.749978308516042e-07,8,100,CAPZA2 COG2 COPB2 DYNC1I2 DYNC1LI2 GOLGA2 GOLGB1 KDELR2,13,74,0,0
+biliary_system,52,R-HSA-416993,Trafficking of GluR2-containing AMPA receptors,5,Neuronal System,0.0025798282198545267,2,17,GRIP1 PRKCA,8,47,0,0
+biliary_system,53,R-HSA-1810476,RIP-mediated NFkB activation via ZBP1,4,Immune System,0.001968200460100616,2,17,NKIRAS1 TICAM1,9,41,0,0
+biliary_system,54,R-HSA-198933,Immunoregulatory interactions between a Lymphoid and a non-Lymphoid cell,2,Immune System,3.2513506180862505e-11,12,169,CD247 CD3D CD3E CD40LG CD8B CD96 ITGAL KLRB1 KLRC1 KLRK1 SLAMF6 SLAMF7,15,53,0,0
+biliary_system,55,R-HSA-156902,Peptide chain elongation,3,Metabolism of proteins,1.503060199126646e-74,44,88,FAU RPL11 RPL12 RPL13 RPL13A RPL15 RPL18A RPL19 RPL23 RPL23A RPL24 RPL27A RPL28 RPL3 RPL30 RPL31 RPL34 RPL35A RPL37 RPL37A RPL38 RPL4 RPL41 RPL7 RPL7A RPL8 RPLP2 RPS10 RPS11 RPS12 RPS14 RPS15 RPS15A RPS16 RPS20 RPS24 RPS25 RPS27 RPS28 RPS29 RPS4X RPS8 RPS9 UBA52,33,81,0,0
+biliary_system,56,R-HSA-2028269,Signaling by Hippo,1,Signal Transduction,0.00018207990880226738,3,20,STK3 WWTR1 YAP1,15,59,0,0
+biliary_system,57,R-HSA-9018519,Estrogen-dependent gene expression,3,Signal Transduction,0.005200418999469031,3,90,DDX5 KANK1 TNRC6A,3,41,0,0
+biliary_system,58,R-HSA-9022692,Regulation of MECP2 expression and activity,4,Gene expression (Transcription),0.0006869476822728156,3,31,NCOR1 NCOR2 TNRC6A,17,59,0,0
+biliary_system,59,R-HSA-1474244,Extracellular matrix organization,0,Extracellular matrix organization,0.0010108690513443688,5,320,CTRB1 DST FBN3 LAMA1 TNN,5,26,0,0
+biliary_system,60,R-HSA-9753281,Paracetamol ADME,1,Drug ADME,0.00024218578875261751,3,28,ABCC2 ABCC3 SULT1C4,12,46,0,0
+biliary_system,61,R-HSA-75876,Synthesis of very long-chain fatty acyl-CoAs,4,Metabolism,0.00035112672448676106,3,24,ACSL1 ACSL4 ELOVL5,14,61,0,0
+biliary_system,62,R-HSA-9033241,Peroxisomal protein import,1,Protein localization,0.002803941636357951,3,63,CRAT DHRS4 EPHX2,5,47,0,0
+biliary_system,63,R-HSA-8876198,RAB GEFs exchange GTP for GDP on RABs,3,Vesicle-mediated transport,0.0002929789764115624,5,89,DENND4A DENND4C RAB3GAP1 RAB5A TRAPPC8,3,69,0,0
+biliary_system,64,R-HSA-8951671,RUNX3 regulates YAP1-mediated transcription,4,Gene expression (Transcription),0.0005414624685755099,2,7,TEAD1 YAP1,12,54,0,0
+biliary_system,65,R-HSA-8856825,Cargo recognition for clathrin-mediated endocytosis,3,Vesicle-mediated transport,3.860886679941406e-07,8,103,AAK1 AP2A2 ARRB1 FCHO2 GRB2 ITSN2 PICALM TFRC,29,70,0,0
+biliary_system,66,R-HSA-6799198,Complex I biogenesis,3,Metabolism,6.610151285622827e-05,5,68,NDUFA8 NDUFAF8 NDUFB2 NDUFB3 NDUFS8,7,66,0,0
+biliary_system,67,R-HSA-9954716,ZNF598 and the Ribosome-associated Quality Trigger (RQT) complex dissociate a ribosome stalled on a no-go mRNA,3,Metabolism of proteins,6.129353851186499e-32,25,95,RPL10A RPL18 RPL21 RPL27 RPL29 RPL32 RPL35A RPL36 RPL36A RPL37 RPL4 RPL6 RPLP0 RPLP1 RPS2 RPS21 RPS23 RPS26 RPS27A RPS5 RPS6 RPSA UBA52 UBB UBC,210,86,0,0
+biliary_system,68,R-HSA-6798695,Neutrophil degranulation,2,Immune System,1.5092789606895707e-09,18,465,ARHGAP45 C3AR1 CD53 CLEC5A FCN1 FGR FPR1 HSPA6 ITGAM ITGAX LILRB2 LILRB3 NCKAP1L OLR1 OSCAR PADI2 SLC11A1 SLC2A5,17,72,0,0
+biliary_system,69,R-HSA-380615,Serotonin clearance from the synaptic cleft,3,Neuronal System,0.007161244583673384,1,3,SLC6A4,3,25,0,0
+biliary_system,70,R-HSA-445355,Smooth Muscle Contraction,1,Muscle contraction,1.2388451570192988e-11,8,40,ACTA2 ACTG2 LMOD1 MYH11 MYLK SORBS1 TPM1 TPM2,9,51,0,0
+biliary_system,71,R-HSA-9013149,RAC1 GTPase cycle,4,Signal Transduction,1.7497690667817409e-06,9,183,ARHGAP29 ARHGAP31 CAV1 DOCK4 DOCK9 KALRN PLEKHG1 PREX2 RASGRF2,30,65,0,0
+biliary_system,72,R-HSA-977606,Regulation of Complement cascade,3,Immune System,4.2643729448633564e-06,6,89,C4BPA C5 C8A CFHR2 CFHR3 CPB2,11,51,0,0
+biliary_system,73,R-HSA-6798695,Neutrophil degranulation,2,Immune System,4.0071585285334884e-07,14,465,ADGRE5 BIN2 CD53 COTL1 GLIPR1 ITGB2 KCNAB2 LAIR1 MAN2B1 PECAM1 PLAC8 STK11IP TRPM2 UNC13D,8,62,0,0
+biliary_system,74,R-HSA-1614603,Cysteine formation from homocysteine,3,Metabolism,0.006879070031247816,1,2,CBS,1,36,0,0
+biliary_system,75,R-HSA-202430,Translocation of ZAP-70 to Immunological synapse,3,Immune System,7.084039260891072e-06,4,21,CD4 HLA-DQA1 HLA-DQB1 HLA-DRB1,14,64,0,0
+biliary_system,76,R-HSA-9013409,RHOJ GTPase cycle,4,Signal Transduction,3.1320040344130094e-05,5,55,CDC42BPB FNBP1L MPP7 PAK1 WWP2,11,70,0,0
+biliary_system,77,R-HSA-383280,Nuclear Receptor transcription pathway,3,Gene expression (Transcription),0.004523924022359033,2,53,NR2E3 RORC,2,20,0,0
+biliary_system,78,R-HSA-170660,Adenylate cyclase activating pathway,6,Signal Transduction,0.0007633258194172665,2,10,ADCY1 GNAL,7,44,0,0
+biliary_system,79,R-HSA-156590,Glutathione conjugation,3,Metabolism,8.220290191681652e-05,4,34,CNDP2 GSTA1 GSTA2 MGST2,12,72,0,0
+biliary_system,80,R-HSA-9976102,Differentiation of naive CD4+ T cells to T helper 2 cells (Th2 cells),2,Developmental Biology,5.42840656952603e-05,5,77,CREBBP EP300 GATAD2B HDAC4 NCOR1,44,56,0,0
+biliary_system,81,R-HSA-418555,G alpha (s) signalling events,3,Signal Transduction,6.618709621106712e-08,8,136,FSHR GIPR GPR176 HTR4 LHCGR PDE8B PTH1R PTHLH,6,43,0,0
+biliary_system,82,R-HSA-6811440,Retrograde transport at the Trans-Golgi-Network,3,Vesicle-mediated transport,0.00023419498495670267,4,49,GCC2 GOLGA4 NAPG TMF1,11,65,0,0
+biliary_system,83,R-HSA-5675221,Negative regulation of MAPK pathway,4,Signal Transduction,0.0003876278379144124,3,43,DUSP8 MAPK12 PPP2R5B,3,35,0,0
+biliary_system,84,R-HSA-447041,CHL1 interactions,4,Developmental Biology,0.000790757316539077,2,9,CNTN6 ITGA10,4,50,0,0
+biliary_system,85,R-HSA-381426,Regulation of Insulin-like Growth Factor (IGF) transport and uptake by Insulin-like Growth Factor Binding Proteins (IGFBPs),1,Metabolism of proteins,7.1896662615244365e-06,7,122,C3 FBN1 IGF1 IGFBP5 LAMC1 PAPPA SDC2,20,62,0,0
+biliary_system,86,R-HSA-1489509,DAG and IP3 signaling,2,Signal Transduction,0.001603929399675724,3,40,ITPR2 NBEA PRKCE,6,61,0,0
+biliary_system,87,R-HSA-70221,Glycogen breakdown (glycogenolysis),3,Metabolism,0.00036006340178726414,2,15,PHKA1 PHKG1,4,20,0,0
+biliary_system,88,R-HSA-9729555,Sensory perception of sour taste,2,Sensory Perception,0.0017219933705563532,1,2,KCNJ2,3,9,0,0
+biliary_system,89,R-HSA-913709,O-linked glycosylation of mucins,3,Metabolism of proteins,0.0007627096808143414,4,61,CHST4 GALNT3 MUC13 MUC5B,9,71,0,0
+biliary_system,90,R-HSA-159236,Transport of Mature mRNA derived from an Intron-Containing Transcript,3,Metabolism of RNA,6.2158650195937e-07,7,73,NUP107 NUP153 NUP98 RANBP2 SRRM1 SRSF11 SRSF4,44,72,0,0
+biliary_system,91,R-HSA-9958825,Activation of STAT3 by cadherin engagement,4,Cell-Cell communication,0.00020683904235061575,5,76,IL6ST NFKB1 PSMD1 PSMD14 STAT3,29,75,0,0
+biliary_system,92,R-HSA-428890,Role of ABL in ROBO-SLIT signaling,4,Developmental Biology,0.0007737739426308154,2,8,CLASP1 CLASP2,22,56,0,0
+biliary_system,93,R-HSA-156902,Peptide chain elongation,3,Metabolism of proteins,1.9979066512912159e-13,12,88,RPL10 RPL22 RPL24 RPL26 RPL27A RPL37A RPL7 RPS13 RPS14 RPS28 RPS29 RPS3A,29,66,0,0
+biliary_system,94,R-HSA-381340,Transcriptional regulation of white adipocyte differentiation,2,Developmental Biology,5.493979042123125e-06,6,83,CHD9 FAM120B MED13L NCOA2 TBL1XR1 ZNF638,19,57,0,0
+biliary_system,95,R-HSA-9856530,High laminar flow shear stress activates signaling by PIEZO1 and PECAM1:CDH5:KDR in endothelial cells,3,Cellular responses to stimuli,2.4935549308530604e-08,7,68,ADCY4 CALCRL CDH5 FLT4 NOS3 PECAM1 RAMP2,13,49,0,0
+biliary_system,96,R-HSA-611105,Respiratory electron transport,2,Metabolism,1.0077674168604457e-05,5,42,CYCS ETFB SDHD UQCR10 UQCR11,65,73,0,0
+biliary_system,97,R-HSA-9772755,Formation of WDR5-containing histone-modifying complexes,3,Gene expression (Transcription),0.001416434878107654,3,41,BOD1 MCRS1 TADA3,2,57,0,0
+biliary_system,98,R-HSA-199920,CREB phosphorylation,5,Signal Transduction; Immune System,0.0007842685153864803,2,7,RPS6KA3 RPS6KA5,13,65,0,0
+biliary_system,99,R-HSA-445095,Interaction between L1 and Ankyrins,4,Developmental Biology,0.0001715997996614673,3,31,L1CAM SCN2A SCN3A,3,37,0,0
+bladder,0,R-HSA-2029485,Role of phospholipids in phagocytosis,3,Immune System,0.003424033311243061,3,67,PLCG2 PLD1 SYK,4,47,0,0
+bladder,1,R-HSA-9937383,Mitochondrial ribosome-associated quality control,3,Metabolism of proteins,7.936877939191718e-12,12,87,AURKAIP1 GADD45GIP1 MRPL11 MRPL12 MRPL13 MRPL15 MRPL18 MRPL21 MRPL47 MRPL51 MRPS12 MRPS26,42,89,0,0
+bladder,2,R-HSA-9768777,Regulation of NPAS4 gene transcription,5,Gene expression (Transcription),0.00022631264063460062,2,5,KCNIP3 SRF,8,50,0,0
+bladder,3,R-HSA-202430,Translocation of ZAP-70 to Immunological synapse,3,Immune System,8.976711927574986e-11,7,20,HLA-DPA1 HLA-DPB1 HLA-DQA1 HLA-DQB1 HLA-DRA HLA-DRB1 HLA-DRB5,27,80,0,0
+bladder,4,R-HSA-9022692,Regulation of MECP2 expression and activity,4,Gene expression (Transcription),0.0008487109775697835,3,30,CAMK2D HTT TBL1X,6,65,0,0
+bladder,5,R-HSA-209931,Serotonin and melatonin biosynthesis,3,Metabolism,5.5692248879169757e-05,2,5,ASMT TPH2,4,25,0,0
+bladder,6,R-HSA-3000157,Laminin interactions,1,Extracellular matrix organization,2.839350831630429e-05,4,30,COL4A1 ITGA1 LAMA2 NID2,22,62,0,0
+bladder,7,R-HSA-8941332,RUNX2 regulates genes involved in cell migration,4,Gene expression (Transcription),0.000142882380217743,2,8,AKT3 RUNX2,9,24,0,0
+bladder,8,R-HSA-1236978,Cross-presentation of soluble exogenous antigens (endosomes),4,Immune System,3.9121194526488705e-13,10,41,PSMA1 PSMA3 PSMA5 PSMB1 PSMB2 PSMB4 PSMB6 PSMD13 PSMD8 PSME2,78,80,0,0
+bladder,9,R-HSA-5628897,TP53 Regulates Metabolic Genes,4,Gene expression (Transcription),1.1878699045365866e-15,14,82,COX4I1 COX5B COX6A1 COX6B1 COX6C COX7A2 COX7B COX7C COX8A LAMTOR4 LAMTOR5 PRDX1 PRDX5 TXN,65,80,0,0
+bladder,10,R-HSA-375276,Peptide ligand-binding receptors,4,Signal Transduction,0.008152925772018906,3,167,CCR4 PNOC UTS2,1,26,0,0
+bladder,11,R-HSA-9864848,Complex IV assembly,3,Metabolism,1.5880691853904526e-05,5,45,COX4I1 COX5B COX6C COX7A2 HIGD1A,19,74,0,0
+bladder,12,R-HSA-9707564,Cytoprotection by HMOX1,3,Cellular responses to stimuli,6.56238660550244e-05,5,57,COX4I1 COX5B COX6A1 COX7A2 STAP2,13,78,0,0
+bladder,13,R-HSA-6798695,Neutrophil degranulation,2,Immune System,1.155733811556862e-09,19,463,B2M BST2 CD55 CD59 CD63 CMTM6 CSTB FTL GRN HEBP2 HLA-B HLA-C LGALS3 NPC2 PSMA2 RAC1 SDCBP SRP14 YPEL5,33,79,0,0
+bladder,14,R-HSA-69278,"Cell Cycle, Mitotic",1,Cell Cycle,0.0009333152609063496,9,485,AJUBA CDCA8 CDT1 E2F1 GINS2 PKMYT1 RCC1 SPC24 SPC25,4,55,0,0
+bladder,15,R-HSA-180292,GAB1 signalosome,3,Signal Transduction,0.00010175552154083331,3,17,PAG1 SRC TGFA,13,57,0,0
+bladder,16,R-HSA-6785470,tRNA processing in the mitochondrion,2,Metabolism of RNA,4.1363931447362746e-24,12,17,MT-ATP6 MT-ATP8 MT-CO1 MT-CO2 MT-CO3 MT-CYB MT-ND1 MT-ND2 MT-ND3 MT-ND4 MT-ND4L MT-ND6,16,62,0,0
+bladder,17,R-HSA-6798695,Neutrophil degranulation,2,Immune System,3.008190248049208e-05,12,463,CD58 CTSC CTSZ DPP7 FTH1 LAMP2 MVP NEU1 PRCP RNASET2 SDCBP SPTAN1,16,66,0,0
+bladder,18,R-HSA-9772755,Formation of WDR5-containing histone-modifying complexes,3,Gene expression (Transcription),0.002926506492341269,3,42,BOD1L1 KMT2A OGT,5,71,0,0
+bladder,19,R-HSA-445355,Smooth Muscle Contraction,1,Muscle contraction,5.735121266333822e-07,5,40,ACTA2 LMOD1 MYH11 MYL9 SORBS1,14,43,0,0
+bladder,20,R-HSA-9033241,Peroxisomal protein import,1,Protein localization,0.0007074038698709604,4,61,CAT GSTK1 IDH1 SCP2,11,69,0,0
+bladder,21,R-HSA-9013406,RHOQ GTPase cycle,4,Signal Transduction,0.0008541646759360858,4,59,FNBP1 IQGAP1 RHOQ SLC4A7,20,75,0,0
+bladder,22,R-HSA-1369062,ABC transporters in lipid homeostasis,2,Transport of small molecules,4.526862004792322e-31,15,18,ABCA10 ABCA12 ABCA2 ABCA3 ABCA5 ABCA6 ABCA7 ABCA9 ABCD1 ABCD2 ABCD3 ABCG1 ABCG4 ABCG5 ABCG8,25,70,90,15
+bladder,23,R-HSA-9619665,EGR2 and SOX10-mediated initiation of Schwann cell myelination,2,Developmental Biology,0.0007332295490778669,3,29,SCD5 UTRN WWTR1,7,64,0,0
+bladder,24,R-HSA-8957275,Post-translational protein phosphorylation,2,Metabolism of proteins,0.002121601461789838,4,101,APLP2 APP SHISA5 TGOLN2,10,56,0,0
+bladder,25,R-HSA-156582,Acetylation,3,Metabolism,0.006362656186874804,1,2,NAT1,1,33,0,0
+bladder,26,R-HSA-72163,mRNA Splicing - Major Pathway,3,Metabolism of RNA,1.2667983421189936e-08,12,200,ACIN1 HNRNPC HNRNPL HNRNPM HNRNPR LUC7L3 SNRNP200 SNW1 SRRM2 SRSF1 SRSF11 SRSF6,17,73,0,0
+bladder,27,R-HSA-72163,mRNA Splicing - Major Pathway,3,Metabolism of RNA,2.7500531815279874e-08,12,200,BCAS2 HNRNPM LSM5 POLR2F RBM8A RNPS1 SF3B2 SNRPA1 SNRPD1 SNRPE SNRPF SRSF3,86,78,0,0
+bladder,28,R-HSA-181429,Serotonin Neurotransmitter Release Cycle,3,Neuronal System,0.0005875092675828649,2,18,RIMS1 SYN3,6,21,0,0
+bladder,29,R-HSA-6798695,Neutrophil degranulation,2,Immune System,2.738640589371629e-07,14,463,ARHGAP45 ARHGAP9 DOK3 FCGR2A LAIR1 MANBA MMP25 NFAM1 OSCAR PTAFR SIGLEC9 SLC11A1 TLR2 TNFRSF1B,6,60,0,0
+bladder,30,R-HSA-9758881,Uptake of dietary cobalamins into enterocytes,4,Metabolism,0.0005950661449079048,2,9,AMN TCN1,5,43,0,0
+bladder,31,R-HSA-2500257,Resolution of Sister Chromatid Cohesion,4,Cell Cycle,2.286167797494078e-30,25,124,AURKB BUB1 BUB1B CCNB2 CDC20 CDCA5 CDK1 CENPA CENPE CENPF CENPK CENPM KIF18A KIF2C KNL1 MAD2L1 NDC80 NUF2 PLK1 SGO1 SGO2 SKA1 SPDL1 ZWILCH ZWINT,54,75,0,0
+bladder,32,R-HSA-1250342,PI3K events in ERBB4 signaling,3,Signal Transduction,0.008659621638232596,1,10,NRG3,2,9,0,0
+bladder,33,R-HSA-3000178,ECM proteoglycans,1,Extracellular matrix organization,7.978116899214529e-17,14,76,ASPN BGN COL1A1 COL1A2 COL3A1 COL5A1 COL6A1 COL6A2 COL6A3 DCN LUM SPARC TNXB VCAN,36,72,0,0
+bladder,34,R-HSA-190861,Gap junction assembly,4,Vesicle-mediated transport,0.0046000035597218,2,33,GJB7 TUBB3,5,32,0,0
+bladder,35,R-HSA-72689,Formation of a pool of free 40S subunits,4,Metabolism of proteins,1.7128318027586815e-99,57,102,EIF3E EIF3F EIF3K FAU RPL10 RPL11 RPL12 RPL13 RPL15 RPL17 RPL18 RPL18A RPL19 RPL22 RPL23 RPL24 RPL27 RPL27A RPL28 RPL30 RPL32 RPL34 RPL35 RPL35A RPL36A RPL36AL RPL37 RPL37A RPL5 RPL7 RPL8 RPL9 RPLP0 RPLP2 RPS11 RPS12 RPS13 RPS14 RPS15 RPS18 RPS19 RPS20 RPS21 RPS23 RPS24 RPS25 RPS27 RPS27A RPS28 RPS3 RPS3A RPS4X RPS5 RPS6 RPS7 RPS8 UBA52,69,89,0,0
+bladder,36,R-HSA-6785631,ERBB2 Regulates Cell Motility,3,Signal Transduction,0.0033013798893336754,2,15,EGFR MEMO1,1,60,0,0
+bladder,37,R-HSA-141444,Amplification  of signal from unattached  kinetochores via a MAD2  inhibitory signal,4,Cell Cycle,0.0019016743780554345,4,93,B9D2 CENPT MIS12 PMF1,7,59,0,0
+bladder,38,R-HSA-198933,Immunoregulatory interactions between a Lymphoid and a non-Lymphoid cell,2,Immune System,3.267052326644863e-12,13,164,CD226 CD247 CD3D CD3E CD3G CD8A CD8B ITGAL JAML KLRC1 KLRD1 SLAMF6 TRBC1,16,57,0,0
+bladder,39,R-HSA-9856530,High laminar flow shear stress activates signaling by PIEZO1 and PECAM1:CDH5:KDR in endothelial cells,3,Cellular responses to stimuli,0.002957651143483223,3,68,GNG7 KDR NOS3,6,44,0,0
+bladder,40,R-HSA-9823730,Formation of definitive endoderm,2,Developmental Biology,0.0029843103611121727,2,15,GATA4 GATA6,9,57,0,0
+bladder,41,R-HSA-381038,XBP1(S) activates chaperone genes,4,Cellular responses to stimuli,0.00036834508190562054,4,48,ARFGAP1 DCTN1 EXTL2 HYOU1,11,74,0,0
+bladder,42,R-HSA-9770562,mRNA Polyadenylation,3,Metabolism of RNA,3.8421712665185205e-06,8,127,HNRNPA3 HNRNPD HNRNPU RBM25 SF3B1 SRSF10 U2SURP XRN2,35,76,0,0
+bladder,43,R-HSA-2672351,Stimuli-sensing channels,2,Transport of small molecules,0.003369276007799537,3,105,TRPM1 UNC79 UNC80,2,30,0,0
+bladder,44,R-HSA-5690714,CD22 mediated BCR regulation,3,Immune System,6.612146105996232e-05,4,44,CD22 CD79A IGLC3 LYN,11,52,0,0
+bladder,45,R-HSA-72163,mRNA Splicing - Major Pathway,3,Metabolism of RNA,1.0973549802971239e-09,13,200,DDX5 HNRNPF HNRNPH2 HNRNPK PCBP1 PPIG RBM39 SAP18 SRRM1 SRSF2 SRSF5 TRA2B UBL5,21,73,0,0
+bladder,46,R-HSA-9614399,Regulation of localization of FOXO transcription factors,4,Gene expression (Transcription),7.061745134290411e-05,3,12,YWHAB YWHAG YWHAZ,22,73,0,0
+bladder,47,R-HSA-8873719,RAB geranylgeranylation,2,Metabolism of proteins,3.5034337221233864e-05,5,64,RAB10 RAB21 RAB5A RAB6A RAB7A,10,61,0,0
+bladder,48,R-HSA-212436,Generic Transcription Pathway,2,Gene expression (Transcription),0.00011318459839091087,11,1156,ZNF213 ZNF214 ZNF225 ZNF425 ZNF517 ZNF546 ZNF554 ZNF596 ZNF607 ZNF610 ZNF709,3,28,0,0
+bladder,49,R-HSA-8866906,TFAP2 (AP-2) family regulates transcription of other transcription factors,4,Gene expression (Transcription),0.00020318955596389249,2,4,CITED2 TFAP2C,9,61,0,0
+bladder,50,R-HSA-9013148,CDC42 GTPase cycle,4,Signal Transduction,0.0014537739926021183,5,155,ARHGAP20 ARHGAP24 ARHGAP26 ITSN1 STARD13,7,56,0,0
+bladder,51,R-HSA-428890,Role of ABL in ROBO-SLIT signaling,4,Developmental Biology,1.4807996965769464e-05,3,8,CLASP1 CLASP2 ROBO1,22,68,0,0
+bladder,52,R-HSA-909733,Interferon alpha/beta signaling,3,Immune System,3.792712707500779e-05,5,64,IFI27 IRF7 MX1 OASL SOCS1,9,62,0,0
+bladder,53,R-HSA-427359,SIRT1 negatively regulates rRNA expression,3,Gene expression (Transcription),0.0010598549665548067,2,8,RRP8 TAF1A,9,65,0,0
+bladder,54,R-HSA-5693571,Nonhomologous End-Joining (NHEJ),2,DNA Repair,4.719577518345075e-05,4,34,BRCC3 MRE11 NBN RIF1,31,62,0,0
+bladder,55,R-HSA-212436,Generic Transcription Pathway,2,Gene expression (Transcription),0.000786909887927887,10,1156,CBX8 CDK5R1 FOXO6 ZKSCAN4 ZNF112 ZNF230 ZNF34 ZNF696 ZNF724 ZNF792,2,29,0,0
+bladder,56,R-HSA-1483166,Synthesis of PA,4,Metabolism,0.0009689863931515187,3,37,AGPAT2 LPCAT1 LPCAT4,3,55,0,0
+bladder,57,R-HSA-2426168,Activation of gene expression by SREBF (SREBP),4,Metabolism,0.0015582896686149104,3,42,FASN FDFT1 MTF1,2,57,0,0
+bladder,58,R-HSA-2586552,Signaling by Leptin,1,Signal Transduction,0.001755256489835802,2,11,LEPR STAT3,7,60,0,0
+bladder,59,R-HSA-9730628,Sensory perception of salty taste,2,Sensory Perception,0.0002944536474362065,2,5,SCNN1B SCNN1G,6,57,0,0
+bladder,60,R-HSA-418885,DCC mediated attractive signaling,4,Developmental Biology,0.0012852598563544192,2,14,ABLIM3 DOCK1,4,40,0,0
+bladder,61,R-HSA-2559584,Formation of Senescence-Associated Heterochromatin Foci (SAHF),4,Cellular responses to stimuli,5.323243290320688e-05,3,11,CABIN1 EP400 RB1,8,73,0,0
+bladder,62,R-HSA-176187,Activation of ATR in response to replication stress,3,Cell Cycle,7.292234761232725e-14,10,37,MCM2 MCM4 MCM5 MCM6 MCM7 ORC6 RFC2 RFC4 RFC5 RPA3,55,76,0,0
+bladder,63,R-HSA-156902,Peptide chain elongation,3,Metabolism of proteins,7.443087068196887e-57,37,90,RPL10 RPL10A RPL13 RPL14 RPL21 RPL22 RPL23A RPL26 RPL27 RPL28 RPL3 RPL31 RPL32 RPL34 RPL35 RPL35A RPL36 RPL36A RPL36AL RPL37A RPL38 RPL39 RPL41 RPL6 RPL7 RPS10 RPS11 RPS13 RPS15 RPS15A RPS16 RPS2 RPS25 RPS29 RPS6 RPS9 RPSA,26,84,0,0
+bladder,64,R-HSA-9031628,NGF-stimulated transcription,5,Signal Transduction,0.00011095601639241415,4,39,EGR1 F3 FOSB ID2,13,67,0,0
+bladder,65,R-HSA-420029,Tight junction interactions,3,Cell-Cell communication,2.1404456311649027e-05,4,28,CLDN1 CLDN4 CLDN7 PARD6B,6,62,0,0
+bladder,66,R-HSA-9976102,Differentiation of naive CD4+ T cells to T helper 2 cells (Th2 cells),2,Developmental Biology,0.00021067735498437562,4,77,MAML2 MAML3 PHC3 SCMH1,14,40,0,0
+bladder,67,R-HSA-373076,Class A/1 (Rhodopsin-like receptors),3,Signal Transduction,0.0005968205817784559,7,281,APLN C5AR2 CXCL13 HTR2B PLPPR4 PTGER1 SSTR2,2,54,0,0
+bladder,68,R-HSA-198933,Immunoregulatory interactions between a Lymphoid and a non-Lymphoid cell,2,Immune System,1.829935043791344e-09,12,164,CD1C CD300A CD33 FCGR2B FCGR3A ITGB2 LAIR1 LILRB4 SIGLEC1 SIGLEC10 TREM2 TYROBP,15,75,0,0
+bladder,69,R-HSA-1368108,"BMAL1:CLOCK,NPAS2 activates circadian expression",1,Circadian clock,0.0004346204518326637,3,24,NCOA2 RXRA TBL1XR1,16,65,0,0
+bladder,70,R-HSA-373753,Nephrin family interactions,1,Cell-Cell communication,0.0016008833809200206,2,23,NPHS1 NPHS2,2,27,0,0
+bladder,71,R-HSA-9706019,RHOBTB3 ATPase cycle,2,Signal Transduction,0.0017941491562597886,2,10,HGS LRRC41,3,67,0,0
+bladder,72,R-HSA-5696395,Formation of Incision Complex in GG-NER,3,DNA Repair,1.3514034800514116e-05,5,43,CETN2 PARP1 RAD23A SUMO3 UBE2V2,23,75,0,0
+bladder,73,R-HSA-5687128,MAPK6/MAPK4 signaling,2,Signal Transduction,9.816546170734115e-13,12,76,CDC42 DNAJB1 JUN PSMA5 PSMB5 PSMB7 PSMC4 PSMC5 PSMD11 PSMD7 UBB UBC,155,86,0,0
+bladder,74,R-HSA-933543,NF-kB activation through FADD/RIP-1 pathway mediated by caspase-8 and -10,3,Immune System,0.0026095259384716807,2,12,RIPK1 TRIM25,9,67,0,0
+bladder,75,R-HSA-525793,Myogenesis,1,Developmental Biology,0.0001984745391779557,3,26,CDH2 MAPK11 MAPK12,6,46,0,0
+bladder,76,R-HSA-9758919,Epithelial-Mesenchymal Transition (EMT) during gastrulation,2,Developmental Biology,0.00052079577582802,2,6,CLDN7 OCLN,6,62,0,0
+bladder,77,R-HSA-210991,Basigin interactions,2,Hemostasis,0.0037287095411355315,2,25,SLC7A11 SLC7A8,2,38,0,0
+bladder,78,R-HSA-6799198,Complex I biogenesis,3,Metabolism,8.586916014856706e-11,10,68,NDUFA11 NDUFAF3 NDUFB1 NDUFB10 NDUFB2 NDUFB4 NDUFB7 NDUFC2 NDUFS5 NDUFS8,42,80,0,0
+bladder,79,R-HSA-912526,Interleukin receptor SHC signaling,4,Immune System,0.0026946237986160294,2,26,IL2RA IL5,5,31,0,0
+bladder,80,R-HSA-75158,TRAIL  signaling,2,Signal Transduction,0.0008445632369291142,2,8,CFLAR TNFRSF10B,9,58,0,0
+bladder,81,R-HSA-901032,ER Quality Control Compartment (ERQC),5,Metabolism of proteins,0.00017757930675269267,3,20,AMFR MAN1B1 TRIM13,6,58,0,0
+bladder,82,R-HSA-6809371,Formation of the cornified envelope,2,Developmental Biology,1.1880012820476446e-06,7,99,KRT14 KRT18 KRT19 KRT20 KRT7 KRT8 PERP,4,58,0,0
+bladder,83,R-HSA-445355,Smooth Muscle Contraction,1,Muscle contraction,1.868687580271196e-10,8,40,ACTG2 ANXA6 CALD1 MYL6 MYL9 MYLK TPM1 TPM2,21,70,0,0
+bladder,84,R-HSA-2470946,Cohesin Loading onto Chromatin,4,Cell Cycle,3.464667289237051e-07,4,10,NIPBL PDS5B STAG1 WAPL,67,68,0,0
+bladder,85,R-HSA-5628897,TP53 Regulates Metabolic Genes,4,Gene expression (Transcription),0.0002710474415640029,5,82,COX5B COX7A2L DDIT4 LAMTOR4 PRDX5,11,73,0,0
+bladder,86,R-HSA-9927353,Co-inhibition by BTLA,3,Immune System,0.0002448770449049987,2,5,GRB2 TNFRSF14,11,52,0,0
+bladder,87,R-HSA-72689,Formation of a pool of free 40S subunits,4,Metabolism of proteins,5.905049516400469e-107,60,102,EIF3E EIF3K RPL10 RPL10A RPL11 RPL13 RPL14 RPL18 RPL18A RPL21 RPL22 RPL23A RPL24 RPL26 RPL27 RPL28 RPL29 RPL3 RPL30 RPL32 RPL35 RPL35A RPL36 RPL36A RPL37 RPL37A RPL38 RPL39 RPL4 RPL41 RPL5 RPL6 RPL7 RPL7A RPL8 RPLP1 RPS10 RPS11 RPS12 RPS13 RPS14 RPS15 RPS15A RPS16 RPS18 RPS19 RPS2 RPS21 RPS23 RPS24 RPS25 RPS26 RPS29 RPS3 RPS3A RPS4X RPS6 RPS7 RPS9 RPSA,24,90,0,0
+bladder,88,R-HSA-77286,mitochondrial fatty acid beta-oxidation of saturated fatty acids,4,Metabolism,0.0008627823144414557,2,11,ACADL ACSM6,3,42,0,0
+bladder,89,R-HSA-445355,Smooth Muscle Contraction,1,Muscle contraction,0.006300915931164658,2,40,CACNA1G MYL7,2,31,0,0
+bladder,90,R-HSA-9856530,High laminar flow shear stress activates signaling by PIEZO1 and PECAM1:CDH5:KDR in endothelial cells,3,Cellular responses to stimuli,4.340654461890824e-05,5,68,ADCY4 CALCRL CDH5 PECAM1 RAMP2,10,60,0,0
+bladder,91,R-HSA-196780,Biotin transport and metabolism,3,Metabolism,1.7000937049229477e-05,3,11,ACACA HLCS PCCA,6,50,0,0
+bladder,92,R-HSA-5649702,APEX1-Independent Resolution of AP Sites via the Single Nucleotide Replacement Pathway,3,DNA Repair,0.0004723269534503627,2,7,NEIL2 XRCC1,5,50,0,0
+bladder,93,R-HSA-380108,Chemokine receptors bind chemokines,5,Signal Transduction,0.003055544251727431,3,56,CCR5 CXCR3 XCL1,6,54,0,0
+bladder,94,R-HSA-9696264,RND3 GTPase cycle,4,Signal Transduction,0.0012617026378834396,3,42,DLG5 NISCH WDR6,6,53,0,0
+bladder,95,R-HSA-9864848,Complex IV assembly,3,Metabolism,1.2346411630359995e-09,8,45,COX17 COX4I1 COX5B COX6A1 COX6B1 COX6C COX7A2 COX7B,37,78,0,0
+bladder,96,R-HSA-77348,Beta oxidation of octanoyl-CoA to hexanoyl-CoA,5,Metabolism,0.0005377437321357399,2,5,ACADM HADHA,22,77,0,0
+bladder,97,R-HSA-428543,Inactivation of CDC42 and RAC1,4,Developmental Biology,0.0011935452871215302,2,8,SRGAP1 SRGAP2,4,69,0,0
+bladder,98,R-HSA-71032,Propionyl-CoA catabolism,4,Metabolism,0.003086566338911198,1,4,PCCA,6,8,0,0
+bladder,99,R-HSA-390522,Striated Muscle Contraction,1,Muscle contraction,3.188836892667829e-05,4,36,ACTA1 ACTN2 DMD TMOD1,8,53,0,0
+ear,0,R-HSA-1369062,ABC transporters in lipid homeostasis,2,Transport of small molecules,6.600956320895851e-24,12,15,ABCA10 ABCA12 ABCA2 ABCA3 ABCA5 ABCA6 ABCA7 ABCA9 ABCD1 ABCD2 ABCD3 ABCG1,20,66,99,12
+ear,1,R-HSA-156902,Peptide chain elongation,3,Metabolism of proteins,2.4782063498796526e-09,10,87,EEF1A1 RPL10 RPL13 RPL13A RPL31 RPL39 RPL41 RPS18 RPS6 RPS8,18,73,0,0
+ear,2,R-HSA-156902,Peptide chain elongation,3,Metabolism of proteins,3.9082553545459347e-91,53,87,EEF1A1 RPL10 RPL10A RPL11 RPL12 RPL13 RPL13A RPL14 RPL15 RPL21 RPL24 RPL26 RPL3 RPL31 RPL32 RPL34 RPL35 RPL35A RPL36 RPL36A RPL37 RPL37A RPL38 RPL39 RPL41 RPL5 RPL7 RPL8 RPL9 RPLP1 RPLP2 RPS11 RPS12 RPS13 RPS14 RPS15 RPS15A RPS16 RPS18 RPS19 RPS2 RPS23 RPS24 RPS25 RPS27 RPS27A RPS3 RPS3A RPS4X RPS6 RPS7 RPS8 RPS9,34,87,0,0
+ear,3,R-HSA-2514859,"Inactivation, recovery and regulation of the phototransduction cascade",3,Sensory Perception,0.003272777105622047,2,19,PDE6B PRKCA,3,39,0,0
+ear,4,R-HSA-390450,Folding of actin by CCT/TriC,4,Metabolism of proteins,8.479840177707479e-13,7,10,ACTB CCT2 CCT3 CCT4 CCT5 CCT8 TCP1,94,85,0,0
+ear,5,R-HSA-9031628,NGF-stimulated transcription,5,Signal Transduction,0.00014677756860672316,4,36,ARC EGR1 FOS ID3,19,65,0,0
+ear,6,R-HSA-418890,Role of second messengers in netrin-1 signaling,4,Developmental Biology,0.0007986887747044909,2,7,NTN1 TRPC1,6,54,0,0
+ear,7,R-HSA-156902,Peptide chain elongation,3,Metabolism of proteins,3.127756704048343e-141,72,87,EEF1A1 EEF2 FAU RPL10 RPL10A RPL11 RPL13 RPL13A RPL14 RPL15 RPL17 RPL18 RPL18A RPL19 RPL21 RPL22 RPL23A RPL24 RPL26 RPL27 RPL27A RPL28 RPL29 RPL3 RPL30 RPL31 RPL32 RPL34 RPL35 RPL36 RPL36A RPL37 RPL38 RPL39 RPL41 RPL5 RPL6 RPL7 RPL7A RPL8 RPL9 RPLP0 RPLP1 RPLP2 RPS10 RPS12 RPS13 RPS14 RPS15 RPS15A RPS16 RPS18 RPS19 RPS2 RPS20 RPS21 RPS24 RPS25 RPS26 RPS27 RPS27A RPS28 RPS29 RPS3 RPS3A RPS4X RPS5 RPS6 RPS7 RPS8 RPS9 UBA52,48,96,0,0
+ear,8,R-HSA-9770562,mRNA Polyadenylation,3,Metabolism of RNA,1.4785586412458428e-08,11,126,DDX46 HNRNPA3 HNRNPD PAPOLA PCBP1 POLR2K RBM17 SNRPB2 SNRPE SRSF10 SRSF4,74,78,0,0
+ear,9,R-HSA-9770562,mRNA Polyadenylation,3,Metabolism of RNA,0.0004985348526467079,6,126,NCBP2 PABPN1 POLR2A RBM5 SNRNP70 U2AF1L4,9,69,0,0
+ear,10,R-HSA-9639288,Amino acids regulate mTORC1,3,Cellular responses to stimuli,0.004534966225834673,3,49,MLST8 RRAGB WDR59,5,59,0,0
+ear,11,R-HSA-3000171,Non-integrin membrane-ECM interactions,1,Extracellular matrix organization,0.0010272231071938765,4,73,ACTB COL5A3 NTN4 SNTA1,8,53,0,0
+ear,12,R-HSA-156902,Peptide chain elongation,3,Metabolism of proteins,1.8192376423480917e-144,73,87,EEF1A1 FAU RPL10 RPL10A RPL11 RPL12 RPL13 RPL13A RPL14 RPL15 RPL17 RPL18 RPL18A RPL19 RPL21 RPL22 RPL23A RPL24 RPL26 RPL27 RPL27A RPL28 RPL29 RPL3 RPL30 RPL31 RPL32 RPL34 RPL35 RPL35A RPL36 RPL36A RPL37 RPL38 RPL39 RPL41 RPL5 RPL6 RPL7 RPL7A RPL8 RPL9 RPLP0 RPLP1 RPLP2 RPS10 RPS12 RPS13 RPS14 RPS15 RPS15A RPS16 RPS18 RPS19 RPS2 RPS20 RPS21 RPS24 RPS25 RPS26 RPS27 RPS27A RPS28 RPS29 RPS3 RPS3A RPS4X RPS5 RPS6 RPS7 RPS8 RPS9 UBA52,52,96,0,0
+ear,13,R-HSA-4641262,Disassembly of the destruction complex and recruitment of AXIN to the membrane,3,Signal Transduction,0.0012380479142323323,3,28,DVL3 PPP2CB PPP2R5B,18,66,0,0
+ear,14,R-HSA-9013409,RHOJ GTPase cycle,4,Signal Transduction,4.9617838471021797e-05,5,53,ARHGAP21 CDC42BPB OPHN1 RHOJ WASL,17,66,0,0
+ear,15,R-HSA-6798695,Neutrophil degranulation,2,Immune System,0.0002806030754637092,11,421,ATP8A1 B2M CYBA KCNAB2 LAIR1 LPCAT1 MAPK1 RAB27A SLC15A4 TMC6 UNC13D,18,65,0,0
+ear,16,R-HSA-156902,Peptide chain elongation,3,Metabolism of proteins,0.0007317734730538379,5,87,EEF1A1 RPL10 RPL31 RPL41 RPS8,24,71,0,0
+ear,17,R-HSA-9930044,Nuclear RNA decay,1,Metabolism of RNA,0.0019982897382885994,3,32,EXOSC10 EXOSC4 WDR82,10,68,0,0
+ear,18,R-HSA-1442490,Collagen degradation,2,Extracellular matrix organization,0.0008879269055459946,4,51,COL23A1 COL5A1 COL8A2 MMP3,8,73,0,0
+ear,19,R-HSA-156902,Peptide chain elongation,3,Metabolism of proteins,3.204277001014306e-09,9,87,EEF1A1 RPL10 RPL10A RPL13 RPL31 RPL39 RPL41 RPS6 RPS8,18,55,0,0
+ear,20,R-HSA-381340,Transcriptional regulation of white adipocyte differentiation,2,Developmental Biology,3.233288857566856e-05,6,78,EP300 MED13 MED13L MED29 NCOA3 ZNF638,13,68,0,0
+ear,21,R-HSA-72163,mRNA Splicing - Major Pathway,3,Metabolism of RNA,8.324847874656368e-14,17,197,BCAS2 CCDC12 FUS HNRNPC HNRNPH1 HNRNPU LSM8 LUC7L3 RBM25 SF3B1 SNRNP70 SRRM1 SRRM2 SRSF5 SRSF7 SYF2 TRA2B,9,67,0,0
+ear,22,R-HSA-198933,Immunoregulatory interactions between a Lymphoid and a non-Lymphoid cell,2,Immune System,7.528489424240591e-14,14,105,B2M CD3E CD40LG CD8A CD8B CD96 ITGA4 ITGAL ITGB7 KLRC1 KLRG1 LAIR2 NCR3 SH2D1A,16,70,0,0
+ear,23,R-HSA-381426,Regulation of Insulin-like Growth Factor (IGF) transport and uptake by Insulin-like Growth Factor Binding Proteins (IGFBPs),1,Metabolism of proteins,1.6968149837744847e-05,6,88,CP FBN1 LAMC1 LTBP1 PAPPA SDC2,19,54,0,0
+ear,24,R-HSA-156902,Peptide chain elongation,3,Metabolism of proteins,4.0461657202375407e-07,8,87,EEF1A1 RPL10 RPL13 RPL23A RPL39 RPL41 RPS27 RPS6,24,69,0,0
+ear,25,R-HSA-156902,Peptide chain elongation,3,Metabolism of proteins,1.9652030033294334e-05,6,87,EEF1A1 RPL13 RPL41 RPLP1 RPS18 RPS6,18,56,0,0
+ear,26,R-HSA-6809371,Formation of the cornified envelope,2,Developmental Biology,0.0008876274291468019,4,62,EVPL IVL KLK8 SPRR1A,3,60,0,0
+ear,27,R-HSA-983695,Antigen activates B Cell Receptor (BCR) leading to generation of second messengers,3,Immune System,1.0356375419133014e-06,5,29,BLK BTK CD22 CD79A CD79B,7,56,0,0
+ear,28,R-HSA-4551638,SUMOylation of chromatin organization proteins,4,Metabolism of proteins,0.004894781433330791,3,54,L3MBTL2 NUP58 RNF2,2,55,0,0
+ear,29,R-HSA-6798695,Neutrophil degranulation,2,Immune System,3.974915873397943e-08,18,421,ALDOA ANXA2 ASAH1 ATP6AP2 CTSB CTSD FTH1 GDI2 GRN GSTP1 NPC2 PKM PSMA2 RAC1 RAP1A RHOA S100A11 SDCBP,50,80,0,0
+ear,30,R-HSA-3928662,EPHB-mediated forward signaling,4,Developmental Biology,0.003063714697682239,3,40,ACTB ACTR2 ROCK1,4,63,0,0
+ear,31,R-HSA-156902,Peptide chain elongation,3,Metabolism of proteins,7.678313017114352e-05,6,87,EEF1A1 RPL13 RPL39 RPL41 RPS6 RPS8,25,71,0,0
+ear,32,R-HSA-114604,GPVI-mediated activation cascade,2,Hemostasis,0.00010323030918387827,4,32,LCP2 LYN PIK3CG SYK,20,67,0,0
+ear,33,R-HSA-9024446,NR1H2 and NR1H3-mediated signaling,2,Signal Transduction,0.0014070268307667694,3,37,APOD FASN KDM4A,6,52,0,0
+ear,34,R-HSA-1632852,Macroautophagy,1,Autophagy,0.0020641911182401724,5,130,MFN1 PRKAA1 PRKAG1 UBE2V1 UVRAG,6,60,0,0
+ear,35,R-HSA-9010553,Regulation of expression of SLITs and ROBOs,4,Developmental Biology,2.0778199546292505e-17,19,148,PABPC1 PSMB4 PSMB7 PSMC1 PSMD8 RPL10 RPL13 RPL15 RPL21 RPL23A RPL26 RPL39 RPL41 RPLP1 RPS15A RPS18 RPS24 RPS6 RPS8,89,77,0,0
+ear,36,R-HSA-9616222,Transcriptional regulation of granulopoiesis,1,Developmental Biology,5.188028658354112e-05,4,27,FLI1 PML RARA STAT3,21,67,0,0
+ear,37,R-HSA-2151201,Transcriptional activation of mitochondrial biogenesis,2,Organelle biogenesis and maintenance,0.00042102824777381497,4,51,CREB1 GABPB1 HCFC1 TFB2M,8,60,0,0
+ear,38,R-HSA-156902,Peptide chain elongation,3,Metabolism of proteins,1.8997279851837777e-142,72,87,EEF1A1 EEF2 FAU RPL10 RPL10A RPL11 RPL13 RPL13A RPL14 RPL15 RPL17 RPL18 RPL18A RPL19 RPL21 RPL22 RPL23A RPL24 RPL26 RPL27 RPL27A RPL28 RPL29 RPL3 RPL30 RPL31 RPL32 RPL34 RPL35 RPL36 RPL36A RPL37 RPL38 RPL39 RPL41 RPL5 RPL6 RPL7 RPL7A RPL8 RPL9 RPLP0 RPLP1 RPLP2 RPS10 RPS12 RPS13 RPS14 RPS15 RPS15A RPS16 RPS18 RPS19 RPS2 RPS20 RPS21 RPS24 RPS25 RPS26 RPS27 RPS27A RPS28 RPS29 RPS3 RPS3A RPS4X RPS5 RPS6 RPS7 RPS8 RPS9 UBA52,51,94,0,0
+ear,39,R-HSA-9639288,Amino acids regulate mTORC1,3,Cellular responses to stimuli,0.0026747231970625516,3,49,FLCN ITFG2 SESN1,2,49,0,0
+ear,40,R-HSA-2408557,Selenocysteine synthesis,3,Metabolism,0.00010852118058789711,6,90,RPL10 RPL23A RPL39 RPL41 RPS27 SEPHS2,20,73,0,0
+ear,41,R-HSA-156902,Peptide chain elongation,3,Metabolism of proteins,5.023599151127974e-14,13,87,EEF1A1 RPL10 RPL13 RPL13A RPL21 RPL32 RPL34 RPL39 RPL41 RPS15A RPS18 RPS6 RPS8,24,65,0,0
+ear,42,R-HSA-6798695,Neutrophil degranulation,2,Immune System,1.9682454975635536e-11,21,421,ANPEP ASAH1 BRI3 BST1 CREG1 CST3 CTSD CXCL1 FTH1 FTL FUCA2 GAA GNS HEXB NPC2 PRCP PSAP PTX3 QSOX1 SDCBP SERPINB6,13,73,0,0
+ear,43,R-HSA-446107,Type I hemidesmosome assembly,2,Cell-Cell communication,6.941370525238359e-13,7,11,COL17A1 DST ITGB4 KRT5 LAMA3 LAMB3 LAMC2,23,72,0,0
+ear,44,R-HSA-933543,NF-kB activation through FADD/RIP-1 pathway mediated by caspase-8 and -10,3,Immune System,0.0016974526576650749,2,11,IFIH1 IKBKB,5,49,0,0
+ear,45,R-HSA-6785470,tRNA processing in the mitochondrion,2,Metabolism of RNA,4.78737466361815e-06,4,17,MT-CYB MT-ND2 MT-ND3 MT-ND4L,15,60,0,0
+ear,46,R-HSA-6809371,Formation of the cornified envelope,2,Developmental Biology,4.475750573348785e-24,18,62,DSC3 DSG1 DSP KRT1 KRT10 KRT14 KRT15 KRT16 KRT17 KRT23 KRT5 KRT6A KRT75 KRT8 PERP SPINK5 SPRR1B TGM1,11,71,0,0
+ear,47,R-HSA-71291,Metabolism of amino acids and derivatives,1,Metabolism,0.0048304024551523925,6,298,AGMAT RPL10 RPS19 RPS27 SERINC5 TSTD1,2,46,0,0
+ear,48,R-HSA-5250941,Negative epigenetic regulation of rRNA expression,2,Gene expression (Transcription),0.003735040599413718,3,45,DNMT1 SIRT1 TTF1,5,60,0,0
+ear,49,R-HSA-351906,Apoptotic cleavage of cell adhesion  proteins,4,Programmed Cell Death,6.846057658512939e-05,3,11,DSG2 DSP TJP2,11,66,0,0
+ear,50,R-HSA-3000178,ECM proteoglycans,1,Extracellular matrix organization,7.314761869646281e-08,8,62,APP BGN COMP DCN LUM PTPRS SPARC TNC,24,78,0,0
+ear,51,R-HSA-977225,Amyloid fiber formation,1,Metabolism of proteins,1.759930156174635e-05,5,40,B2M CST3 GSN HSPG2 ITM2B,28,71,0,0
+ear,52,R-HSA-6791226,Major pathway of rRNA processing in the nucleolus and cytosol,3,Metabolism of RNA,2.1938538101258005e-08,12,175,DCAF13 DDX21 EBNA1BP2 NIP7 PES1 RPL41 RPL7 RPLP1 RPS15 RPS18 RPS6 RRP9,35,73,0,0
+ear,53,R-HSA-425407,SLC-mediated transmembrane transport,1,Transport of small molecules,0.0003962873070655996,6,158,AHCYL2 SLC22A5 SLC27A1 SLC38A5 SLC39A4 SLC5A6,2,53,0,0
+ear,54,R-HSA-156902,Peptide chain elongation,3,Metabolism of proteins,7.624875985417767e-10,10,87,EEF1A1 RPL10 RPL13A RPL21 RPL34 RPL39 RPL41 RPS15A RPS27 RPS6,22,65,0,0
+ear,55,R-HSA-156827,L13a-mediated translational silencing of Ceruloplasmin expression,3,Metabolism of proteins,1.7865427916465734e-31,27,109,EIF3K EIF4A1 FAU PABPC1 RPL10A RPL13 RPL14 RPL15 RPL21 RPL22 RPL24 RPL29 RPL37A RPL39 RPL4 RPL41 RPL7 RPL7A RPL8 RPLP1 RPS11 RPS15 RPS24 RPS25 RPS4X RPS8 RPS9,49,86,0,0
+ear,56,R-HSA-9770562,mRNA Polyadenylation,3,Metabolism of RNA,1.1217346339172746e-09,12,126,FUS HNRNPA2B1 HNRNPU PPP1R10 SNRPG SRSF2 SRSF3 SRSF5 SRSF7 TRA2B U2AF1 UBC,68,78,0,0
+ear,57,R-HSA-1236977,Endosomal/Vacuolar pathway,4,Immune System,1.3844231549614388e-08,5,11,B2M HLA-A HLA-B HLA-C HLA-E,25,70,0,0
+ear,58,R-HSA-156902,Peptide chain elongation,3,Metabolism of proteins,2.8488467791805117e-07,7,87,EEF1A1 RPL10 RPL10A RPL15 RPL22 RPL39 RPL6,15,45,0,0
+ear,59,R-HSA-445355,Smooth Muscle Contraction,1,Muscle contraction,7.2525467839913175e-12,9,35,ACTA2 CALD1 LMOD1 MYL12A MYL9 MYLK TPM1 TPM2 TPM4,14,72,0,0
+ear,60,R-HSA-114608,Platelet degranulation ,3,Hemostasis,8.832736651812485e-05,6,104,A2M CLU F8 SELP TMSB4X VWF,10,61,0,0
+ear,61,R-HSA-3214847,HATs acetylate histones,2,Chromatin organization,0.0003378638507285702,5,78,ACTB ATF2 CREBBP SUPT20H TADA3,5,67,0,0
+ear,62,R-HSA-3000480,Scavenging by Class A Receptors,2,Vesicle-mediated transport,0.00021601525488240146,3,16,APOE COL4A1 COL4A2,14,65,0,0
+ear,63,R-HSA-156902,Peptide chain elongation,3,Metabolism of proteins,0.0011890128930062865,5,87,EEF1A1 RPL13 RPL41 RPS18 RPS6,20,79,0,0
+ear,64,R-HSA-3000178,ECM proteoglycans,1,Extracellular matrix organization,1.345795272721606e-09,9,62,COL1A1 COL3A1 COL6A1 COL6A2 COL6A3 FMOD FN1 LAMA2 LAMB1,29,70,0,0
+ear,65,R-HSA-5625740,RHO GTPases activate PKNs,4,Signal Transduction,4.7498147183192646e-07,6,31,MYL12B MYL6 RAC1 RHOC YWHAE YWHAH,70,85,0,0
+ear,66,R-HSA-6798695,Neutrophil degranulation,2,Immune System,0.000616165605732259,11,421,ADGRE5 ARHGAP45 B2M GLIPR1 IQGAP2 PTPN6 RHOF RNASET2 STK10 TBC1D10C YPEL5,9,71,0,0
+ear,67,R-HSA-6799198,Complex I biogenesis,3,Metabolism,1.00890056354336e-07,8,68,NDUFA1 NDUFA13 NDUFB1 NDUFB2 NDUFB4 NDUFB7 NDUFC2 NDUFS6,51,74,0,0
+ear,68,R-HSA-6798695,Neutrophil degranulation,2,Immune System,1.0000875887613603e-17,29,421,C3AR1 C5AR1 CD14 CD36 CD68 CDA CFD CFP CST3 CYBA CYBB FCGR2A FGL2 FPR1 FTH1 GCA LTA4H MCEMP1 MGST1 MNDA OLR1 PSAP RAB31 RETN RNASE2 SERPINA1 SLC11A1 TLR2 TNFAIP6,33,84,0,0
+ear,69,R-HSA-156902,Peptide chain elongation,3,Metabolism of proteins,5.566129630985657e-06,7,87,EEF1A1 RPL10A RPL24 RPL39 RPL41 RPL6 RPS8,29,69,0,0
+ear,70,R-HSA-381426,Regulation of Insulin-like Growth Factor (IGF) transport and uptake by Insulin-like Growth Factor Binding Proteins (IGFBPs),1,Metabolism of proteins,6.621571272362278e-06,7,88,APLP2 IGFBP4 IGFBP6 MFGE8 RCN1 TIMP1 VCAN,21,70,0,0
+ear,71,R-HSA-156902,Peptide chain elongation,3,Metabolism of proteins,2.4028794425847455e-06,7,87,EEF1A1 RPL10 RPL13 RPL39 RPL41 RPS6 RPS8,30,61,0,0
+ear,72,R-HSA-6798695,Neutrophil degranulation,2,Immune System,1.904301965320921e-07,17,421,ATP6AP2 B2M CAP1 CD63 CST3 CTSD CYBA DDOST FTH1 GMFG GYG1 HLA-C IQGAP1 PGAM1 SDCBP SERPINB1 SRP14,22,79,0,0
+ear,73,R-HSA-6799198,Complex I biogenesis,3,Metabolism,4.5719757730557057e-10,10,68,NDUFA1 NDUFA10 NDUFA2 NDUFA9 NDUFAB1 NDUFB2 NDUFB6 NDUFS2 NDUFS7 NDUFV2,80,79,0,0
+ear,74,R-HSA-9937008,Mitochondrial mRNA modification,1,Metabolism of RNA,0.0006878944426937466,3,23,MT-ATP8 MT-CO1 MTERF3,15,66,0,0
+ear,75,R-HSA-5368286,Mitochondrial translation initiation,3,Metabolism of proteins,1.3553717511837884e-07,9,98,MRPL1 MRPL23 MRPL27 MRPL50 MRPS18C MT-CO1 MT-CO3 MT-ND1 MT-ND4L,33,74,0,0
+ear,76,R-HSA-156827,L13a-mediated translational silencing of Ceruloplasmin expression,3,Metabolism of proteins,1.9481842716821414e-18,18,109,EIF3F EIF3G EIF4A2 FAU PABPC1 RPL14 RPL15 RPL22 RPL23A RPL24 RPL29 RPL39 RPL7 RPL7A RPL8 RPS24 RPS25 RPS9,94,78,0,0
+ear,77,R-HSA-6791226,Major pathway of rRNA processing in the nucleolus and cytosol,3,Metabolism of RNA,6.626240590112387e-16,19,175,EMG1 EXOSC7 HEATR1 NOB1 PDCD11 RPL10 RPL13 RPL13A RPL39 RPL41 RPLP1 RPP21 RPS18 RPS27 RPS6 RPS8 RRP7A UTP4 WDR18,23,78,0,0
+ear,78,R-HSA-418594,G alpha (i) signalling events,3,Signal Transduction,0.00022250512721763932,7,172,AGT CCL19 GNAZ PDE4C PENK PRKCG RGS22,12,62,0,0
+ear,79,R-HSA-204005,COPII-mediated vesicle transport,3,Metabolism of proteins; Vesicle-mediated transport,0.0012702669062836932,4,66,BET1 SEC22C TRAPPC6B USO1,3,62,0,0
+ear,80,R-HSA-6798695,Neutrophil degranulation,2,Immune System,5.461635203752814e-15,26,421,B2M CD44 CD53 CLEC12A COTL1 CST3 CTSH CTSS CYBA FCER1G FCN1 FGR FTH1 ITGB2 LYZ PLAUR PSAP PTPRC RNASET2 S100A12 S100A8 S100A9 SELL SERPINB1 SLC2A3 TYROBP,35,82,0,0
+ear,81,R-HSA-8948700,Competing endogenous RNAs (ceRNAs) regulate PTEN translation,5,Signal Transduction,0.002668376953624205,2,10,CNOT6L TNRC6C,11,68,0,0
+ear,82,R-HSA-156902,Peptide chain elongation,3,Metabolism of proteins,1.7432894587780692e-10,11,87,EEF1A1 RPL10 RPL13 RPL13A RPL21 RPL34 RPL39 RPL41 RPLP1 RPS18 RPS6,24,75,0,0
+ear,83,R-HSA-114608,Platelet degranulation ,3,Hemostasis,1.6510336782534843e-09,11,104,APLP2 APP CD63 CD9 CFD CLU PSAP RARRES2 SELENOP SERPING1 TIMP1,114,77,0,0
+ear,84,R-HSA-6798695,Neutrophil degranulation,2,Immune System,3.3576574715165635e-06,14,421,ACTR2 ATP11A BRI3 C3 CD58 CKAP4 CPPED1 CST3 FTH1 MANBA PRKCD QPCT RAB3D TOLLIP,19,67,0,0
+ear,85,R-HSA-156902,Peptide chain elongation,3,Metabolism of proteins,0.0005999649409686751,5,87,EEF1A1 RPL10 RPL23A RPL39 RPL41,11,68,0,0
+ear,86,R-HSA-5663213,RHO GTPases Activate WASPs and WAVEs,4,Signal Transduction,1.229515366441891e-05,5,34,ABI1 ACTB ACTG1 ACTR3 ARPC2,27,78,0,0
+ear,87,R-HSA-156902,Peptide chain elongation,3,Metabolism of proteins,2.041078350669238e-12,12,87,EEF1A1 RPL10 RPL13 RPL31 RPL39 RPL39L RPL41 RPL7A RPS18 RPS27 RPS6 RPS8,22,67,0,0
+ear,88,R-HSA-8950505,Gene and protein expression by JAK-STAT signaling after Interleukin-12 stimulation,5,Immune System,8.810509820180866e-10,8,34,ARF1 CAPZA1 CDC42 HNRNPA2B1 HNRNPDL PAK2 PPIA PSME2,49,84,0,0
+ear,89,R-HSA-432722,Golgi Associated Vesicle Biogenesis,3,Vesicle-mediated transport,0.0008656889577699563,4,56,BLOC1S4 NAPA SNX5 YIPF6,5,66,0,0
+ear,90,R-HSA-5658623,FGFRL1 modulation of FGFR1 signaling,4,Signal Transduction,1.1478770328174701e-05,3,8,FGF10 FGF2 SPRED1,22,52,0,0
+ear,91,R-HSA-156827,L13a-mediated translational silencing of Ceruloplasmin expression,3,Metabolism of proteins,2.1852993860012984e-34,28,109,EIF2S3 EIF3F EIF3G EIF3K PABPC1 RPL10 RPL13 RPL13A RPL21 RPL22L1 RPL23 RPL34 RPL39 RPL41 RPLP1 RPLP2 RPS14 RPS15 RPS15A RPS17 RPS18 RPS19 RPS2 RPS27 RPS28 RPS3 RPS6 RPSA,28,79,0,0
+ear,92,R-HSA-156902,Peptide chain elongation,3,Metabolism of proteins,3.290288960015445e-08,9,87,EEF1A1 RPL10 RPL13 RPL13A RPL39 RPL41 RPLP1 RPS27 RPS6,19,71,0,0
+ear,93,R-HSA-1266695,Interleukin-7 signaling,3,Immune System,2.308503826969026e-05,4,21,JAK1 PIK3R1 SOCS1 SOCS2,28,71,0,0
+ear,94,R-HSA-156827,L13a-mediated translational silencing of Ceruloplasmin expression,3,Metabolism of proteins,1.713700379669848e-77,50,109,EIF3D EIF3E EIF3H EIF3L EIF3M EIF4A2 EIF4B RPL10 RPL11 RPL13 RPL13A RPL14 RPL15 RPL18A RPL19 RPL21 RPL22 RPL23 RPL23A RPL24 RPL26 RPL29 RPL3 RPL31 RPL32 RPL34 RPL36 RPL36AL RPL39 RPL41 RPL6 RPL7 RPL7A RPL8 RPLP1 RPLP2 RPS12 RPS14 RPS15 RPS15A RPS18 RPS2 RPS24 RPS25 RPS28 RPS3 RPS4X RPS6 RPS8 RPS9,28,85,0,0
+ear,95,R-HSA-156902,Peptide chain elongation,3,Metabolism of proteins,3.606556118402748e-07,8,87,EEF1A1 RPL10 RPL15 RPL23A RPL39 RPL41 RPS27 RPS8,16,68,0,0
+ear,96,R-HSA-8939243,RUNX1 interacts with co-factors whose precise effect on RUNX1 targets is not known,4,Gene expression (Transcription),0.00019583585782548732,4,36,HIPK2 PCGF5 SMARCC1 SMARCD1,25,70,0,0
+ear,97,R-HSA-9707564,Cytoprotection by HMOX1,3,Cellular responses to stimuli,0.0005807722168666433,4,52,BLVRA HM13 MT-CO1 NCOR2,6,64,0,0
+ear,98,R-HSA-198933,Immunoregulatory interactions between a Lymphoid and a non-Lymphoid cell,2,Immune System,7.45656650005854e-10,11,105,B2M CD247 CD3D CD3G FCGR3A HCST ITGB2 KLRB1 KLRD1 KLRF1 SELL,32,71,0,0
+ear,99,R-HSA-109704,PI3K Cascade,5,Signal Transduction,0.009233173764548339,2,33,FGF22 PIK3R2,1,38,0,0
+peritoneum,0,R-HSA-1369062,ABC transporters in lipid homeostasis,2,Transport of small molecules,1.274602795958997e-26,13,16,ABCA10 ABCA12 ABCA2 ABCA3 ABCA5 ABCA6 ABCA7 ABCA9 ABCD1 ABCD2 ABCD3 ABCG1 ABCG4,17,69,99,13
+peritoneum,1,R-HSA-9013149,RAC1 GTPase cycle,4,Signal Transduction,8.41379945619536e-10,13,182,ARHGAP30 ARHGAP4 ARHGAP45 ARHGDIB CYBA DOCK2 DOCK8 FMNL1 LBR NCF1 NCKAP1L TAOK3 WAS,27,76,0,0
+peritoneum,2,R-HSA-111452,Activation and oligomerization of BAK protein,3,Programmed Cell Death,0.011920620686322308,1,2,BAK1,0,60,0,0
+peritoneum,3,R-HSA-9770562,mRNA Polyadenylation,3,Metabolism of RNA,3.750434956056901e-09,11,127,HNRNPF HNRNPH1 HNRNPH2 HNRNPM HNRNPU PRPF40A SNRPB SRSF2 SRSF6 TRA2B UBC,91,79,0,0
+peritoneum,4,R-HSA-72163,mRNA Splicing - Major Pathway,3,Metabolism of RNA,3.73313759141021e-09,12,200,DDX5 FUS RBMX RNPS1 SF1 SRRM1 SRRM2 SRSF5 SRSF7 SRSF8 SYF2 U2SURP,23,64,0,0
+peritoneum,5,R-HSA-6798695,Neutrophil degranulation,2,Immune System,4.1371745519921776e-07,15,463,ACTR10 B2M BST2 CD47 CSNK2B CTSC ERP44 HEXB HLA-B MVP PSMC3 RAB7A SERPINB6 STOM VAPA,29,69,0,0
+peritoneum,6,R-HSA-445355,Smooth Muscle Contraction,1,Muscle contraction,5.352970972140172e-05,4,39,GUCY1A2 LMOD1 MYH11 SORBS1,13,54,0,0
+peritoneum,7,R-HSA-8980692,RHOA GTPase cycle,4,Signal Transduction,0.0006928020563487809,5,146,ARHGAP44 ARHGEF10 BCR DAAM1 PLEKHG3,11,49,0,0
+peritoneum,8,R-HSA-156902,Peptide chain elongation,3,Metabolism of proteins,6.471122310315907e-150,72,88,EEF1A1 FAU RPL10 RPL10A RPL11 RPL12 RPL13 RPL13A RPL14 RPL15 RPL17 RPL18 RPL18A RPL19 RPL21 RPL22 RPL23A RPL24 RPL26 RPL27 RPL27A RPL28 RPL29 RPL3 RPL30 RPL31 RPL32 RPL34 RPL35 RPL35A RPL36 RPL36A RPL37 RPL38 RPL39 RPL4 RPL41 RPL5 RPL6 RPL7 RPL7A RPL8 RPL9 RPLP1 RPS10 RPS11 RPS12 RPS13 RPS14 RPS15A RPS16 RPS17 RPS18 RPS2 RPS20 RPS21 RPS23 RPS24 RPS25 RPS27 RPS27A RPS28 RPS29 RPS3 RPS3A RPS4X RPS5 RPS6 RPS7 RPS8 RPS9 RPSA,22,89,0,0
+peritoneum,9,R-HSA-3928662,EPHB-mediated forward signaling,4,Developmental Biology,3.982278823597247e-07,6,42,ACTB ACTG1 ARPC1A ARPC5 RAC1 RHOA,49,70,0,0
+peritoneum,10,R-HSA-350562,Regulation of ornithine decarboxylase (ODC),3,Metabolism,0.00020384846125975667,4,38,ADRM1 OAZ1 PSMA7 PSMC1,63,78,0,0
+peritoneum,11,R-HSA-2129379,Molecules associated with elastic fibres,2,Extracellular matrix organization,4.197636021006335e-09,7,36,ELN EMILIN1 FBLN1 FBN1 LTBP1 MFAP4 MFAP5,17,70,0,0
+peritoneum,12,R-HSA-909733,Interferon alpha/beta signaling,3,Immune System,5.484100115652248e-06,6,64,HLA-A HLA-F IFITM1 IFITM2 ISG20 JAK1,26,71,0,0
+peritoneum,13,R-HSA-2122948,Activated NOTCH1 Transmits Signal to the Nucleus,3,Signal Transduction,0.00044646416206654886,3,31,CNTN1 DTX4 JAG1,7,49,0,0
+peritoneum,14,R-HSA-6811438,Intra-Golgi traffic,3,Vesicle-mediated transport,0.001882118644288456,3,42,GOLGA5 GOSR2 NAPG,7,59,0,0
+peritoneum,15,R-HSA-6787450,tRNA modification in the mitochondrion,2,Metabolism of RNA,0.0009033539316990592,2,10,PUS1 TRIT1,3,46,0,0
+peritoneum,16,R-HSA-5368598,Negative regulation of TCF-dependent signaling by DVL-interacting proteins,3,Signal Transduction,0.0003709842165271214,2,5,DVL1 DVL3,8,62,0,0
+peritoneum,17,R-HSA-202430,Translocation of ZAP-70 to Immunological synapse,3,Immune System,1.5562289036347642e-12,8,22,HLA-DPA1 HLA-DQA1 HLA-DQA2 HLA-DQB1 HLA-DRA HLA-DRB1 HLA-DRB5 PTPN22,20,73,0,0
+peritoneum,18,R-HSA-9769733,Fibrin formation,2,Hemostasis,0.0009834782807345659,2,10,PROC SERPIND1,8,48,0,0
+peritoneum,19,R-HSA-9931269,AMPK-induced ERAD and lysosome mediated degradation of PD-L1(CD274),6,Immune System,6.37733518776182e-13,11,55,DERL1 PSMA2 PSMA4 PSMB1 PSMB6 PSMC2 PSMC4 PSMC5 PSMD1 PSMD8 VCP,86,84,0,0
+peritoneum,20,R-HSA-2122948,Activated NOTCH1 Transmits Signal to the Nucleus,3,Signal Transduction,6.984220146500035e-05,4,31,ADAM10 ADAM17 NUMB PSEN1,19,73,0,0
+peritoneum,21,R-HSA-6785470,tRNA processing in the mitochondrion,2,Metabolism of RNA,8.442100429290052e-19,10,17,MT-ATP6 MT-CO1 MT-CO2 MT-CO3 MT-CYB MT-ND1 MT-ND2 MT-ND3 MT-ND4 MT-ND5,31,63,0,0
+peritoneum,22,R-HSA-198933,Immunoregulatory interactions between a Lymphoid and a non-Lymphoid cell,2,Immune System,1.7377360237891504e-07,9,169,B2M CD200R1 CD3D CD8B KLRB1 KLRC1 KLRD1 KLRF1 KLRG1,8,52,0,0
+peritoneum,23,R-HSA-72163,mRNA Splicing - Major Pathway,3,Metabolism of RNA,0.0002667296522394577,7,200,CHERP CRNKL1 DDX23 POLR2D PPP1R8 SF3A2 ZNF830,9,64,0,0
+peritoneum,24,R-HSA-156902,Peptide chain elongation,3,Metabolism of proteins,4.451220831364577e-156,74,88,EEF1A1 FAU RPL10 RPL10A RPL11 RPL12 RPL13 RPL13A RPL14 RPL15 RPL17 RPL18 RPL18A RPL19 RPL21 RPL22 RPL23A RPL24 RPL26 RPL27 RPL27A RPL28 RPL29 RPL3 RPL30 RPL31 RPL32 RPL34 RPL35 RPL35A RPL36 RPL36A RPL37 RPL37A RPL38 RPL39 RPL4 RPL41 RPL5 RPL6 RPL7 RPL7A RPL8 RPL9 RPLP0 RPLP1 RPS10 RPS11 RPS12 RPS13 RPS14 RPS15A RPS16 RPS17 RPS18 RPS2 RPS20 RPS21 RPS23 RPS24 RPS25 RPS27 RPS27A RPS28 RPS29 RPS3 RPS3A RPS4X RPS5 RPS6 RPS7 RPS8 RPS9 RPSA,22,90,0,0
+peritoneum,25,R-HSA-2173796,SMAD2/SMAD3:SMAD4 heterotrimer regulates transcription,4,Signal Transduction; Gene expression (Transcription),0.0010855712246222908,3,36,CCNT1 CCNT2 FURIN,9,57,0,0
+peritoneum,26,R-HSA-2892245,"POU5F1 (OCT4), SOX2, NANOG repress genes related to differentiation",2,Developmental Biology,0.0015334065155472676,2,10,DKK1 GATA6,4,60,0,0
+peritoneum,27,R-HSA-418594,G alpha (i) signalling events,3,Signal Transduction,0.0011134221502342647,6,272,CCL28 CNR2 CXCL13 NMUR1 RGS9 S1PR5,3,44,0,0
+peritoneum,28,R-HSA-6798695,Neutrophil degranulation,2,Immune System,2.913200376861632e-06,14,463,B2M BRI3 CD63 CSTB CXCL1 FTH1 FTL MGST1 PKM PPIA RHOA RHOG S100A11 SDCBP,33,70,0,0
+peritoneum,29,R-HSA-6798695,Neutrophil degranulation,2,Immune System,0.00014860833279625182,12,463,ATP6AP2 ATP6V0A1 CAT CD63 CNN2 CST3 CTSZ GRN NPC2 PLAUR PRDX6 RAB31,18,75,0,0
+peritoneum,30,R-HSA-901032,ER Quality Control Compartment (ERQC),5,Metabolism of proteins,0.0002731660094627726,3,20,AMFR EDEM3 UGGT1,5,65,0,0
+peritoneum,31,R-HSA-977606,Regulation of Complement cascade,3,Immune System,1.5207948799861122e-06,7,80,C1R C2 C3 CFB CFH CFI SERPING1,13,72,0,0
+peritoneum,32,R-HSA-6798695,Neutrophil degranulation,2,Immune System,9.593045532259644e-12,22,463,ASAH1 ATP6V0A1 CD36 CD63 CMTM6 CTSA CTSB CTSD CTSZ FABP5 GRN IQGAP1 NPC2 PKM PSAP RAC1 RAP2B RHOA S100A11 SDCBP SIRPA TNFRSF1B,36,82,0,0
+peritoneum,33,R-HSA-1650814,Collagen biosynthesis and modifying enzymes,2,Extracellular matrix organization,0.003369220466709515,3,66,COL6A6 COLGALT2 P4HA3,4,46,0,0
+peritoneum,34,R-HSA-3247509,Chromatin modifying enzymes,1,Chromatin organization,0.00022251290246535113,7,204,ARID2 GPS2 HDAC10 KAT7 KDM7A MSL2 SETDB2,2,61,0,0
+peritoneum,35,R-HSA-5627123,RHO GTPases activate PAKs,4,Signal Transduction,0.0005030489179928644,3,21,CDC42 MYL12B MYL6,45,76,0,0
+peritoneum,36,R-HSA-5389840,Mitochondrial translation elongation,3,Metabolism of proteins,4.649948446156017e-06,7,100,MRPL46 MRPL58 MRPS2 MRPS27 MRPS30 MRPS9 TSFM,11,68,0,0
+peritoneum,37,R-HSA-373080,Class B/2 (Secretin family receptors),3,Signal Transduction,0.0004779151036224478,4,82,ADCYAP1 FZD7 FZD8 WNT10A,3,45,0,0
+peritoneum,38,R-HSA-212165,Epigenetic regulation of gene expression,1,Gene expression (Transcription),0.007552787776196296,5,253,PEX11A SAP30L SUV39H1 ZNF320 ZNF649,1,49,0,0
+peritoneum,39,R-HSA-156902,Peptide chain elongation,3,Metabolism of proteins,3.246944684683319e-105,56,88,FAU RPL11 RPL12 RPL13 RPL14 RPL15 RPL17 RPL18 RPL18A RPL19 RPL21 RPL22 RPL24 RPL26 RPL27 RPL27A RPL28 RPL29 RPL30 RPL32 RPL35 RPL35A RPL36 RPL36A RPL37 RPL37A RPL38 RPL39 RPL4 RPL41 RPL6 RPL7 RPL7A RPL8 RPL9 RPLP0 RPLP1 RPS10 RPS11 RPS12 RPS13 RPS14 RPS16 RPS17 RPS18 RPS2 RPS20 RPS21 RPS23 RPS24 RPS25 RPS28 RPS5 RPS7 RPS8 RPS9,21,81,0,0
+peritoneum,40,R-HSA-6804757,Regulation of TP53 Degradation,6,Gene expression (Transcription),6.705222878014948e-05,4,36,ATM MDM4 PPP2R5C RICTOR,13,62,0,0
+peritoneum,41,R-HSA-9033241,Peroxisomal protein import,1,Protein localization,0.00024575172093152737,4,62,HACL1 MLYCD PEX14 TYSND1,6,50,0,0
+peritoneum,42,R-HSA-9770562,mRNA Polyadenylation,3,Metabolism of RNA,5.203371524616303e-10,12,127,DDX46 HNRNPA2B1 HNRNPA3 HNRNPC HNRNPK POLR2G RBM39 SNRPB2 SRSF2 SRSF3 SRSF5 XRN2,25,84,0,0
+peritoneum,43,R-HSA-373753,Nephrin family interactions,1,Cell-Cell communication,0.0026119666803538955,2,22,PIK3R2 SPTBN1,6,35,0,0
+peritoneum,44,R-HSA-9013404,RAC2 GTPase cycle,4,Signal Transduction,0.0015643011176844353,4,87,ABI2 NCF4 SWAP70 TIAM1,6,58,0,0
+peritoneum,45,R-HSA-417957,P2Y receptors,5,Signal Transduction,0.001352106485982611,2,11,P2RY11 P2RY6,4,51,0,0
+peritoneum,46,R-HSA-6803207,TP53 Regulates Transcription of Caspase Activators and Caspases,5,Gene expression (Transcription),0.0019469217452934681,2,12,CRADD PIDD1,7,56,0,0
+peritoneum,47,R-HSA-380259,Loss of Nlp from mitotic centrosomes,6,Cell Cycle,0.00041527433600463496,4,67,HAUS3 NDE1 OFD1 SFI1,8,53,0,0
+peritoneum,48,R-HSA-3928662,EPHB-mediated forward signaling,4,Developmental Biology,7.610948236549979e-07,6,42,ACTB ACTG1 ARPC1B ARPC2 ARPC5 CFL1,31,78,0,0
+peritoneum,49,R-HSA-1445148,Translocation of SLC2A4 (GLUT4) to the plasma membrane,2,Vesicle-mediated transport,8.528260789726239e-06,6,69,ACTG1 RAB13 RAC1 TUBB4B YWHAE YWHAG,30,71,0,0
+peritoneum,50,R-HSA-3928662,EPHB-mediated forward signaling,4,Developmental Biology,4.6269673780094045e-11,9,42,ACTB ACTG1 ARPC1B ARPC2 ARPC4 ARPC5 CFL1 RAC1 RHOA,62,84,0,0
+peritoneum,51,R-HSA-72689,Formation of a pool of free 40S subunits,4,Metabolism of proteins,4.3048911022295794e-82,49,100,EIF3E EIF3F EIF3K EIF3L FAU RPL10A RPL12 RPL13 RPL14 RPL17 RPL18 RPL19 RPL21 RPL23 RPL23A RPL24 RPL26 RPL27A RPL28 RPL29 RPL30 RPL35A RPL36 RPL36A RPL37 RPL38 RPL39 RPL4 RPL5 RPL7 RPL8 RPL9 RPLP0 RPLP1 RPS10 RPS11 RPS16 RPS2 RPS20 RPS23 RPS25 RPS26 RPS28 RPS3 RPS4X RPS5 RPS7 RPS9 UBA52,65,82,0,0
+peritoneum,52,R-HSA-159231,Transport of Mature mRNA Derived from an Intronless Transcript,4,Metabolism of RNA,6.098805151941087e-06,5,41,ALYREF CPSF3 NUP62 NUP93 RAE1,19,65,0,0
+peritoneum,53,R-HSA-5690714,CD22 mediated BCR regulation,3,Immune System,1.9590762906195507e-05,4,42,CD79A IGHV3-48 IGKC IGLC2,17,39,0,0
+peritoneum,54,R-HSA-210746,Regulation of gene expression in endocrine-committed (NEUROG3+) progenitor cells,2,Developmental Biology,0.011316151800178604,1,3,NEUROD1,0,38,0,0
+peritoneum,55,R-HSA-5627123,RHO GTPases activate PAKs,4,Signal Transduction,0.00041174678725724735,3,21,CALM1 MYL12B PPP1R12A,13,71,0,0
+peritoneum,56,R-HSA-2129379,Molecules associated with elastic fibres,2,Extracellular matrix organization,2.2890463659502185e-06,5,36,BMP4 EFEMP2 FBLN2 MFAP2 VTN,15,61,0,0
+peritoneum,57,R-HSA-3000178,ECM proteoglycans,1,Extracellular matrix organization,3.133380596686588e-20,16,75,COL1A1 COL1A2 COL3A1 COL4A2 COL5A1 COL5A2 COL6A1 COL6A2 COL6A3 DCN HSPG2 LAMC1 LUM PTPRS SPARC TNXB,27,70,0,0
+peritoneum,58,R-HSA-202433,Generation of second messenger molecules,3,Immune System,1.1579691387288633e-14,10,37,CD247 CD3E CD3G GRAP2 ITK LAT LCK TRAC TRBC1 ZAP70,21,62,0,0
+peritoneum,59,R-HSA-9925563,Developmental Lineage of Pancreatic Ductal Cells,3,Developmental Biology,0.0002750619454584227,3,24,COL27A1 LAMA3 LAMA5,13,54,0,0
+peritoneum,60,R-HSA-114608,Platelet degranulation ,3,Hemostasis,2.515107800938973e-06,8,118,APP CALU CD63 FAM3C GAS6 LGALS3BP PPIA QSOX1,30,75,0,0
+peritoneum,61,R-HSA-5620924,Intraflagellar transport,3,Organelle biogenesis and maintenance,0.0017590689277498725,3,44,IFT122 IFT74 TRIP11,6,55,0,0
+peritoneum,62,R-HSA-2500257,Resolution of Sister Chromatid Cohesion,4,Cell Cycle,6.240477160087947e-15,15,122,AURKB BIRC5 CCNB1 CCNB2 CDC20 CDK1 CENPA CENPE CENPF CENPH CENPN CENPU KNL1 MAD2L1 ZWINT,58,73,0,0
+peritoneum,63,R-HSA-975576,N-glycan antennae elongation in the medial/trans-Golgi,4,Metabolism of proteins,0.006227019480139491,2,26,B4GALT5 FUCA1,2,46,0,0
+peritoneum,64,R-HSA-416550,Sema4D mediated inhibition of cell attachment and migration,5,Developmental Biology,0.0011276393260538366,2,8,RHOA SEMA4D,10,65,0,0
+peritoneum,65,R-HSA-6798695,Neutrophil degranulation,2,Immune System,4.49346439191176e-18,29,463,C3AR1 C5AR1 CD14 CD68 CLEC12A CLEC5A CST3 CTSS CYBA CYBB FCER1G FCGR2A FGR GRN ITGAM LAIR1 LILRB2 LILRB3 NPC2 OLR1 RETN S100A11 S100A12 S100A8 S100A9 SERPINA1 SLC11A1 TLR2 TYROBP,30,86,0,0
+peritoneum,66,R-HSA-141334,PAOs oxidise polyamines to amines,4,Metabolism,0.0071609496834609526,1,2,PAOX,1,36,0,0
+peritoneum,67,R-HSA-1500620,Meiosis,1,Reproduction; Cell Cycle,0.004709839697866084,3,56,RAD50 SYNE2 UBE2I,3,61,0,0
+peritoneum,68,R-HSA-9845576,Glycosphingolipid transport,1,Transport of small molecules,0.00036511947815252475,2,8,ESYT2 PLEKHA8,3,37,0,0
+peritoneum,69,R-HSA-9662361,Sensory processing of sound by outer hair cells of the cochlea,2,Sensory Perception,0.000937033038446304,3,50,MYO3A PLS1 SPTBN1,5,39,0,0
+peritoneum,70,R-HSA-3134973,LRR FLII-interacting protein 1 (LRRFIP1) activates type I IFN production,3,Immune System,0.00047302743375174486,2,5,CTNNB1 IRF3,12,70,0,0
+peritoneum,71,R-HSA-5205685,PINK1-PRKN Mediated Mitophagy,4,Autophagy,2.10683733594458e-06,5,31,ATG12 UBE2D2 UBE2D3 UBE2L3 VDAC3,27,70,0,0
+peritoneum,72,R-HSA-198933,Immunoregulatory interactions between a Lymphoid and a non-Lymphoid cell,2,Immune System,0.00023899438247726887,5,169,KIR2DL3 KIR3DL1 KLRK1 LAIR2 NCR1,2,34,0,0
+peritoneum,73,R-HSA-983695,Antigen activates B Cell Receptor (BCR) leading to generation of second messengers,3,Immune System,1.8719857281746885e-10,7,67,BLK CD19 IGHD IGHM IGHV4-39 IGLC2 IGLC3,18,25,0,0
+peritoneum,74,R-HSA-75896,Plasmalogen biosynthesis,3,Metabolism,0.00012722237726067338,2,3,DHRS7B GNPAT,5,66,0,0
+peritoneum,75,R-HSA-114608,Platelet degranulation ,3,Hemostasis,1.4838096950478556e-09,11,118,A2M APLP2 CFD FLNA FN1 LAMP2 LHFPL2 PECAM1 PSAP SELENOP THBS1,14,78,0,0
+peritoneum,76,R-HSA-6811436,COPI-independent Golgi-to-ER retrograde traffic,4,Vesicle-mediated transport,2.4621528758916528e-05,5,49,ACTR1A CAPZA1 DYNC1I2 GALNT1 PAFAH1B2,19,72,0,0
+peritoneum,77,R-HSA-9031628,NGF-stimulated transcription,5,Signal Transduction,1.639381525900076e-08,7,39,ARC EGR1 EGR3 F3 FOSB SGK1 TRIB1,16,78,0,0
+peritoneum,78,R-HSA-9770562,mRNA Polyadenylation,3,Metabolism of RNA,7.307917891595773e-09,11,127,DDX46 HNRNPA2B1 HNRNPA3 HNRNPC HNRNPK RBM39 SNRPB2 SRSF2 SRSF3 SRSF5 UBA52,61,84,0,0
+peritoneum,79,R-HSA-204005,COPII-mediated vesicle transport,3,Metabolism of proteins; Vesicle-mediated transport,2.3708118424887153e-06,6,68,ANKRD28 GOLGA2 SEC23A SEC24D SEC31A TMED10,7,58,0,0
+peritoneum,80,R-HSA-6798695,Neutrophil degranulation,2,Immune System,7.383506442396943e-11,20,463,ARPC5 ATP6AP2 CAT CD300A CD53 CMTM6 COTL1 CTSS CYBA FCER1G GDI2 GLIPR1 GMFG GRN GSTP1 ITGAX ITGB2 PTPN6 RAC1 RNASET2,25,74,0,0
+peritoneum,81,R-HSA-5693607,Processing of DNA double-strand break ends,4,DNA Repair,0.002119671030811418,3,63,BRIP1 EXO1 TIPIN,10,41,0,0
+peritoneum,82,R-HSA-977347,Serine metabolism,2,Metabolism,0.0012486120124919325,2,11,PSAT1 SRR,7,49,0,0
+peritoneum,83,R-HSA-212436,Generic Transcription Pathway,2,Gene expression (Transcription),0.002417576489382685,12,1145,RAD9A ZFP1 ZNF18 ZNF224 ZNF234 ZNF253 ZNF256 ZNF324B ZNF550 ZNF573 ZNF696 ZNF786,1,43,0,0
+peritoneum,84,R-HSA-9022707,MECP2 regulates transcription factors,4,Gene expression (Transcription),0.00045960427062686886,2,5,MEF2C PPARG,18,69,0,0
+peritoneum,85,R-HSA-198933,Immunoregulatory interactions between a Lymphoid and a non-Lymphoid cell,2,Immune System,3.718384947147056e-08,11,169,CD300C CD300LB CD33 LILRA1 LILRB1 LILRB5 OSCAR PILRA SIGLEC7 SIGLEC9 TREM1,7,74,0,0
+peritoneum,86,R-HSA-1855183,"Synthesis of IP2, IP, and Ins in the cytosol",2,Metabolism,0.0019646828096387997,2,14,INPP5A ISYNA1,5,48,0,0
+peritoneum,87,R-HSA-202733,Cell surface interactions at the vascular wall,1,Hemostasis,0.0003376817500011455,6,166,ESAM JAM2 SELE SELP TEK TSPAN7,7,57,0,0
+peritoneum,88,R-HSA-156902,Peptide chain elongation,3,Metabolism of proteins,2.3448633208924546e-21,16,88,RPL12 RPL13 RPL21 RPL27A RPL28 RPL31 RPL36 RPL39 RPLP2 RPS15 RPS18 RPS19 RPS20 RPS23 RPS28 RPS4X,22,52,0,0
+peritoneum,89,R-HSA-1483248,Synthesis of PIPs at the ER membrane,4,Metabolism,0.0003590887616095837,2,5,SACM1L SBF1,14,61,0,0
+peritoneum,90,R-HSA-1299308,Tandem of pore domain in a weak inwardly rectifying K+ channels (TWIK),3,Neuronal System,0.010129019021384815,1,3,KCNK7,0,34,0,0
+peritoneum,91,R-HSA-6799198,Complex I biogenesis,3,Metabolism,2.2548557237627823e-21,17,68,NDUFA1 NDUFA11 NDUFA2 NDUFA6 NDUFAB1 NDUFAF3 NDUFB1 NDUFB10 NDUFB11 NDUFB2 NDUFB3 NDUFB7 NDUFC1 NDUFS5 NDUFS6 NDUFS7 NDUFS8,36,83,0,0
+peritoneum,92,R-HSA-110328,Recognition and association of DNA glycosylase with site containing an affected pyrimidine,4,DNA Repair,0.0032834771596040604,2,15,NEIL2 NTHL1,5,58,0,0
+peritoneum,93,R-HSA-5689880,Ub-specific processing proteases,3,Metabolism of proteins,0.0014993910585977403,5,146,AXIN1 RNF123 TOMM70 TRRAP USP22,11,58,0,0
+peritoneum,94,R-HSA-72163,mRNA Splicing - Major Pathway,3,Metabolism of RNA,3.223903514308194e-11,15,200,HNRNPC HNRNPK HSPA8 LENG1 LSM7 PPIE PPIG PRPF31 RBM22 SAP18 SF3A3 SF3B2 SNRPA1 SNRPB2 SRSF3,73,79,0,0
+peritoneum,95,R-HSA-9639288,Amino acids regulate mTORC1,3,Cellular responses to stimuli,3.6123761863715698e-06,6,53,ATP6V0B ATP6V0D1 ATP6V1F ATP6V1G1 LAMTOR1 LAMTOR4,43,80,0,0
+peritoneum,96,R-HSA-6798695,Neutrophil degranulation,2,Immune System,2.1792788731478944e-06,16,463,APRT B2M BST2 CAP1 CD44 DBNL DPP7 HEXB LAMTOR1 LTA4H OSTF1 RAB5C RAB7A RAP1A SERPINB1 SNAP23,42,88,0,0
+peritoneum,97,R-HSA-77346,Beta oxidation of decanoyl-CoA to octanoyl-CoA-CoA,5,Metabolism,0.00040486776794598545,2,6,HADH MECR,2,53,0,0
+peritoneum,98,R-HSA-198933,Immunoregulatory interactions between a Lymphoid and a non-Lymphoid cell,2,Immune System,0.00016006013205614,6,169,CD3D CD8A CD8B KLRF1 KLRG1 NCR3,5,49,0,0
+peritoneum,99,R-HSA-9770562,mRNA Polyadenylation,3,Metabolism of RNA,2.1025559368158722e-10,11,127,CCAR1 DHX9 POLR2B PTBP1 RBM25 RBM5 SF3B1 SRSF1 SRSF10 SRSF11 SRSF4,10,61,0,0
+stomach,0,R-HSA-9818027,NFE2L2 regulating anti-oxidant/detoxification enzymes,5,Cellular responses to stimuli,0.0003181711156823005,3,20,GCLC NQO1 SLC7A11,8,69,0,0
+stomach,1,R-HSA-210746,Regulation of gene expression in endocrine-committed (NEUROG3+) progenitor cells,2,Developmental Biology,2.6257681410988653e-09,4,5,INSM1 NEUROD1 NKX2-2 PAX4,15,50,0,0
+stomach,2,R-HSA-1442490,Collagen degradation,2,Extracellular matrix organization,3.231412311705746e-08,7,62,COL3A1 COL4A6 COL6A1 COL6A2 COL8A1 CTSL MMP2,15,54,0,0
+stomach,3,R-HSA-912526,Interleukin receptor SHC signaling,4,Immune System,0.0005651829999043586,3,26,INPP5D PIK3CD PTPN6,15,64,0,0
+stomach,4,R-HSA-72689,Formation of a pool of free 40S subunits,4,Metabolism of proteins,0.0023899404214169705,4,102,EIF3J RPL35 RPL36 RPLP1,5,56,0,0
+stomach,5,R-HSA-72163,mRNA Splicing - Major Pathway,3,Metabolism of RNA,7.812198538365349e-08,11,200,HNRNPK HNRNPR NCBP2 PRPF31 RBM17 RBM8A RBMX SNRPA1 SNRPB2 SYF2 ZMAT2,70,68,0,0
+stomach,6,R-HSA-5690714,CD22 mediated BCR regulation,3,Immune System,5.893051317180144e-08,6,64,IGHV2-70 IGHV3-53 IGKV1-33 IGKV2-28 IGKV3-15 IGLV1-51,17,34,0,0
+stomach,7,R-HSA-418594,G alpha (i) signalling events,3,Signal Transduction,0.009903265219619754,5,267,ACKR3 CAMKK1 GPSM2 GRM3 NPB,1,50,0,0
+stomach,8,R-HSA-9706019,RHOBTB3 ATPase cycle,2,Signal Transduction,0.0022243511458633733,2,10,CUL3 RAB9A,10,73,0,0
+stomach,9,R-HSA-6791226,Major pathway of rRNA processing in the nucleolus and cytosol,3,Metabolism of RNA,8.959925276373051e-10,12,181,EXOSC7 IMP4 RPL18A RPL23 RPL27A RPL7 RPS18 RPS19 RPS2 RPS24 RPS29 RRP1,29,63,0,0
+stomach,10,R-HSA-1236974,ER-Phagosome pathway,4,Immune System,9.363024496101437e-08,8,81,HLA-B HLA-C HLA-E HLA-F PSMB8 PSMB9 PSME1 TAP1,18,72,0,0
+stomach,11,R-HSA-9830674,Formation of the ureteric bud,2,Developmental Biology,2.511991400430324e-06,4,21,BMP4 GFRA1 GREM1 SLIT2,26,48,0,0
+stomach,12,R-HSA-191859,snRNP Assembly,2,Metabolism of RNA,0.0003529598265101218,4,52,NUP58 PHAX POM121C TGS1,16,66,0,0
+stomach,13,R-HSA-390522,Striated Muscle Contraction,1,Muscle contraction,0.0005912057336910613,3,33,MYBPC2 MYH3 NEB,4,51,0,0
+stomach,14,R-HSA-432722,Golgi Associated Vesicle Biogenesis,3,Vesicle-mediated transport,0.0006540544902147339,4,56,FTL GAK RAB5C TFRC,12,72,0,0
+stomach,15,R-HSA-6785470,tRNA processing in the mitochondrion,2,Metabolism of RNA,1.3373563633087498e-12,7,17,MT-CO1 MT-CO2 MT-CO3 MT-CYB MT-ND1 MT-ND3 MT-ND5,13,53,0,0
+stomach,16,R-HSA-9749641,Aspirin ADME,1,Drug ADME,0.0003722842953462597,3,32,ABCC2 UGT1A6 UGT1A7,8,45,0,0
+stomach,17,R-HSA-198933,Immunoregulatory interactions between a Lymphoid and a non-Lymphoid cell,2,Immune System,6.174077974822728e-06,7,198,CD40LG IGKV3-15 JAML LILRA2 SIGLEC7 SIGLEC8 TREM2,6,37,0,0
+stomach,18,R-HSA-5620916,VxPx cargo-targeting to cilium,4,Organelle biogenesis and maintenance,0.0012259442226850812,2,19,PKD1 PKD2,6,28,0,0
+stomach,19,R-HSA-173623,Classical antibody-mediated complement activation,5,Immune System,9.460143801427322e-25,14,76,IGHG2 IGHV2-5 IGHV2-70 IGHV3-53 IGHV4-59 IGKV1-33 IGKV1D-16 IGKV1D-33 IGLV2-11 IGLV3-27 IGLV5-37 IGLV5-45 IGLV7-43 IGLV8-61,15,24,0,0
+stomach,20,R-HSA-432720,Lysosome Vesicle Biogenesis,3,Vesicle-mediated transport,5.23415341776266e-06,5,34,BLOC1S1 CHMP2A CLTA CLTB VAMP8,24,77,0,0
+stomach,21,R-HSA-5368286,Mitochondrial translation initiation,3,Metabolism of proteins,1.016203655130359e-05,7,100,MRPL17 MRPL40 MRPL43 MRPL51 MRPS18C MRPS21 MT-ND2,79,77,0,0
+stomach,22,R-HSA-6799198,Complex I biogenesis,3,Metabolism,0.0022299897877872676,3,68,DMAC2 NDUFA7 NDUFB8,5,39,0,0
+stomach,23,R-HSA-380994,ATF4 activates genes in response to endoplasmic reticulum  stress,4,Cellular responses to stimuli,0.009329309524966285,2,27,ASNS EXOSC7,2,55,0,0
+stomach,24,R-HSA-72764,Eukaryotic Translation Termination,2,Metabolism of proteins,4.801850828011941e-06,7,93,ETF1 FAU RPL24 RPL36A RPL5 RPS24 RPS4Y1,29,74,0,0
+stomach,25,R-HSA-8850843,Phosphate bond hydrolysis by NTPDase proteins,3,Metabolism,1.5165527444302267e-05,3,8,ENTPD2 ENTPD6 ENTPD7,5,67,0,0
+stomach,26,R-HSA-8874081,MET activates PTK2 signaling,4,Signal Transduction,2.7035065409350856e-05,4,29,ITGA3 LAMA3 LAMC2 MET,13,62,0,0
+stomach,27,R-HSA-983695,Antigen activates B Cell Receptor (BCR) leading to generation of second messengers,3,Immune System,5.789773452581552e-11,9,89,CD79B IGHV1-2 IGHV4-59 IGKV1D-33 IGKV3-15 IGLV2-23 IGLV3-25 IGLV3-27 PIK3CD,16,41,0,0
+stomach,28,R-HSA-156827,L13a-mediated translational silencing of Ceruloplasmin expression,3,Metabolism of proteins,0.0004358416342736551,5,112,EIF4A1 RPL13A RPL36A RPL7 RPLP1,14,58,0,0
+stomach,29,R-HSA-4419969,Depolymerization of the Nuclear Lamina,5,Cell Cycle,0.0001039425243417554,3,15,CNEP1R1 LMNB1 LPIN2,7,64,0,0
+stomach,30,R-HSA-173623,Classical antibody-mediated complement activation,5,Immune System,1.7736276102856974e-08,6,76,IGHG2 IGHV3-11 IGKV1-16 IGKV1D-16 IGKV2D-28 IGLV1-40,23,24,0,0
+stomach,31,R-HSA-2500257,Resolution of Sister Chromatid Cohesion,4,Cell Cycle,1.4564617906003705e-17,17,123,BIRC5 CCNB1 CDC20 CDCA5 CDK1 CENPA CENPE CENPH CENPM CENPN CENPO KIF2C MAD2L1 PLK1 SKA1 SPC25 ZWINT,65,75,0,0
+stomach,32,R-HSA-156588,Glucuronidation,3,Metabolism,4.1632612546051354e-06,4,18,UGT1A1 UGT1A8 UGT2A3 UGT2B17,26,64,0,0
+stomach,33,R-HSA-9013424,RHOV GTPase cycle,4,Signal Transduction,0.0016074084565854323,3,37,ARHGAP12 SH3RF1 TPM4,4,64,0,0
+stomach,34,R-HSA-72165,mRNA Splicing - Minor Pathway,3,Metabolism of RNA,5.316262476999061e-07,6,50,POLR2H POLR2I SNRPD1 SNRPE SNRPF ZCRB1,44,62,0,0
+stomach,35,R-HSA-9968551,Regulation of GBP-mediated host defense,5,Immune System,0.00025682618936769723,2,4,GBP1 PIM1,14,67,0,0
+stomach,36,R-HSA-210991,Basigin interactions,2,Hemostasis,0.0008963690636278767,3,25,ITGB1 SLC16A1 SLC7A8,17,78,0,0
+stomach,37,R-HSA-9819196,Zygotic genome activation (ZGA),2,Developmental Biology,0.0006426899923207639,2,7,TEAD4 YAP1,6,57,0,0
+stomach,38,R-HSA-173623,Classical antibody-mediated complement activation,5,Immune System,6.22590707237515e-12,7,76,IGHV2-70 IGHV3-53 IGKV1-33 IGLV2-11 IGLV5-37 IGLV7-43 IGLV8-61,15,15,0,0
+stomach,39,R-HSA-8877627,Vitamin E transport,3,Metabolism,0.003754569706550736,1,1,TTPA,3,38,0,0
+stomach,40,R-HSA-6791226,Major pathway of rRNA processing in the nucleolus and cytosol,3,Metabolism of RNA,2.1242320778209782e-05,8,181,DDX52 LAS1L LTV1 MPHOSPH10 NOL11 RIOK1 RPL39L RPP30,6,66,0,0
+stomach,41,R-HSA-1799339,SRP-dependent cotranslational protein targeting to membrane,2,Metabolism of proteins,5.072545925192571e-09,10,111,RPL15 RPL27 RPS10 RPS27L RPS3A SEC11A SEC11C SEC61B SRP14 SSR1,36,72,0,0
+stomach,42,R-HSA-9013149,RAC1 GTPase cycle,4,Signal Transduction,0.0001564786379372454,7,182,ARHGAP45 DOCK8 FMNL1 NCF1 PREX1 TAGAP WAS,14,65,0,0
+stomach,43,R-HSA-549127,SLC-mediated transport of organic cations,2,Transport of small molecules,0.002500534080430856,2,13,SLC22A15 SLC22A5,2,59,0,0
+stomach,44,R-HSA-70171,Glycolysis,3,Metabolism,0.002998789025353053,3,70,BPGM ENO2 PGM2L1,2,42,0,0
+stomach,45,R-HSA-6798695,Neutrophil degranulation,2,Immune System,4.1795293731891925e-07,15,460,ADA2 C5AR1 CD68 CREG1 CST3 CTSB CTSZ CYBB DPP7 FCER1G FCGR2A GNS LAIR1 MAN2B1 NFKB1,19,70,0,0
+stomach,46,R-HSA-72689,Formation of a pool of free 40S subunits,4,Metabolism of proteins,3.588883342932802e-20,17,102,EIF3G EIF3K RPL11 RPL13 RPL18A RPL22L1 RPL27A RPL38 RPL4 RPS11 RPS18 RPS19 RPS2 RPS26 RPS27 RPS29 UBA52,27,65,0,0
+stomach,47,R-HSA-375276,Peptide ligand-binding receptors,4,Signal Transduction,3.661781921181013e-06,7,173,CCR6 CCR8 NMUR1 PMCH PROK2 RLN2 UTS2,5,39,0,0
+stomach,48,R-HSA-6799198,Complex I biogenesis,3,Metabolism,1.0723603983837582e-10,10,68,NDUFA3 NDUFA9 NDUFB2 NDUFB5 NDUFS2 NDUFS3 NDUFS4 NDUFS5 NDUFS7 NDUFV1,25,80,0,0
+stomach,49,R-HSA-420029,Tight junction interactions,3,Cell-Cell communication,1.5445318059987048e-05,4,27,CLDN23 CLDN3 CLDN4 CLDN7,11,58,0,0
+stomach,50,R-HSA-9907900,Proteasome assembly,2,Metabolism of proteins,0.0009694478649188046,3,51,PSMA2 PSMA8 SEM1,13,39,0,0
+stomach,51,R-HSA-9818035,NFE2L2 regulating ER-stress associated genes,5,Cellular responses to stimuli,2.5054847844951914e-06,3,5,ATF4 CREBBP EP300,42,65,0,0
+stomach,52,R-HSA-72163,mRNA Splicing - Major Pathway,3,Metabolism of RNA,7.728034762228946e-06,10,200,BUD31 CCDC12 HNRNPF HNRNPH1 LSM7 POLR2F PTBP1 PUF60 SNRPG TRA2B,41,87,0,0
+stomach,53,R-HSA-9954709,Ribosome Quality Control (RQC) complex extracts and degrades nascent peptide,3,Metabolism of proteins,1.1322176877167627e-05,7,103,ADRM1 PSMB3 PSMC1 RPL36AL RPL9 TCF25 UBB,69,76,0,0
+stomach,54,R-HSA-141444,Amplification  of signal from unattached  kinetochores via a MAD2  inhibitory signal,4,Cell Cycle,5.485149464366587e-07,7,93,AURKB BUB1 BUB1B CENPF CENPO KNTC1 NUF2,19,54,0,0
+stomach,55,R-HSA-3371568,Attenuation phase,4,Cellular responses to stimuli,5.8957762065112215e-06,4,28,DNAJB1 HSPA1A HSPA1B HSPA6,15,44,0,0
+stomach,56,R-HSA-418597,G alpha (z) signalling events,3,Signal Transduction,0.0008910287587535387,3,46,ADCY9 GNG4 RGS17,8,42,0,0
+stomach,57,R-HSA-1369062,ABC transporters in lipid homeostasis,2,Transport of small molecules,1.1976523613760363e-28,14,17,ABCA10 ABCA12 ABCA2 ABCA3 ABCA5 ABCA6 ABCA7 ABCA9 ABCD1 ABCD2 ABCD3 ABCG1 ABCG5 ABCG8,18,71,99,14
+stomach,58,R-HSA-3371568,Attenuation phase,4,Cellular responses to stimuli,6.505986461079717e-10,7,28,DEDD2 DNAJB6 FKBP4 HSP90AA1 HSP90AB1 HSPA8 SERPINH1,20,71,0,0
+stomach,59,R-HSA-6803157,Antimicrobial peptides,2,Immune System,8.021439674911742e-06,5,45,BPIFB1 CHGA CLU DEFA5 ITLN1,9,63,0,0
+stomach,60,R-HSA-5661231,Metallothioneins bind metals,2,Cellular responses to stimuli,3.1097544820745944e-07,4,11,MT1F MT1G MT1H MT1X,10,58,0,0
+stomach,61,R-HSA-6784531,tRNA processing in the nucleus,2,Metabolism of RNA,0.0003694768686720113,4,56,RAN RPP38 SEH1L TSEN15,6,62,0,0
+stomach,62,R-HSA-9604323,Negative regulation of NOTCH4 signaling,3,Signal Transduction,1.0455564652471387e-05,5,44,PSMA3 PSMA4 RBX1 SKP1 YWHAZ,47,68,0,0
+stomach,63,R-HSA-1660499,Synthesis of PIPs at the plasma membrane,4,Metabolism,0.00028044957279159275,4,53,INPP4A MTMR1 PIK3CA PLEKHA2,13,61,0,0
+stomach,64,R-HSA-74752,Signaling by Insulin receptor,2,Signal Transduction,0.0018415513498172445,4,77,ATP6V1A ATP6V1B2 GAB2 IRS2,6,69,0,0
+stomach,65,R-HSA-9938024,Somatic hypermutation of immunoglobulin genes,4,Immune System,0.0007056076639481393,6,163,AFF4 CTR9 KMT2C SMARCA2 SUPT6H TAF15,16,67,0,0
+stomach,66,R-HSA-1369062,ABC transporters in lipid homeostasis,2,Transport of small molecules,9.61763373039455e-29,14,17,ABCA10 ABCA12 ABCA2 ABCA3 ABCA5 ABCA6 ABCA7 ABCA9 ABCD1 ABCD2 ABCD3 ABCG1 ABCG5 ABCG8,18,70,99,14
+stomach,67,R-HSA-156902,Peptide chain elongation,3,Metabolism of proteins,6.282289808172058e-59,38,90,EEF1A1 RPL12 RPL14 RPL17 RPL18 RPL19 RPL22 RPL23A RPL26 RPL28 RPL29 RPL30 RPL32 RPL34 RPL35A RPL36 RPL36A RPL37 RPL39 RPL7A RPLP1 RPS12 RPS13 RPS15 RPS15A RPS16 RPS21 RPS23 RPS25 RPS27A RPS28 RPS3 RPS5 RPS6 RPS7 RPS8 RPS9 RPSA,42,83,0,0
+stomach,68,R-HSA-6798695,Neutrophil degranulation,2,Immune System,0.0006443440448075611,10,460,ADGRE5 BIN2 CTSC GLIPR1 KCNAB2 NCKAP1L PECAM1 PTPRC SELL XRCC6,10,65,0,0
+stomach,69,R-HSA-191859,snRNP Assembly,2,Metabolism of RNA,0.00408855991011451,3,52,AAAS GEMIN6 SNUPN,2,63,0,0
+stomach,70,R-HSA-8876198,RAB GEFs exchange GTP for GDP on RABs,3,Vesicle-mediated transport,0.0005983675904680388,5,89,DENND1A DENND3 GAPVD1 TRAPPC12 TRAPPC9,21,78,0,0
+stomach,71,R-HSA-1247673,Erythrocytes take up oxygen and release carbon dioxide,2,Transport of small molecules,0.0008353819815144542,2,7,AQP1 CA4,13,65,0,0
+stomach,72,R-HSA-114608,Platelet degranulation ,3,Hemostasis,0.006358006817763076,4,121,ANXA5 GAS6 PHACTR2 PSAP,6,62,0,0
+stomach,73,R-HSA-198933,Immunoregulatory interactions between a Lymphoid and a non-Lymphoid cell,2,Immune System,1.3311355306313262e-15,18,198,CD160 CD247 CD3D CD3E CD3G CD8A CD8B CD96 CRTAM ITGAL KLRB1 KLRC1 KLRD1 KLRF1 KLRG1 NCR3 SH2D1A TRBC1,15,72,0,0
+stomach,74,R-HSA-373756,SDK interactions,3,Cell-Cell communication,0.005131486093369047,1,2,SDK2,2,26,0,0
+stomach,75,R-HSA-189483,Heme degradation,2,Metabolism,9.159294190567799e-05,3,14,ABCG2 BLVRA HMOX1,19,66,0,0
+stomach,76,R-HSA-9796292,Formation of axial mesoderm,2,Developmental Biology,0.0021765438867821533,2,13,FOXA1 FOXA2,3,55,0,0
+stomach,77,R-HSA-6785470,tRNA processing in the mitochondrion,2,Metabolism of RNA,7.348127292697384e-05,3,17,MT-CO1 MT-CYB MT-ND2,18,50,0,0
+stomach,78,R-HSA-3000157,Laminin interactions,1,Extracellular matrix organization,1.4754238224449986e-06,5,30,COL18A1 COL4A1 LAMB1 NID1 NID2,28,68,0,0
+stomach,79,R-HSA-3000178,ECM proteoglycans,1,Extracellular matrix organization,4.240516242205666e-07,7,72,ASPN BGN COL1A1 COL5A1 COL6A3 DCN LAMA4,24,67,0,0
+stomach,80,R-HSA-6782861,Synthesis of wybutosine at G37 of tRNA(Phe),3,Metabolism of RNA,0.00019167525342807587,2,5,LCMT2 TRMT5,2,45,0,0
+stomach,81,R-HSA-1369062,ABC transporters in lipid homeostasis,2,Transport of small molecules,1.1976523613760363e-28,14,17,ABCA10 ABCA12 ABCA2 ABCA3 ABCA5 ABCA6 ABCA7 ABCA9 ABCD1 ABCD2 ABCD3 ABCG1 ABCG5 ABCG8,18,71,99,14
+stomach,82,R-HSA-425397,"Transport of vitamins, nucleosides, and related molecules",2,Transport of small molecules,0.0005556978545915149,3,30,SLC28A3 SLC33A1 SLC35C1,3,55,0,0
+stomach,83,R-HSA-1474244,Extracellular matrix organization,0,Extracellular matrix organization,6.724165175409209e-05,9,309,CAPN6 COL13A1 ELN ITGA10 LTBP1 PLOD2 PTPRS SGCE VCAN,2,59,0,0
+stomach,84,R-HSA-174403,Glutathione synthesis and recycling,4,Metabolism,0.0024941337951970115,2,12,CHAC1 GCLC,4,64,0,0
+stomach,85,R-HSA-983695,Antigen activates B Cell Receptor (BCR) leading to generation of second messengers,3,Immune System,1.2769598875925254e-28,18,89,BLK CD19 IGHM IGHV1-46 IGHV3-30 IGHV3-48 IGHV4-34 IGHV4-39 IGKV1-5 IGKV1D-12 IGKV2-30 IGKV3-11 IGKV3-20 IGKV4-1 IGKV5-2 IGLC2 IGLC3 IGLV2-8,17,36,0,0
+stomach,86,R-HSA-5669034,TNFs bind their physiological receptors,3,Immune System,0.0004737956037340031,3,27,EDA TNFRSF8 TNFSF15,2,58,0,0
+stomach,87,R-HSA-8874211,CREB3 factors activate genes,3,Cellular responses to stimuli,0.0012113708665710558,2,9,CREBRF MBTPS1,9,60,0,0
+stomach,88,R-HSA-2142789,Ubiquinol biosynthesis,3,Metabolism,0.0026705750662149286,2,13,PDSS1 STARD7,5,61,0,0
+stomach,89,R-HSA-1369062,ABC transporters in lipid homeostasis,2,Transport of small molecules,1.486326822300812e-28,14,17,ABCA10 ABCA12 ABCA2 ABCA3 ABCA5 ABCA6 ABCA7 ABCA9 ABCD1 ABCD2 ABCD3 ABCG1 ABCG5 ABCG8,15,72,82,14
+stomach,90,R-HSA-1810476,RIP-mediated NFkB activation via ZBP1,4,Immune System,0.00016872843853377582,3,17,NFKB2 NFKBIA TICAM1,7,66,0,0
+stomach,91,R-HSA-156827,L13a-mediated translational silencing of Ceruloplasmin expression,3,Metabolism of proteins,1.785755982870422e-08,10,112,EIF3L EIF3M EIF4B EIF4H PABPC1 RPL10 RPL10A RPL21 RPL6 RPLP0,99,81,0,0
+stomach,92,R-HSA-9662360,Sensory processing of sound by inner hair cells of the cochlea,2,Sensory Perception,0.0034538790683421414,3,63,DNAJC5 SYP TWF1,3,49,0,0
+stomach,93,R-HSA-2168880,Scavenging of heme from plasma,2,Vesicle-mediated transport,2.824799975517423e-36,21,81,IGHA1 IGHA2 IGHV3-48 IGHV3-7 IGHV4-59 IGKV1-16 IGKV1-33 IGKV1-39 IGKV1D-33 IGKV2-28 IGKV2-29 IGKV2-30 IGKV3-15 IGLV1-44 IGLV1-51 IGLV2-11 IGLV3-25 IGLV3-27 IGLV4-69 IGLV6-57 IGLV8-61,15,36,0,0
+stomach,94,R-HSA-1369062,ABC transporters in lipid homeostasis,2,Transport of small molecules,1.1976523613760363e-28,14,17,ABCA10 ABCA12 ABCA2 ABCA3 ABCA5 ABCA6 ABCA7 ABCA9 ABCD1 ABCD2 ABCD3 ABCG1 ABCG5 ABCG8,18,71,99,14
+stomach,95,R-HSA-156902,Peptide chain elongation,3,Metabolism of proteins,1.3450773177374044e-41,29,90,RPL13A RPL14 RPL17 RPL19 RPL23A RPL26 RPL27A RPL30 RPL31 RPL32 RPL34 RPL35A RPL37 RPL37A RPL39 RPL7 RPL8 RPLP1 RPLP2 RPS14 RPS15 RPS16 RPS2 RPS25 RPS27A RPS5 RPS6 RPS7 RPSA,72,76,0,0
+stomach,96,R-HSA-6785470,tRNA processing in the mitochondrion,2,Metabolism of RNA,3.5602443345304304e-10,6,17,MT-ATP6 MT-CO1 MT-CO3 MT-CYB MT-ND1 MT-ND2,12,59,0,0
+stomach,97,R-HSA-198933,Immunoregulatory interactions between a Lymphoid and a non-Lymphoid cell,2,Immune System,1.1519181262509801e-05,9,198,CD33 FCGR1A FCGR2B LILRB3 LILRB4 LILRB5 PILRA SIGLEC1 SIGLEC10,12,73,0,0
+stomach,98,R-HSA-3928662,EPHB-mediated forward signaling,4,Developmental Biology,1.525999011581381e-05,5,42,ACTB ACTR2 ARPC2 CFL1 RHOA,10,77,0,0
+stomach,99,R-HSA-3899300,SUMOylation of transcription cofactors,4,Metabolism of proteins,0.00013174877264552961,4,43,DAXX PHC3 PIAS1 UHRF2,17,62,0,0

@@ -1,0 +1,501 @@
+dataset_name,topic_index,pathway_id,pathway_name,category
+biliary_system,0,R-HSA-1369062,ABC transporters in lipid homeostasis,topic not in table
+biliary_system,1,R-HSA-72702,Ribosomal scanning and start codon recognition,rank1
+biliary_system,2,R-HSA-6804116,TP53 Regulates Transcription of Genes Involved in G1 Cell Cycle Arrest,2-5
+biliary_system,3,R-HSA-9732724,IFNG signaling activates MAPKs,2-5
+biliary_system,4,R-HSA-5696395,Formation of Incision Complex in GG-NER,rank1
+biliary_system,5,R-HSA-110357,Displacement of DNA glycosylase by APEX1,2-5
+biliary_system,6,R-HSA-390522,Striated Muscle Contraction,rank1
+biliary_system,7,R-HSA-9018519,Estrogen-dependent gene expression,2-5
+biliary_system,8,R-HSA-3000171,Non-integrin membrane-ECM interactions,absent
+biliary_system,9,R-HSA-9633012,Response of EIF2AK4 (GCN2) to amino acid deficiency,>5
+biliary_system,10,R-HSA-5173214,O-glycosylation of TSR domain-containing proteins,2-5
+biliary_system,11,R-HSA-9764725,Negative Regulation of CDH1 Gene Transcription,>5
+biliary_system,12,R-HSA-8948216,Collagen chain trimerization,rank1
+biliary_system,13,R-HSA-2395516,Electron transport from NADPH to Ferredoxin,absent
+biliary_system,14,R-HSA-77285,Beta oxidation of myristoyl-CoA to lauroyl-CoA,topic not in table
+biliary_system,15,R-HSA-391906,Leukotriene receptors,2-5
+biliary_system,16,R-HSA-983695,Antigen activates B Cell Receptor (BCR) leading to generation of second messengers,2-5
+biliary_system,17,R-HSA-202733,Cell surface interactions at the vascular wall,absent
+biliary_system,18,R-HSA-445095,Interaction between L1 and Ankyrins,2-5
+biliary_system,19,R-HSA-419037,NCAM1 interactions,2-5
+biliary_system,20,R-HSA-9912633,"Antigen processing: Ub, ATP-independent proteasomal degradation",>5
+biliary_system,21,R-HSA-1963642,PI3K events in ERBB2 signaling,>5
+biliary_system,22,R-HSA-9013149,RAC1 GTPase cycle,rank1
+biliary_system,23,R-HSA-9974237,Negative Regulation of DNA Double Strand Break Response,absent
+biliary_system,24,R-HSA-9937383,Mitochondrial ribosome-associated quality control,rank1
+biliary_system,25,R-HSA-376172,DSCAM interactions,absent
+biliary_system,26,R-HSA-77288,mitochondrial fatty acid beta-oxidation of unsaturated fatty acids,rank1
+biliary_system,27,R-HSA-6783310,Fanconi Anemia Pathway,2-5
+biliary_system,28,R-HSA-1236974,ER-Phagosome pathway,rank1
+biliary_system,29,R-HSA-674695,RNA Polymerase II Pre-transcription Events,>5
+biliary_system,30,R-HSA-2022870,CS-GAG biosynthesis,2-5
+biliary_system,31,R-HSA-8875656,MET receptor recycling,2-5
+biliary_system,32,R-HSA-9958810,"SRC activates STAT3 in a quantitative manner, through Cadherin-11 (CDH11), RAC1 and gp130 (IL6ST)",absent
+biliary_system,33,R-HSA-9830674,Formation of the ureteric bud,rank1
+biliary_system,34,R-HSA-196780,Biotin transport and metabolism,2-5
+biliary_system,35,R-HSA-163210,Formation of ATP by chemiosmotic coupling,absent
+biliary_system,36,R-HSA-9758919,Epithelial-Mesenchymal Transition (EMT) during gastrulation,2-5
+biliary_system,37,R-HSA-5625900,RHO GTPases activate CIT,>5
+biliary_system,38,R-HSA-193648,NRAGE signals death through JNK,>5
+biliary_system,39,R-HSA-69481,G2/M Checkpoints,absent
+biliary_system,40,R-HSA-156902,Peptide chain elongation,rank1
+biliary_system,41,R-HSA-3247509,Chromatin modifying enzymes,>5
+biliary_system,42,R-HSA-9706374,FLT3 signaling through SRC family kinases,>5
+biliary_system,43,R-HSA-9013149,RAC1 GTPase cycle,rank1
+biliary_system,44,R-HSA-380994,ATF4 activates genes in response to endoplasmic reticulum  stress,2-5
+biliary_system,45,R-HSA-6793080,rRNA modification in the mitochondrion,2-5
+biliary_system,46,R-HSA-9770562,mRNA Polyadenylation,rank1
+biliary_system,47,R-HSA-9749641,Aspirin ADME,rank1
+biliary_system,48,R-HSA-156588,Glucuronidation,rank1
+biliary_system,49,R-HSA-211981,Xenobiotics,>5
+biliary_system,50,R-HSA-418594,G alpha (i) signalling events,>5
+biliary_system,51,R-HSA-6807878,COPI-mediated anterograde transport,rank1
+biliary_system,52,R-HSA-416993,Trafficking of GluR2-containing AMPA receptors,absent
+biliary_system,53,R-HSA-1810476,RIP-mediated NFkB activation via ZBP1,>5
+biliary_system,54,R-HSA-198933,Immunoregulatory interactions between a Lymphoid and a non-Lymphoid cell,rank1
+biliary_system,55,R-HSA-156902,Peptide chain elongation,rank1
+biliary_system,56,R-HSA-2028269,Signaling by Hippo,2-5
+biliary_system,57,R-HSA-9018519,Estrogen-dependent gene expression,>5
+biliary_system,58,R-HSA-9022692,Regulation of MECP2 expression and activity,>5
+biliary_system,59,R-HSA-1474244,Extracellular matrix organization,absent
+biliary_system,60,R-HSA-9753281,Paracetamol ADME,rank1
+biliary_system,61,R-HSA-75876,Synthesis of very long-chain fatty acyl-CoAs,>5
+biliary_system,62,R-HSA-9033241,Peroxisomal protein import,absent
+biliary_system,63,R-HSA-8876198,RAB GEFs exchange GTP for GDP on RABs,2-5
+biliary_system,64,R-HSA-8951671,RUNX3 regulates YAP1-mediated transcription,2-5
+biliary_system,65,R-HSA-8856825,Cargo recognition for clathrin-mediated endocytosis,>5
+biliary_system,66,R-HSA-6799198,Complex I biogenesis,>5
+biliary_system,67,R-HSA-9954716,ZNF598 and the Ribosome-associated Quality Trigger (RQT) complex dissociate a ribosome stalled on a no-go mRNA,2-5
+biliary_system,68,R-HSA-6798695,Neutrophil degranulation,2-5
+biliary_system,69,R-HSA-380615,Serotonin clearance from the synaptic cleft,absent
+biliary_system,70,R-HSA-445355,Smooth Muscle Contraction,rank1
+biliary_system,71,R-HSA-9013149,RAC1 GTPase cycle,2-5
+biliary_system,72,R-HSA-977606,Regulation of Complement cascade,rank1
+biliary_system,73,R-HSA-6798695,Neutrophil degranulation,rank1
+biliary_system,74,R-HSA-1614603,Cysteine formation from homocysteine,absent
+biliary_system,75,R-HSA-202430,Translocation of ZAP-70 to Immunological synapse,rank1
+biliary_system,76,R-HSA-9013409,RHOJ GTPase cycle,rank1
+biliary_system,77,R-HSA-383280,Nuclear Receptor transcription pathway,absent
+biliary_system,78,R-HSA-170660,Adenylate cyclase activating pathway,2-5
+biliary_system,79,R-HSA-156590,Glutathione conjugation,rank1
+biliary_system,80,R-HSA-9976102,Differentiation of naive CD4+ T cells to T helper 2 cells (Th2 cells),absent
+biliary_system,81,R-HSA-418555,G alpha (s) signalling events,rank1
+biliary_system,82,R-HSA-6811440,Retrograde transport at the Trans-Golgi-Network,2-5
+biliary_system,83,R-HSA-5675221,Negative regulation of MAPK pathway,rank1
+biliary_system,84,R-HSA-447041,CHL1 interactions,2-5
+biliary_system,85,R-HSA-381426,Regulation of Insulin-like Growth Factor (IGF) transport and uptake by Insulin-like Growth Factor Binding Proteins (IGFBPs),rank1
+biliary_system,86,R-HSA-1489509,DAG and IP3 signaling,rank1
+biliary_system,87,R-HSA-70221,Glycogen breakdown (glycogenolysis),rank1
+biliary_system,88,R-HSA-9729555,Sensory perception of sour taste,absent
+biliary_system,89,R-HSA-913709,O-linked glycosylation of mucins,2-5
+biliary_system,90,R-HSA-159236,Transport of Mature mRNA derived from an Intron-Containing Transcript,2-5
+biliary_system,91,R-HSA-9958825,Activation of STAT3 by cadherin engagement,absent
+biliary_system,92,R-HSA-428890,Role of ABL in ROBO-SLIT signaling,>5
+biliary_system,93,R-HSA-156902,Peptide chain elongation,2-5
+biliary_system,94,R-HSA-381340,Transcriptional regulation of white adipocyte differentiation,2-5
+biliary_system,95,R-HSA-9856530,High laminar flow shear stress activates signaling by PIEZO1 and PECAM1:CDH5:KDR in endothelial cells,rank1
+biliary_system,96,R-HSA-611105,Respiratory electron transport,>5
+biliary_system,97,R-HSA-9772755,Formation of WDR5-containing histone-modifying complexes,2-5
+biliary_system,98,R-HSA-199920,CREB phosphorylation,2-5
+biliary_system,99,R-HSA-445095,Interaction between L1 and Ankyrins,rank1
+bladder,0,R-HSA-2029485,Role of phospholipids in phagocytosis,absent
+bladder,1,R-HSA-9937383,Mitochondrial ribosome-associated quality control,2-5
+bladder,2,R-HSA-9768777,Regulation of NPAS4 gene transcription,2-5
+bladder,3,R-HSA-202430,Translocation of ZAP-70 to Immunological synapse,2-5
+bladder,4,R-HSA-9022692,Regulation of MECP2 expression and activity,>5
+bladder,5,R-HSA-209931,Serotonin and melatonin biosynthesis,rank1
+bladder,6,R-HSA-3000157,Laminin interactions,rank1
+bladder,7,R-HSA-8941332,RUNX2 regulates genes involved in cell migration,2-5
+bladder,8,R-HSA-1236978,Cross-presentation of soluble exogenous antigens (endosomes),2-5
+bladder,9,R-HSA-5628897,TP53 Regulates Metabolic Genes,2-5
+bladder,10,R-HSA-375276,Peptide ligand-binding receptors,topic not in table
+bladder,11,R-HSA-9864848,Complex IV assembly,rank1
+bladder,12,R-HSA-9707564,Cytoprotection by HMOX1,rank1
+bladder,13,R-HSA-6798695,Neutrophil degranulation,2-5
+bladder,14,R-HSA-69278,"Cell Cycle, Mitotic",>5
+bladder,15,R-HSA-180292,GAB1 signalosome,rank1
+bladder,16,R-HSA-6785470,tRNA processing in the mitochondrion,rank1
+bladder,17,R-HSA-6798695,Neutrophil degranulation,rank1
+bladder,18,R-HSA-9772755,Formation of WDR5-containing histone-modifying complexes,2-5
+bladder,19,R-HSA-445355,Smooth Muscle Contraction,rank1
+bladder,20,R-HSA-9033241,Peroxisomal protein import,absent
+bladder,21,R-HSA-9013406,RHOQ GTPase cycle,>5
+bladder,22,R-HSA-1369062,ABC transporters in lipid homeostasis,absent
+bladder,23,R-HSA-9619665,EGR2 and SOX10-mediated initiation of Schwann cell myelination,>5
+bladder,24,R-HSA-8957275,Post-translational protein phosphorylation,>5
+bladder,25,R-HSA-156582,Acetylation,absent
+bladder,26,R-HSA-72163,mRNA Splicing - Major Pathway,2-5
+bladder,27,R-HSA-72163,mRNA Splicing - Major Pathway,rank1
+bladder,28,R-HSA-181429,Serotonin Neurotransmitter Release Cycle,2-5
+bladder,29,R-HSA-6798695,Neutrophil degranulation,rank1
+bladder,30,R-HSA-9758881,Uptake of dietary cobalamins into enterocytes,2-5
+bladder,31,R-HSA-2500257,Resolution of Sister Chromatid Cohesion,rank1
+bladder,32,R-HSA-1250342,PI3K events in ERBB4 signaling,absent
+bladder,33,R-HSA-3000178,ECM proteoglycans,rank1
+bladder,34,R-HSA-190861,Gap junction assembly,topic not in table
+bladder,35,R-HSA-72689,Formation of a pool of free 40S subunits,rank1
+bladder,36,R-HSA-6785631,ERBB2 Regulates Cell Motility,>5
+bladder,37,R-HSA-141444,Amplification  of signal from unattached  kinetochores via a MAD2  inhibitory signal,2-5
+bladder,38,R-HSA-198933,Immunoregulatory interactions between a Lymphoid and a non-Lymphoid cell,2-5
+bladder,39,R-HSA-9856530,High laminar flow shear stress activates signaling by PIEZO1 and PECAM1:CDH5:KDR in endothelial cells,absent
+bladder,40,R-HSA-9823730,Formation of definitive endoderm,2-5
+bladder,41,R-HSA-381038,XBP1(S) activates chaperone genes,rank1
+bladder,42,R-HSA-9770562,mRNA Polyadenylation,2-5
+bladder,43,R-HSA-2672351,Stimuli-sensing channels,2-5
+bladder,44,R-HSA-5690714,CD22 mediated BCR regulation,2-5
+bladder,45,R-HSA-72163,mRNA Splicing - Major Pathway,rank1
+bladder,46,R-HSA-9614399,Regulation of localization of FOXO transcription factors,2-5
+bladder,47,R-HSA-8873719,RAB geranylgeranylation,>5
+bladder,48,R-HSA-212436,Generic Transcription Pathway,absent
+bladder,49,R-HSA-8866906,TFAP2 (AP-2) family regulates transcription of other transcription factors,absent
+bladder,50,R-HSA-9013148,CDC42 GTPase cycle,2-5
+bladder,51,R-HSA-428890,Role of ABL in ROBO-SLIT signaling,>5
+bladder,52,R-HSA-909733,Interferon alpha/beta signaling,rank1
+bladder,53,R-HSA-427359,SIRT1 negatively regulates rRNA expression,rank1
+bladder,54,R-HSA-5693571,Nonhomologous End-Joining (NHEJ),rank1
+bladder,55,R-HSA-212436,Generic Transcription Pathway,absent
+bladder,56,R-HSA-1483166,Synthesis of PA,2-5
+bladder,57,R-HSA-2426168,Activation of gene expression by SREBF (SREBP),absent
+bladder,58,R-HSA-2586552,Signaling by Leptin,2-5
+bladder,59,R-HSA-9730628,Sensory perception of salty taste,2-5
+bladder,60,R-HSA-418885,DCC mediated attractive signaling,2-5
+bladder,61,R-HSA-2559584,Formation of Senescence-Associated Heterochromatin Foci (SAHF),rank1
+bladder,62,R-HSA-176187,Activation of ATR in response to replication stress,2-5
+bladder,63,R-HSA-156902,Peptide chain elongation,2-5
+bladder,64,R-HSA-9031628,NGF-stimulated transcription,>5
+bladder,65,R-HSA-420029,Tight junction interactions,2-5
+bladder,66,R-HSA-9976102,Differentiation of naive CD4+ T cells to T helper 2 cells (Th2 cells),absent
+bladder,67,R-HSA-373076,Class A/1 (Rhodopsin-like receptors),2-5
+bladder,68,R-HSA-198933,Immunoregulatory interactions between a Lymphoid and a non-Lymphoid cell,2-5
+bladder,69,R-HSA-1368108,"BMAL1:CLOCK,NPAS2 activates circadian expression",>5
+bladder,70,R-HSA-373753,Nephrin family interactions,2-5
+bladder,71,R-HSA-9706019,RHOBTB3 ATPase cycle,>5
+bladder,72,R-HSA-5696395,Formation of Incision Complex in GG-NER,2-5
+bladder,73,R-HSA-5687128,MAPK6/MAPK4 signaling,>5
+bladder,74,R-HSA-933543,NF-kB activation through FADD/RIP-1 pathway mediated by caspase-8 and -10,>5
+bladder,75,R-HSA-525793,Myogenesis,2-5
+bladder,76,R-HSA-9758919,Epithelial-Mesenchymal Transition (EMT) during gastrulation,>5
+bladder,77,R-HSA-210991,Basigin interactions,rank1
+bladder,78,R-HSA-6799198,Complex I biogenesis,rank1
+bladder,79,R-HSA-912526,Interleukin receptor SHC signaling,2-5
+bladder,80,R-HSA-75158,TRAIL  signaling,rank1
+bladder,81,R-HSA-901032,ER Quality Control Compartment (ERQC),rank1
+bladder,82,R-HSA-6809371,Formation of the cornified envelope,rank1
+bladder,83,R-HSA-445355,Smooth Muscle Contraction,rank1
+bladder,84,R-HSA-2470946,Cohesin Loading onto Chromatin,>5
+bladder,85,R-HSA-5628897,TP53 Regulates Metabolic Genes,2-5
+bladder,86,R-HSA-9927353,Co-inhibition by BTLA,rank1
+bladder,87,R-HSA-72689,Formation of a pool of free 40S subunits,2-5
+bladder,88,R-HSA-77286,mitochondrial fatty acid beta-oxidation of saturated fatty acids,2-5
+bladder,89,R-HSA-445355,Smooth Muscle Contraction,absent
+bladder,90,R-HSA-9856530,High laminar flow shear stress activates signaling by PIEZO1 and PECAM1:CDH5:KDR in endothelial cells,2-5
+bladder,91,R-HSA-196780,Biotin transport and metabolism,2-5
+bladder,92,R-HSA-5649702,APEX1-Independent Resolution of AP Sites via the Single Nucleotide Replacement Pathway,rank1
+bladder,93,R-HSA-380108,Chemokine receptors bind chemokines,absent
+bladder,94,R-HSA-9696264,RND3 GTPase cycle,rank1
+bladder,95,R-HSA-9864848,Complex IV assembly,rank1
+bladder,96,R-HSA-77348,Beta oxidation of octanoyl-CoA to hexanoyl-CoA,>5
+bladder,97,R-HSA-428543,Inactivation of CDC42 and RAC1,2-5
+bladder,98,R-HSA-71032,Propionyl-CoA catabolism,absent
+bladder,99,R-HSA-390522,Striated Muscle Contraction,rank1
+ear,0,R-HSA-1369062,ABC transporters in lipid homeostasis,absent
+ear,1,R-HSA-156902,Peptide chain elongation,rank1
+ear,2,R-HSA-156902,Peptide chain elongation,rank1
+ear,3,R-HSA-2514859,"Inactivation, recovery and regulation of the phototransduction cascade",>5
+ear,4,R-HSA-390450,Folding of actin by CCT/TriC,>5
+ear,5,R-HSA-9031628,NGF-stimulated transcription,>5
+ear,6,R-HSA-418890,Role of second messengers in netrin-1 signaling,2-5
+ear,7,R-HSA-156902,Peptide chain elongation,rank1
+ear,8,R-HSA-9770562,mRNA Polyadenylation,2-5
+ear,9,R-HSA-9770562,mRNA Polyadenylation,2-5
+ear,10,R-HSA-9639288,Amino acids regulate mTORC1,absent
+ear,11,R-HSA-3000171,Non-integrin membrane-ECM interactions,>5
+ear,12,R-HSA-156902,Peptide chain elongation,rank1
+ear,13,R-HSA-4641262,Disassembly of the destruction complex and recruitment of AXIN to the membrane,rank1
+ear,14,R-HSA-9013409,RHOJ GTPase cycle,>5
+ear,15,R-HSA-6798695,Neutrophil degranulation,rank1
+ear,16,R-HSA-156902,Peptide chain elongation,2-5
+ear,17,R-HSA-9930044,Nuclear RNA decay,2-5
+ear,18,R-HSA-1442490,Collagen degradation,>5
+ear,19,R-HSA-156902,Peptide chain elongation,rank1
+ear,20,R-HSA-381340,Transcriptional regulation of white adipocyte differentiation,rank1
+ear,21,R-HSA-72163,mRNA Splicing - Major Pathway,rank1
+ear,22,R-HSA-198933,Immunoregulatory interactions between a Lymphoid and a non-Lymphoid cell,rank1
+ear,23,R-HSA-381426,Regulation of Insulin-like Growth Factor (IGF) transport and uptake by Insulin-like Growth Factor Binding Proteins (IGFBPs),rank1
+ear,24,R-HSA-156902,Peptide chain elongation,rank1
+ear,25,R-HSA-156902,Peptide chain elongation,rank1
+ear,26,R-HSA-6809371,Formation of the cornified envelope,rank1
+ear,27,R-HSA-983695,Antigen activates B Cell Receptor (BCR) leading to generation of second messengers,rank1
+ear,28,R-HSA-4551638,SUMOylation of chromatin organization proteins,2-5
+ear,29,R-HSA-6798695,Neutrophil degranulation,2-5
+ear,30,R-HSA-3928662,EPHB-mediated forward signaling,absent
+ear,31,R-HSA-156902,Peptide chain elongation,>5
+ear,32,R-HSA-114604,GPVI-mediated activation cascade,>5
+ear,33,R-HSA-9024446,NR1H2 and NR1H3-mediated signaling,>5
+ear,34,R-HSA-1632852,Macroautophagy,absent
+ear,35,R-HSA-9010553,Regulation of expression of SLITs and ROBOs,>5
+ear,36,R-HSA-9616222,Transcriptional regulation of granulopoiesis,rank1
+ear,37,R-HSA-2151201,Transcriptional activation of mitochondrial biogenesis,2-5
+ear,38,R-HSA-156902,Peptide chain elongation,rank1
+ear,39,R-HSA-9639288,Amino acids regulate mTORC1,absent
+ear,40,R-HSA-2408557,Selenocysteine synthesis,2-5
+ear,41,R-HSA-156902,Peptide chain elongation,rank1
+ear,42,R-HSA-6798695,Neutrophil degranulation,rank1
+ear,43,R-HSA-446107,Type I hemidesmosome assembly,2-5
+ear,44,R-HSA-933543,NF-kB activation through FADD/RIP-1 pathway mediated by caspase-8 and -10,2-5
+ear,45,R-HSA-6785470,tRNA processing in the mitochondrion,2-5
+ear,46,R-HSA-6809371,Formation of the cornified envelope,rank1
+ear,47,R-HSA-71291,Metabolism of amino acids and derivatives,rank1
+ear,48,R-HSA-5250941,Negative epigenetic regulation of rRNA expression,absent
+ear,49,R-HSA-351906,Apoptotic cleavage of cell adhesion  proteins,rank1
+ear,50,R-HSA-3000178,ECM proteoglycans,2-5
+ear,51,R-HSA-977225,Amyloid fiber formation,>5
+ear,52,R-HSA-6791226,Major pathway of rRNA processing in the nucleolus and cytosol,2-5
+ear,53,R-HSA-425407,SLC-mediated transmembrane transport,2-5
+ear,54,R-HSA-156902,Peptide chain elongation,rank1
+ear,55,R-HSA-156827,L13a-mediated translational silencing of Ceruloplasmin expression,2-5
+ear,56,R-HSA-9770562,mRNA Polyadenylation,rank1
+ear,57,R-HSA-1236977,Endosomal/Vacuolar pathway,>5
+ear,58,R-HSA-156902,Peptide chain elongation,rank1
+ear,59,R-HSA-445355,Smooth Muscle Contraction,rank1
+ear,60,R-HSA-114608,Platelet degranulation ,2-5
+ear,61,R-HSA-3214847,HATs acetylate histones,rank1
+ear,62,R-HSA-3000480,Scavenging by Class A Receptors,2-5
+ear,63,R-HSA-156902,Peptide chain elongation,2-5
+ear,64,R-HSA-3000178,ECM proteoglycans,2-5
+ear,65,R-HSA-5625740,RHO GTPases activate PKNs,>5
+ear,66,R-HSA-6798695,Neutrophil degranulation,>5
+ear,67,R-HSA-6799198,Complex I biogenesis,rank1
+ear,68,R-HSA-6798695,Neutrophil degranulation,rank1
+ear,69,R-HSA-156902,Peptide chain elongation,2-5
+ear,70,R-HSA-381426,Regulation of Insulin-like Growth Factor (IGF) transport and uptake by Insulin-like Growth Factor Binding Proteins (IGFBPs),rank1
+ear,71,R-HSA-156902,Peptide chain elongation,rank1
+ear,72,R-HSA-6798695,Neutrophil degranulation,rank1
+ear,73,R-HSA-6799198,Complex I biogenesis,rank1
+ear,74,R-HSA-9937008,Mitochondrial mRNA modification,2-5
+ear,75,R-HSA-5368286,Mitochondrial translation initiation,>5
+ear,76,R-HSA-156827,L13a-mediated translational silencing of Ceruloplasmin expression,rank1
+ear,77,R-HSA-6791226,Major pathway of rRNA processing in the nucleolus and cytosol,rank1
+ear,78,R-HSA-418594,G alpha (i) signalling events,>5
+ear,79,R-HSA-204005,COPII-mediated vesicle transport,absent
+ear,80,R-HSA-6798695,Neutrophil degranulation,rank1
+ear,81,R-HSA-8948700,Competing endogenous RNAs (ceRNAs) regulate PTEN translation,>5
+ear,82,R-HSA-156902,Peptide chain elongation,rank1
+ear,83,R-HSA-114608,Platelet degranulation ,>5
+ear,84,R-HSA-6798695,Neutrophil degranulation,rank1
+ear,85,R-HSA-156902,Peptide chain elongation,rank1
+ear,86,R-HSA-5663213,RHO GTPases Activate WASPs and WAVEs,2-5
+ear,87,R-HSA-156902,Peptide chain elongation,rank1
+ear,88,R-HSA-8950505,Gene and protein expression by JAK-STAT signaling after Interleukin-12 stimulation,>5
+ear,89,R-HSA-432722,Golgi Associated Vesicle Biogenesis,absent
+ear,90,R-HSA-5658623,FGFRL1 modulation of FGFR1 signaling,rank1
+ear,91,R-HSA-156827,L13a-mediated translational silencing of Ceruloplasmin expression,rank1
+ear,92,R-HSA-156902,Peptide chain elongation,rank1
+ear,93,R-HSA-1266695,Interleukin-7 signaling,2-5
+ear,94,R-HSA-156827,L13a-mediated translational silencing of Ceruloplasmin expression,rank1
+ear,95,R-HSA-156902,Peptide chain elongation,rank1
+ear,96,R-HSA-8939243,RUNX1 interacts with co-factors whose precise effect on RUNX1 targets is not known,>5
+ear,97,R-HSA-9707564,Cytoprotection by HMOX1,>5
+ear,98,R-HSA-198933,Immunoregulatory interactions between a Lymphoid and a non-Lymphoid cell,rank1
+ear,99,R-HSA-109704,PI3K Cascade,absent
+peritoneum,0,R-HSA-1369062,ABC transporters in lipid homeostasis,topic not in table
+peritoneum,1,R-HSA-9013149,RAC1 GTPase cycle,rank1
+peritoneum,2,R-HSA-111452,Activation and oligomerization of BAK protein,absent
+peritoneum,3,R-HSA-9770562,mRNA Polyadenylation,rank1
+peritoneum,4,R-HSA-72163,mRNA Splicing - Major Pathway,2-5
+peritoneum,5,R-HSA-6798695,Neutrophil degranulation,rank1
+peritoneum,6,R-HSA-445355,Smooth Muscle Contraction,rank1
+peritoneum,7,R-HSA-8980692,RHOA GTPase cycle,rank1
+peritoneum,8,R-HSA-156902,Peptide chain elongation,rank1
+peritoneum,9,R-HSA-3928662,EPHB-mediated forward signaling,2-5
+peritoneum,10,R-HSA-350562,Regulation of ornithine decarboxylase (ODC),2-5
+peritoneum,11,R-HSA-2129379,Molecules associated with elastic fibres,rank1
+peritoneum,12,R-HSA-909733,Interferon alpha/beta signaling,rank1
+peritoneum,13,R-HSA-2122948,Activated NOTCH1 Transmits Signal to the Nucleus,>5
+peritoneum,14,R-HSA-6811438,Intra-Golgi traffic,2-5
+peritoneum,15,R-HSA-6787450,tRNA modification in the mitochondrion,rank1
+peritoneum,16,R-HSA-5368598,Negative regulation of TCF-dependent signaling by DVL-interacting proteins,2-5
+peritoneum,17,R-HSA-202430,Translocation of ZAP-70 to Immunological synapse,rank1
+peritoneum,18,R-HSA-9769733,Fibrin formation,absent
+peritoneum,19,R-HSA-9931269,AMPK-induced ERAD and lysosome mediated degradation of PD-L1(CD274),>5
+peritoneum,20,R-HSA-2122948,Activated NOTCH1 Transmits Signal to the Nucleus,>5
+peritoneum,21,R-HSA-6785470,tRNA processing in the mitochondrion,rank1
+peritoneum,22,R-HSA-198933,Immunoregulatory interactions between a Lymphoid and a non-Lymphoid cell,rank1
+peritoneum,23,R-HSA-72163,mRNA Splicing - Major Pathway,2-5
+peritoneum,24,R-HSA-156902,Peptide chain elongation,rank1
+peritoneum,25,R-HSA-2173796,SMAD2/SMAD3:SMAD4 heterotrimer regulates transcription,>5
+peritoneum,26,R-HSA-2892245,"POU5F1 (OCT4), SOX2, NANOG repress genes related to differentiation",>5
+peritoneum,27,R-HSA-418594,G alpha (i) signalling events,2-5
+peritoneum,28,R-HSA-6798695,Neutrophil degranulation,rank1
+peritoneum,29,R-HSA-6798695,Neutrophil degranulation,rank1
+peritoneum,30,R-HSA-901032,ER Quality Control Compartment (ERQC),2-5
+peritoneum,31,R-HSA-977606,Regulation of Complement cascade,2-5
+peritoneum,32,R-HSA-6798695,Neutrophil degranulation,rank1
+peritoneum,33,R-HSA-1650814,Collagen biosynthesis and modifying enzymes,rank1
+peritoneum,34,R-HSA-3247509,Chromatin modifying enzymes,2-5
+peritoneum,35,R-HSA-5627123,RHO GTPases activate PAKs,>5
+peritoneum,36,R-HSA-5389840,Mitochondrial translation elongation,>5
+peritoneum,37,R-HSA-373080,Class B/2 (Secretin family receptors),rank1
+peritoneum,38,R-HSA-212165,Epigenetic regulation of gene expression,topic not in table
+peritoneum,39,R-HSA-156902,Peptide chain elongation,rank1
+peritoneum,40,R-HSA-6804757,Regulation of TP53 Degradation,2-5
+peritoneum,41,R-HSA-9033241,Peroxisomal protein import,rank1
+peritoneum,42,R-HSA-9770562,mRNA Polyadenylation,2-5
+peritoneum,43,R-HSA-373753,Nephrin family interactions,2-5
+peritoneum,44,R-HSA-9013404,RAC2 GTPase cycle,absent
+peritoneum,45,R-HSA-417957,P2Y receptors,rank1
+peritoneum,46,R-HSA-6803207,TP53 Regulates Transcription of Caspase Activators and Caspases,>5
+peritoneum,47,R-HSA-380259,Loss of Nlp from mitotic centrosomes,2-5
+peritoneum,48,R-HSA-3928662,EPHB-mediated forward signaling,2-5
+peritoneum,49,R-HSA-1445148,Translocation of SLC2A4 (GLUT4) to the plasma membrane,rank1
+peritoneum,50,R-HSA-3928662,EPHB-mediated forward signaling,2-5
+peritoneum,51,R-HSA-72689,Formation of a pool of free 40S subunits,2-5
+peritoneum,52,R-HSA-159231,Transport of Mature mRNA Derived from an Intronless Transcript,rank1
+peritoneum,53,R-HSA-5690714,CD22 mediated BCR regulation,2-5
+peritoneum,54,R-HSA-210746,Regulation of gene expression in endocrine-committed (NEUROG3+) progenitor cells,absent
+peritoneum,55,R-HSA-5627123,RHO GTPases activate PAKs,rank1
+peritoneum,56,R-HSA-2129379,Molecules associated with elastic fibres,2-5
+peritoneum,57,R-HSA-3000178,ECM proteoglycans,rank1
+peritoneum,58,R-HSA-202433,Generation of second messenger molecules,rank1
+peritoneum,59,R-HSA-9925563,Developmental Lineage of Pancreatic Ductal Cells,absent
+peritoneum,60,R-HSA-114608,Platelet degranulation ,rank1
+peritoneum,61,R-HSA-5620924,Intraflagellar transport,2-5
+peritoneum,62,R-HSA-2500257,Resolution of Sister Chromatid Cohesion,rank1
+peritoneum,63,R-HSA-975576,N-glycan antennae elongation in the medial/trans-Golgi,absent
+peritoneum,64,R-HSA-416550,Sema4D mediated inhibition of cell attachment and migration,>5
+peritoneum,65,R-HSA-6798695,Neutrophil degranulation,rank1
+peritoneum,66,R-HSA-141334,PAOs oxidise polyamines to amines,topic not in table
+peritoneum,67,R-HSA-1500620,Meiosis,absent
+peritoneum,68,R-HSA-9845576,Glycosphingolipid transport,2-5
+peritoneum,69,R-HSA-9662361,Sensory processing of sound by outer hair cells of the cochlea,2-5
+peritoneum,70,R-HSA-3134973,LRR FLII-interacting protein 1 (LRRFIP1) activates type I IFN production,2-5
+peritoneum,71,R-HSA-5205685,PINK1-PRKN Mediated Mitophagy,>5
+peritoneum,72,R-HSA-198933,Immunoregulatory interactions between a Lymphoid and a non-Lymphoid cell,rank1
+peritoneum,73,R-HSA-983695,Antigen activates B Cell Receptor (BCR) leading to generation of second messengers,rank1
+peritoneum,74,R-HSA-75896,Plasmalogen biosynthesis,absent
+peritoneum,75,R-HSA-114608,Platelet degranulation ,2-5
+peritoneum,76,R-HSA-6811436,COPI-independent Golgi-to-ER retrograde traffic,2-5
+peritoneum,77,R-HSA-9031628,NGF-stimulated transcription,rank1
+peritoneum,78,R-HSA-9770562,mRNA Polyadenylation,2-5
+peritoneum,79,R-HSA-204005,COPII-mediated vesicle transport,rank1
+peritoneum,80,R-HSA-6798695,Neutrophil degranulation,rank1
+peritoneum,81,R-HSA-5693607,Processing of DNA double-strand break ends,absent
+peritoneum,82,R-HSA-977347,Serine metabolism,2-5
+peritoneum,83,R-HSA-212436,Generic Transcription Pathway,absent
+peritoneum,84,R-HSA-9022707,MECP2 regulates transcription factors,>5
+peritoneum,85,R-HSA-198933,Immunoregulatory interactions between a Lymphoid and a non-Lymphoid cell,2-5
+peritoneum,86,R-HSA-1855183,"Synthesis of IP2, IP, and Ins in the cytosol",rank1
+peritoneum,87,R-HSA-202733,Cell surface interactions at the vascular wall,>5
+peritoneum,88,R-HSA-156902,Peptide chain elongation,2-5
+peritoneum,89,R-HSA-1483248,Synthesis of PIPs at the ER membrane,2-5
+peritoneum,90,R-HSA-1299308,Tandem of pore domain in a weak inwardly rectifying K+ channels (TWIK),absent
+peritoneum,91,R-HSA-6799198,Complex I biogenesis,rank1
+peritoneum,92,R-HSA-110328,Recognition and association of DNA glycosylase with site containing an affected pyrimidine,2-5
+peritoneum,93,R-HSA-5689880,Ub-specific processing proteases,absent
+peritoneum,94,R-HSA-72163,mRNA Splicing - Major Pathway,rank1
+peritoneum,95,R-HSA-9639288,Amino acids regulate mTORC1,2-5
+peritoneum,96,R-HSA-6798695,Neutrophil degranulation,2-5
+peritoneum,97,R-HSA-77346,Beta oxidation of decanoyl-CoA to octanoyl-CoA-CoA,2-5
+peritoneum,98,R-HSA-198933,Immunoregulatory interactions between a Lymphoid and a non-Lymphoid cell,rank1
+peritoneum,99,R-HSA-9770562,mRNA Polyadenylation,rank1
+stomach,0,R-HSA-9818027,NFE2L2 regulating anti-oxidant/detoxification enzymes,rank1
+stomach,1,R-HSA-210746,Regulation of gene expression in endocrine-committed (NEUROG3+) progenitor cells,rank1
+stomach,2,R-HSA-1442490,Collagen degradation,2-5
+stomach,3,R-HSA-912526,Interleukin receptor SHC signaling,>5
+stomach,4,R-HSA-72689,Formation of a pool of free 40S subunits,absent
+stomach,5,R-HSA-72163,mRNA Splicing - Major Pathway,rank1
+stomach,6,R-HSA-5690714,CD22 mediated BCR regulation,>5
+stomach,7,R-HSA-418594,G alpha (i) signalling events,absent
+stomach,8,R-HSA-9706019,RHOBTB3 ATPase cycle,>5
+stomach,9,R-HSA-6791226,Major pathway of rRNA processing in the nucleolus and cytosol,2-5
+stomach,10,R-HSA-1236974,ER-Phagosome pathway,2-5
+stomach,11,R-HSA-9830674,Formation of the ureteric bud,2-5
+stomach,12,R-HSA-191859,snRNP Assembly,2-5
+stomach,13,R-HSA-390522,Striated Muscle Contraction,rank1
+stomach,14,R-HSA-432722,Golgi Associated Vesicle Biogenesis,>5
+stomach,15,R-HSA-6785470,tRNA processing in the mitochondrion,rank1
+stomach,16,R-HSA-9749641,Aspirin ADME,2-5
+stomach,17,R-HSA-198933,Immunoregulatory interactions between a Lymphoid and a non-Lymphoid cell,rank1
+stomach,18,R-HSA-5620916,VxPx cargo-targeting to cilium,>5
+stomach,19,R-HSA-173623,Classical antibody-mediated complement activation,rank1
+stomach,20,R-HSA-432720,Lysosome Vesicle Biogenesis,2-5
+stomach,21,R-HSA-5368286,Mitochondrial translation initiation,rank1
+stomach,22,R-HSA-6799198,Complex I biogenesis,2-5
+stomach,23,R-HSA-380994,ATF4 activates genes in response to endoplasmic reticulum  stress,absent
+stomach,24,R-HSA-72764,Eukaryotic Translation Termination,rank1
+stomach,25,R-HSA-8850843,Phosphate bond hydrolysis by NTPDase proteins,rank1
+stomach,26,R-HSA-8874081,MET activates PTK2 signaling,2-5
+stomach,27,R-HSA-983695,Antigen activates B Cell Receptor (BCR) leading to generation of second messengers,2-5
+stomach,28,R-HSA-156827,L13a-mediated translational silencing of Ceruloplasmin expression,2-5
+stomach,29,R-HSA-4419969,Depolymerization of the Nuclear Lamina,rank1
+stomach,30,R-HSA-173623,Classical antibody-mediated complement activation,rank1
+stomach,31,R-HSA-2500257,Resolution of Sister Chromatid Cohesion,rank1
+stomach,32,R-HSA-156588,Glucuronidation,rank1
+stomach,33,R-HSA-9013424,RHOV GTPase cycle,2-5
+stomach,34,R-HSA-72165,mRNA Splicing - Minor Pathway,>5
+stomach,35,R-HSA-9968551,Regulation of GBP-mediated host defense,absent
+stomach,36,R-HSA-210991,Basigin interactions,>5
+stomach,37,R-HSA-9819196,Zygotic genome activation (ZGA),>5
+stomach,38,R-HSA-173623,Classical antibody-mediated complement activation,rank1
+stomach,39,R-HSA-8877627,Vitamin E transport,absent
+stomach,40,R-HSA-6791226,Major pathway of rRNA processing in the nucleolus and cytosol,rank1
+stomach,41,R-HSA-1799339,SRP-dependent cotranslational protein targeting to membrane,rank1
+stomach,42,R-HSA-9013149,RAC1 GTPase cycle,rank1
+stomach,43,R-HSA-549127,SLC-mediated transport of organic cations,2-5
+stomach,44,R-HSA-70171,Glycolysis,2-5
+stomach,45,R-HSA-6798695,Neutrophil degranulation,rank1
+stomach,46,R-HSA-72689,Formation of a pool of free 40S subunits,rank1
+stomach,47,R-HSA-375276,Peptide ligand-binding receptors,rank1
+stomach,48,R-HSA-6799198,Complex I biogenesis,2-5
+stomach,49,R-HSA-420029,Tight junction interactions,rank1
+stomach,50,R-HSA-9907900,Proteasome assembly,>5
+stomach,51,R-HSA-9818035,NFE2L2 regulating ER-stress associated genes,2-5
+stomach,52,R-HSA-72163,mRNA Splicing - Major Pathway,2-5
+stomach,53,R-HSA-9954709,Ribosome Quality Control (RQC) complex extracts and degrades nascent peptide,>5
+stomach,54,R-HSA-141444,Amplification  of signal from unattached  kinetochores via a MAD2  inhibitory signal,rank1
+stomach,55,R-HSA-3371568,Attenuation phase,2-5
+stomach,56,R-HSA-418597,G alpha (z) signalling events,2-5
+stomach,57,R-HSA-1369062,ABC transporters in lipid homeostasis,absent
+stomach,58,R-HSA-3371568,Attenuation phase,2-5
+stomach,59,R-HSA-6803157,Antimicrobial peptides,rank1
+stomach,60,R-HSA-5661231,Metallothioneins bind metals,rank1
+stomach,61,R-HSA-6784531,tRNA processing in the nucleus,>5
+stomach,62,R-HSA-9604323,Negative regulation of NOTCH4 signaling,rank1
+stomach,63,R-HSA-1660499,Synthesis of PIPs at the plasma membrane,rank1
+stomach,64,R-HSA-74752,Signaling by Insulin receptor,absent
+stomach,65,R-HSA-9938024,Somatic hypermutation of immunoglobulin genes,absent
+stomach,66,R-HSA-1369062,ABC transporters in lipid homeostasis,topic not in table
+stomach,67,R-HSA-156902,Peptide chain elongation,rank1
+stomach,68,R-HSA-6798695,Neutrophil degranulation,2-5
+stomach,69,R-HSA-191859,snRNP Assembly,2-5
+stomach,70,R-HSA-8876198,RAB GEFs exchange GTP for GDP on RABs,rank1
+stomach,71,R-HSA-1247673,Erythrocytes take up oxygen and release carbon dioxide,2-5
+stomach,72,R-HSA-114608,Platelet degranulation ,2-5
+stomach,73,R-HSA-198933,Immunoregulatory interactions between a Lymphoid and a non-Lymphoid cell,rank1
+stomach,74,R-HSA-373756,SDK interactions,absent
+stomach,75,R-HSA-189483,Heme degradation,2-5
+stomach,76,R-HSA-9796292,Formation of axial mesoderm,>5
+stomach,77,R-HSA-6785470,tRNA processing in the mitochondrion,rank1
+stomach,78,R-HSA-3000157,Laminin interactions,2-5
+stomach,79,R-HSA-3000178,ECM proteoglycans,rank1
+stomach,80,R-HSA-6782861,Synthesis of wybutosine at G37 of tRNA(Phe),rank1
+stomach,81,R-HSA-1369062,ABC transporters in lipid homeostasis,absent
+stomach,82,R-HSA-425397,"Transport of vitamins, nucleosides, and related molecules",2-5
+stomach,83,R-HSA-1474244,Extracellular matrix organization,absent
+stomach,84,R-HSA-174403,Glutathione synthesis and recycling,rank1
+stomach,85,R-HSA-983695,Antigen activates B Cell Receptor (BCR) leading to generation of second messengers,2-5
+stomach,86,R-HSA-5669034,TNFs bind their physiological receptors,rank1
+stomach,87,R-HSA-8874211,CREB3 factors activate genes,>5
+stomach,88,R-HSA-2142789,Ubiquinol biosynthesis,absent
+stomach,89,R-HSA-1369062,ABC transporters in lipid homeostasis,topic not in table
+stomach,90,R-HSA-1810476,RIP-mediated NFkB activation via ZBP1,rank1
+stomach,91,R-HSA-156827,L13a-mediated translational silencing of Ceruloplasmin expression,2-5
+stomach,92,R-HSA-9662360,Sensory processing of sound by inner hair cells of the cochlea,absent
+stomach,93,R-HSA-2168880,Scavenging of heme from plasma,rank1
+stomach,94,R-HSA-1369062,ABC transporters in lipid homeostasis,absent
+stomach,95,R-HSA-156902,Peptide chain elongation,rank1
+stomach,96,R-HSA-6785470,tRNA processing in the mitochondrion,rank1
+stomach,97,R-HSA-198933,Immunoregulatory interactions between a Lymphoid and a non-Lymphoid cell,rank1
+stomach,98,R-HSA-3928662,EPHB-mediated forward signaling,2-5
+stomach,99,R-HSA-3899300,SUMOylation of transcription cofactors,>5
