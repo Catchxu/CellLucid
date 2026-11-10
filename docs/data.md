@@ -1,7 +1,7 @@
 # HCA acquisition and atlas preprocessing
 
 The `data/` directory contains the HCA downloader, its configuration, gene annotation
-mapping and full-inventory preprocessing. Pretraining then encodes every prepared training
+mapping, full-inventory preprocessing and the builder of the Reactome pathway table. Pretraining then encodes every prepared training
 cell once into an embedding cache and trains on that cache; see [pretraining](pretraining.md).
 
 ## Acquire data and annotation
@@ -100,3 +100,26 @@ bash scripts/train_topics.sh --cache /path/to/run/cache --output-dir /path/to/ru
 
 The cache builder reads raw-count shards, masks each cell once and encodes it with the frozen
 TranscriptFormer; training then reads only the cache. Prepared shards are not modified. See [pretraining](pretraining.md) for checkpoint/resume semantics and the [root README](../README.md) for inference.
+
+## Reactome pathways
+
+Topic mapping reads `assets/reactome/human_pathways.csv`: one row per human pathway of
+Reactome release 97, with its hierarchy, gene symbols and Reactome's `isInDisease` flag. It is
+built from four files of the same release. `ReactomePathways.txt`,
+`ReactomePathwaysRelation.txt` and `ReactomePathways.gmt` come from the
+[Reactome downloads](https://reactome.org/download-data). `nodes_pathway.csv` holds the flag:
+it is exported from the Reactome graph database (Neo4j) with the Python `neo4j` driver and
+`csv` module, so the flag reads `True` or `False`, under the columns `pathway_id` and
+`is_in_disease`:
+
+```cypher
+MATCH (p:Pathway {speciesName: "Homo sapiens"}) RETURN p.stId, p.isInDisease
+```
+
+```bash
+python data/reactome.py --input-dir /path/to/reactome_release97 --release 97 \
+  --output assets/reactome/human_pathways.csv
+```
+
+Reactome offers only its current release for download, so the release 97 table is kept in the
+Hugging Face repository. Reactome data are released under CC0.

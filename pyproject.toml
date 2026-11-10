@@ -26,6 +26,7 @@ celllucid-build-cache = "celllucid.data.cache:main"
 celllucid-train-topics = "celllucid.trainer.topic:main"
 celllucid-export-topics = "celllucid.tasks.topic_bank:main"
 celllucid-infer = "celllucid.tasks.inference:main"
+celllucid-map-reactome = "celllucid.tasks.reactome:main"
 [tool.hatch.build.targets.wheel]
 packages = ["src/celllucid"]
 [tool.pytest.ini_options]

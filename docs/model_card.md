@@ -25,6 +25,7 @@ described as a mixture of 128 gene programs (topics).
 | `topic_banks/default/` | Topic bank whose topics exclude mitochondrial, ribosomal-protein and TCR/BCR V-segment genes | Trained by CellLucid |
 | `topic_banks/all_genes/` | Topic bank trained on every gene | Trained by CellLucid |
 | `gene_symbols.json` | GENCODE v49 gene symbol to Ensembl ID mapping | Built from GENCODE by CellLucid |
+| `reactome/human_pathways.csv` | Human pathways of Reactome release 97 with their hierarchy, gene symbols and disease flag, used to map topics to pathways | Built from [Reactome](https://reactome.org) data (CC0) by CellLucid |
 
 ## Backbone: TranscriptFormer (TF-Sapiens)
 
@@ -53,6 +54,15 @@ by a temperature-0.05 softmax, plus a topic-by-gene dictionary. Banks store Ense
 | --- | --- |
 | `default` | interpreting programs, comparing cell types across studies, querying |
 | `all_genes` | quality control, technical or sample-level analysis, full-profile reconstruction |
+
+## Reactome pathways
+
+`reactome/human_pathways.csv` lists the human pathways of Reactome release 97, one per row, with
+their parents, children, top-level categories, gene symbols and Reactome's `isInDisease` flag.
+CellLucid maps each topic to one non-disease pathway from this table. Reactome data are released
+under CC0. If you use the pathway mapping, please cite Reactome:
+
+> Milacic et al., *The Reactome Pathway Knowledgebase 2024*, Nucleic Acids Research (2024).
 
 ## Usage
 

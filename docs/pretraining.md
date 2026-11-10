@@ -197,7 +197,7 @@ python -m celllucid.tasks.topic_bank --checkpoint /path/to/run/checkpoints/lates
 bash scripts/promote_bank.sh --bank /path/to/run/topic_bank --name default
 ```
 
-The published assets folder holds the backbone and both banks:
+The published assets folder holds the backbone, both banks and the Reactome table:
 
 ```text
 assets/
@@ -205,6 +205,7 @@ assets/
   topic_banks/default/        # topics.safetensors, genes.json, symbols.json, manifest.json
   topic_banks/all_genes/
   gene_symbols.json           # GENCODE v49 symbol-to-Ensembl mapping
+  reactome/human_pathways.csv # Reactome release 97 pathways for topic mapping (CC0)
 ```
 
 `scripts/push_assets.sh` uploads these files and the model card (`docs/model_card.md`) to

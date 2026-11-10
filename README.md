@@ -22,8 +22,9 @@ hf download kaichenxu/CellLucid --local-dir assets
 ```
 
 The [Hugging Face repository](https://huggingface.co/kaichenxu/CellLucid) holds everything
-inference needs: the TF-Sapiens weights, redistributed unmodified from TranscriptFormer, and
-both CellLucid topic banks. Do not download TF-Sapiens separately.
+inference needs: the TF-Sapiens weights, redistributed unmodified from TranscriptFormer, both
+CellLucid topic banks and the Reactome pathway table for topic mapping. Do not download
+TF-Sapiens separately.
 
 ## Usage
 
@@ -52,6 +53,31 @@ with h5py.File("usage.h5") as f:
 bank = TopicBank("assets/topic_banks/default")
 for topic, genes in enumerate(bank.top_genes(n=10)):
     print(topic, [g["gene"] for g in genes])
+```
+
+## Map topics to Reactome pathways
+
+Name each topic by one Reactome pathway:
+
+```bash
+bash scripts/map_reactome.sh --topic-bank assets/topic_banks/default --output reactome_default
+```
+
+`topic_to_reactome.csv` holds one pathway per topic, with its p value and the shared genes;
+`topic_pathway_tests.csv` holds every topic–pathway test with its p value and FDR. A topic is
+represented by its 100 highest-weight genes. Non-disease human pathways of Reactome release 97
+are tested by a hypergeometric test, each pathway before its ancestors, and the genes of a
+significant pathway (p < 0.01) are removed from its ancestors before they are tested. Each topic
+maps to the pathway with the smallest p. Use the `default` bank: in `all_genes`, ribosomal-protein
+genes enter the top genes of most topics and pull many of them to translation pathways.
+
+The same function maps gene programs from other models:
+
+```python
+from celllucid.tasks.reactome import Pathways, map_topics
+
+pathways = Pathways("assets/reactome/human_pathways.csv")
+mapping, tests = map_topics(weights, symbols, pathways)  # weights: topics x genes; symbols: its columns
 ```
 
 ## Choosing a topic bank
