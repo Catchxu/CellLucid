@@ -44,6 +44,9 @@ evaluation:
   pools: runs/eval_pools
 inference:
   topic_bank: assets/topic_banks/default
+  # Topic usage from the TranscriptFormer embedding (embedding), or in gene space from the counts
+  # with the dictionary fixed: bag-of-words maximum likelihood (fold_in) or starCAT-style NNLS (nnls).
+  method: embedding
   gene_key: feature_id
   count_source: X
   batch_size: 64

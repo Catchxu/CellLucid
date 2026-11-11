@@ -7,7 +7,7 @@ from celllucid.models.initialization import gene_prior, target_genes
 from celllucid.models.topic import TopicModel
 from celllucid.losses.masked import masked_compositional_loss
 from celllucid.tasks.publish import promote_topic_bank
-from celllucid.tasks.topic_bank import export_topic_bank, TopicBank
+from celllucid.tasks.topic_bank import add_gene_scale, export_topic_bank, TopicBank
 
 
 def model(genes=20, dimension=8, topics=4, seed=5):
@@ -99,3 +99,38 @@ def test_excluded_genes_leave_the_loss_and_keep_only_the_uniform_share(tmp_path)
     prior = gene_prior([0.4, 0.3, 0.1, 0.1, 0.05, 0.05], targets, 0.06)
     torch.testing.assert_close(prior[~targets], torch.full((3,), 0.01))
     torch.testing.assert_close(prior[targets], torch.tensor([0.94 * 0.4 + 0.01, 0.94 * 0.4 + 0.01, 0.94 * 0.2 + 0.01]))
+
+
+def test_gene_space_inference_recovers_usage(tmp_path):
+    m = model()
+    genes = [f"ENSG{i:011d}" for i in range(20)]
+    path = export_topic_bank(m, genes, [f"G{i}" for i in range(20)], tmp_path / "bank", backbone={"fingerprint": "test"})
+    bank = TopicBank(path)
+    assert bank.targets.all() and bank.gene_scale is None
+    usage = torch.tensor([[0.7, 0.2, 0.1, 0.0], [0.25, 0.25, 0.25, 0.25], [0.0, 0.1, 0.3, 0.6]])
+    counts = usage @ bank.dictionary * 1e5  # expected counts, so the usage is exactly recoverable
+    torch.testing.assert_close(bank.fold_in(counts, iterations=20000, tolerance=0), usage, rtol=0, atol=1e-3)
+    with pytest.raises(ValueError, match="gene_scale"):
+        bank.project(counts)
+    scale = (counts.double() / counts.double().sum(1, keepdim=True) * 1e6).std(0, unbiased=False)
+    scaled = TopicBank(add_gene_scale(path, tmp_path / "scaled", scale, {"cells": 3}))
+    assert scaled.manifest["gene_scale"] == {"cells": 3} and scaled.manifest["bank_id"] != bank.manifest["bank_id"]
+    for name in ("topics", "dictionary", "gene_prior", "inference_mean"):
+        torch.testing.assert_close(getattr(scaled, name), getattr(bank, name), rtol=0, atol=0)
+    exact = scaled.project(counts, max_value=float("inf"), iterations=20000, tolerance=0)
+    torch.testing.assert_close(exact, usage, rtol=0, atol=1e-3)
+    clipped = scaled.project(counts * torch.tensor([1.0] * 19 + [50.0]))  # one gene far above its scale
+    torch.testing.assert_close(clipped.sum(1), torch.ones(3))
+    assert (clipped >= 0).all()
+    with pytest.raises(ValueError, match="target genes"):
+        bank.fold_in(torch.zeros(1, 20))
+
+
+def test_target_genes_follow_the_manifest_exclusions(tmp_path):
+    m = model()
+    genes = [f"ENSG{i:011d}" for i in range(20)]
+    symbols = ["MT-CO1", "RPL3"] + [f"G{i}" for i in range(2, 20)]
+    training = {"model": {"excluded_genes": "^(MT-|RP[LS][0-9]+)"}}
+    bank = TopicBank(export_topic_bank(m, genes, symbols, tmp_path / "bank", backbone={"fingerprint": "test"},
+                                       training=training))
+    assert bank.targets.tolist() == [False, False] + [True] * 18

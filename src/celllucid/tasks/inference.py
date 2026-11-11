@@ -1,4 +1,9 @@
-"""Apply a fixed topic bank to new cells in streaming batches."""
+"""Apply a fixed topic bank to new cells in streaming batches.
+
+method selects how cells get topic usage: embedding (the default; TranscriptFormer embedding of the
+counts), fold_in or nnls (gene space, from the counts with the dictionary fixed; no backbone; nnls
+needs a bank with a gene_scale).
+"""
 
 from pathlib import Path
 import argparse
@@ -11,12 +16,19 @@ from ..data.dataset import CountDataset
 from ..models.backbone import FrozenTranscriptFormer
 from .topic_bank import TopicBank
 
+METHODS = ("embedding", "fold_in", "nnls")
+GENE_SPACE_BATCH = 4096
+
 
 def infer(config):
+    method = config["method"]
+    if method not in METHODS:
+        raise ValueError(f"Unknown inference method {method}; choose one of {METHODS}")
     bank = TopicBank(config["topic_bank"], device=config["device"])
-    backbone = FrozenTranscriptFormer(**config["backbone"])
-    if backbone.identity()["fingerprint"] != bank.manifest["backbone"]["fingerprint"]:
-        raise ValueError("Inference backbone or input settings differ from the trained topic bank")
+    if method == "embedding":
+        backbone = FrozenTranscriptFormer(**config["backbone"])
+        if backbone.identity()["fingerprint"] != bank.manifest["backbone"]["fingerprint"]:
+            raise ValueError("Inference backbone or input settings differ from the trained topic bank")
     output = Path(config["output"]).resolve()
     if output.exists():
         raise FileExistsError(output)
@@ -31,7 +43,7 @@ def infer(config):
         source=config.get("count_source", "auto"),
     ) as ds:
         n = len(ds)
-        size = int(config.get("batch_size", 4))
+        size = int(config.get("batch_size", 4)) if method == "embedding" else GENE_SPACE_BATCH
         with h5py.File(temporary, "w") as handle:
             theta = handle.create_dataset("theta", (n, len(bank.topics)), dtype="f4")
             handle.create_dataset(
@@ -40,14 +52,21 @@ def infer(config):
             handle.create_dataset("gene_available", data=ds.available)
             handle.attrs["bank_id"] = bank.manifest["bank_id"]
             handle.attrs["dataset_digest"] = file_digest(ds.path)
-            handle.attrs["backbone_fingerprint"] = backbone.identity()["fingerprint"]
+            handle.attrs["method"] = method
+            if method == "embedding":
+                handle.attrs["backbone_fingerprint"] = backbone.identity()["fingerprint"]
             for start in range(0, n, size):
                 rows = np.arange(start, min(n, start + size))
                 counts = ds.read(rows)
                 if (counts.sum(axis=1) <= 0).any():
                     raise ValueError("An input cell has no expression in the bank vocabulary")
-                h = backbone.encode(counts, bank.genes, ds.obs(rows), pad_to=size)
-                theta[start : start + len(rows)] = bank.transform(h).cpu().numpy()
+                if method == "embedding":
+                    usage = bank.transform(backbone.encode(counts, bank.genes, ds.obs(rows), pad_to=size))
+                elif method == "fold_in":
+                    usage = bank.fold_in(counts)
+                else:
+                    usage = bank.project(counts)
+                theta[start : start + len(rows)] = usage.cpu().numpy()
             handle.attrs["complete"] = True
     os.replace(temporary, output)
     return {"path": str(output), "cells": n, "bank_id": bank.manifest["bank_id"]}
@@ -59,6 +78,8 @@ def main():
     parser.add_argument("--input", required=True)
     parser.add_argument("--output", required=True)
     parser.add_argument("--topic-bank", help="Topic-bank folder; defaults to inference.topic_bank in the config")
+    parser.add_argument("--method", choices=METHODS,
+                        help="Topic-usage inference; defaults to inference.method in the config")
     args = parser.parse_args()
     config = load_config(args.config)
     settings = dict(config["inference"])
@@ -70,6 +91,8 @@ def main():
     )
     if args.topic_bank is not None:
         settings["topic_bank"] = args.topic_bank
+    if args.method is not None:
+        settings["method"] = args.method
     print(json.dumps(infer(settings)))
 
 

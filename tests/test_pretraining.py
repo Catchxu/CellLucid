@@ -11,7 +11,7 @@ from celllucid.data.cache import TrainingCache, build_cache, cache_initializatio
 from celllucid.data.masking import TRAINING_VIEW, hidden_mask, masked_views
 from celllucid.models.initialization import empty_model
 from celllucid.trainer.topic import learning_rate, train
-from celllucid.tasks.topic_bank import TopicBank, export_topic_bank
+from celllucid.tasks.topic_bank import TopicBank, export_topic_bank, training_gene_scale
 
 
 class VisibleEncoder(torch.nn.Module):
@@ -163,6 +163,16 @@ def test_cache_holds_every_eligible_cell_once_with_its_mask(tmp_path):
     initialization = cache_initialization(tmp_path / "cache")
     assert initialization["masked"].shape == (16 * len(studies), 3)
     assert np.isclose(initialization["proportion_mean"].sum(), 1)
+    # The gene scale for nnls inference covers exactly the cached training cells.
+    counts = []
+    for shard in manifest["shards"]:
+        if shard["split"] == "train":
+            with h5py.File(shard["path"], "r") as handle:
+                counts.append(ad.io.sparse_dataset(handle["X"])[:].toarray())
+    counts = np.concatenate(counts).astype(np.float64)
+    scale, source = training_gene_scale(config, path, tmp_path / "cache", workers=2)
+    np.testing.assert_allclose(scale, (counts / counts.sum(1, keepdims=True) * 1e6).std(0), rtol=1e-9, atol=1e-6)
+    assert source["cells"] == len(cache)
 
 
 def test_learning_rate_warmup_and_cosine_decay():
