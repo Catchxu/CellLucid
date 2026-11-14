@@ -26,6 +26,7 @@ described as a mixture of 128 gene programs (topics).
 | `topic_banks/all_genes/` | Topic bank trained on every gene | Trained by CellLucid |
 | `gene_symbols.json` | GENCODE v49 gene symbol to Ensembl ID mapping | Built from GENCODE by CellLucid |
 | `reactome/human_pathways.csv` | Human pathways of Reactome release 97 with their hierarchy, gene symbols and disease flag, used to map topics to pathways | Built from [Reactome](https://reactome.org) data (CC0) by CellLucid |
+| `config.json` | Summary of this repository: backbone, topic banks and resource paths | Written by CellLucid |
 
 ## Backbone: TranscriptFormer (TF-Sapiens)
 
