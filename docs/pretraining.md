@@ -66,13 +66,16 @@ bash data/prepare_topics.sh --manifest /path/to/HCA/manifest.json \
 Preparation examines every inventory record, validates full count matrices,
 normalizes gene identifiers, sums duplicate gene features, filters cells using
 explicit QC and writes sparse row shards. Each file receives a coverage record,
-including exclusion reasons. An unavailable raw count matrix is reported rather
-than reconstructed from normalized expression. Acquisition coverage is separate
-from the HCA portal's headline cell count.
+including exclusion reasons. A source holding log1p(counts) is restored to integer
+counts with expm1 and reported with `log1p_counts: true`. A file without integer
+counts is prepared from its finite, nonnegative expression with a warning and is
+reported with `integer_counts: false`. Acquisition coverage is separate from the
+HCA portal's headline cell count.
 
-Exact duplicate cells with the same study/donor/cell identity, aligned counts and
-measurement availability are removed. This does not claim complete biological
-deduplication when independent submissions rename cells or change counts.
+Cells that an earlier file already holds are removed, including copies stored as
+normalized expression or renamed with their barcodes kept. Stored counts are
+prepared first and restored counts next, so the count copy is kept.
+The rule is in [data](data.md).
 Study identities keep related source files in the same training/validation split.
 The source index supports restart after completed files; partial work for the
 interrupted file is rebuilt. Preserve the original download manifest and matrices.

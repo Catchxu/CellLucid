@@ -33,7 +33,9 @@ python data/build_gene_mapping.py --gtf assets/gencode.v49.annotation.gtf.gz \
 ```
 
 Only unambiguous symbol-to-gene mappings are written. Explicit Ensembl identifiers
-are preferred; unknown or ambiguous symbols are not invented. The TF-Sapiens
+are preferred; unknown or ambiguous symbols are not invented. An Ensembl gene ID is
+read wherever it appears in the identifier, so version suffixes (`ENSG….12`) and
+symbol prefixes (`TNMD_ENSG…`) are dropped. The TF-Sapiens
 vocabulary defines the ordered human gene space. Preparation accepts modern and
 legacy H5AD tables and CSR, CSC or dense expression storage. CSC matrices are
 converted once to CSR in memory for each source; provision RAM for both sparse
@@ -54,20 +56,42 @@ recipient with `--mail-user`. Create the log directory before submission. The in
 manifest. No per-dataset selection YAML or small-cohort manifest is required.
 `configs/preprocess.yaml` specifies:
 
-- Count sources to examine in order: `layers/counts`, `layers/cellranger`, `raw`, `X`.
-- Full-matrix checks for finite, nonnegative integer expression.
-- RNA modality exclusions for spatial/ATAC assays and primary human rows where
-  those annotations are available.
+- Count sources to examine in order: `layers/counts`, `layers/raw`, `raw`, `raw.X`
+  (the raw matrix of anndata files written before 0.7), `X`.
+- Full-matrix checks: the first integer source is used; else the first source
+  holding log1p(counts), restored to integers with expm1; else the first finite,
+  nonnegative one with a warning. A file with none of these is excluded.
+- ATAC exclusion for files whose library methods are all ATAC and for cells whose
+  `assay` is ATAC. Visium files are prepared as expression; spatial coordinates are
+  not used. Primary human rows are selected where those annotations are available.
+- Exclusion of files that measure fewer than 1,000 backbone genes. Targeted panels
+  such as MERFISH measure about 300; whole-transcriptome HCA files measure over
+  11,000.
+- Files excluded by name, with the reason (`exclude_files`). `decidua.h5ad` holds
+  the cells of the two vento18 files of its study under other names; it is excluded
+  and the vento18 files are kept.
 - A minimum of 200 expressed backbone-aligned genes per retained cell.
+- Removal of cells that an earlier file already holds (below).
 - Sparse shards of up to 10,000 cells, with gene availability preserved.
-- A deterministic 20% study-held-out validation split.
+- A fixed study-held-out validation split (`validation_studies`): the five
+  studies of the held-out evaluation pool, so the pool stays held out when
+  studies are added. Every other study is used for training.
 
 Every source has an included, empty or excluded outcome. Excluded inputs and the
 reason are recorded; unreadable files and unexpected I/O errors stop preparation.
-Duplicate features mapping to the same gene are summed. Exact duplicates matching
-study/donor/cell identity, measured-gene availability and aligned counts are
-removed across files. Changed counts or renamed cells require additional overlap
-review; the duplicate index does not establish biological independence.
+Duplicate features mapping to the same gene are summed.
+
+Count sources are validated for every file first. Files are then prepared in three
+groups: stored integer counts, counts restored from log1p, and normalized
+expression, so a cell held several ways is kept as stored counts. A cell is dropped as a copy when a QC-passing cell of
+an earlier file has the same obs name, or within one study the same 16-nt barcode
+(unique within each file), and the two cells' expressed genes, on the genes both
+files measure, have a Jaccard index of at least 0.9. Each cell is confirmed on its
+own, because plain barcodes and row numbers recur across samples: in one HTAN
+pair, half of the barcode matches are different cells. Matched and removed counts
+per earlier file are recorded under `duplicate_matches` in the file's coverage
+report. A copy is not detected when it shares neither its name nor a unique
+barcode, as in a stitched Visium file that holds three slides.
 
 ```text
 <atlas>/
@@ -75,9 +99,11 @@ review; the duplicate index does not establish biological independence.
   genes.json                # One vocabulary for the entire corpus
   preparation.json          # Explicit preprocessing inputs/settings
   coverage.json             # Outcome and counts for every acquisition record
-  sources.sqlite            # Completed source records and exact-duplicate index
+  sources.sqlite            # Count-source choices and completed source records
   files/<file_id>/
     source.json
+    signature.npz           # Name and barcode keys of QC-passing cells for later files
+    genes.npy               # Their expressed genes, read per duplicate candidate
     shard_00000.h5          # Sparse counts, cell IDs, assay and gene availability
     ...
 ```
@@ -86,7 +112,8 @@ Completed source records are reused on restart with the same inputs/settings.
 The interrupted file's `.part` directory is rebuilt. A new corpus configuration
 requires a new output directory. Original downloads and metadata are read-only.
 Sparse payloads are streamed in bounded batches. Cell metadata is held for the
-current source file rather than materializing metadata for the whole atlas.
+current source file. Across the atlas, hashed cell keys are kept in memory and
+expressed genes are read from each file's `genes.npy` per duplicate candidate.
 
 ## Cache and pretrain
 

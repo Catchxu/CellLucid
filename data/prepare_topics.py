@@ -1,12 +1,13 @@
 """Prepare every file in an HCA inventory as a sparse pretraining corpus."""
 
 import argparse
-import hashlib
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import sqlite3
+import warnings
 import h5py
 import anndata as ad
 from anndata._io.h5ad import read_dataframe
@@ -42,30 +43,92 @@ def matrix_shape(node):
     return ad.io.sparse_dataset(node).shape if isinstance(node, h5py.Group) else node.shape
 
 
+def source_keys(source):
+    """Matrix and var keys of a count source; anndata before 0.7 wrote raw as raw.X and raw.var."""
+    if source == "raw":
+        return "raw/X", "raw/var"
+    if source == "raw.X":
+        return "raw.X", "raw.var"
+    return source, "var"
+
+
 def count_source(handle, priorities, block_size):
+    """The first integer source in priority order, else the first holding log1p(counts), else
+    the first finite nonnegative one."""
     attempts = []
     for source in priorities:
-        key = "raw/X" if source == "raw" else source
+        key = source_keys(source)[0]
         if key not in handle:
             continue
         node = handle[key]
         values = node["data"] if isinstance(node, h5py.Group) else node
-        valid = True
+        valid = integer = logged = True
         # Validate the entire source, not a sample of its first cells.
         step = block_size if values.ndim == 1 else max(1, block_size // values.shape[1])
         for start in range(0, len(values), step):
             block = values[start : start + step]
-            if (
-                not np.isfinite(block).all()
-                or (block < 0).any()
-                or not np.allclose(block, np.rint(block), atol=1e-4, rtol=0)
-            ):
-                valid = False
+            if not np.isfinite(block).all() or (block < 0).any():
+                valid = integer = logged = False
                 break
-        attempts.append({"source": source, "integer_nonnegative": valid})
-        if valid:
+            if integer and not np.allclose(block, np.rint(block), atol=1e-4, rtol=0):
+                integer = False
+            if logged:
+                # Values beyond the float range are not log counts.
+                with np.errstate(over="ignore"):
+                    restored = np.rint(np.expm1(block.astype("f8")))
+                if not np.allclose(np.log1p(restored), block, rtol=1e-6, atol=0):
+                    logged = False
+        attempts.append(
+            {
+                "source": source,
+                "finite_nonnegative": valid,
+                "integer": integer,
+                "log1p_counts": logged,
+            }
+        )
+        if integer:
             return source, attempts
-    raise ExcludedSource("No finite nonnegative integer count matrix: " + json.dumps(attempts))
+    logged = next((a["source"] for a in attempts if a["log1p_counts"]), None)
+    if logged is not None:
+        return logged, attempts
+    fallback = next((a["source"] for a in attempts if a["finite_nonnegative"]), None)
+    if fallback is None:
+        raise ExcludedSource("No finite nonnegative expression matrix: " + json.dumps(attempts))
+    warnings.warn("No integer count matrix; using non-integer " + fallback + ": " + json.dumps(attempts))
+    return fallback, attempts
+
+
+def choose_source(record, config):
+    """Screen an inventory record and select its count source."""
+    if record["file_name"] in config["exclude_files"]:
+        raise ExcludedSource("Excluded file: " + config["exclude_files"][record["file_name"]])
+    if len(record["project_ids"]) != 1:
+        raise ExcludedSource("A single source study is required for study-held-out splitting")
+    methods = [
+        value
+        for protocol in record["metadata"]["protocols"]
+        for value in protocol.get("libraryConstructionApproach", [])
+    ]
+    # HCA file records can list every method of their submission, so the RNA files of a
+    # multiome project also name ATAC. A file is excluded only when all its methods are.
+    if methods and all(
+        any(word in method.lower() for word in config["exclude_methods"]) for method in methods
+    ):
+        raise ExcludedSource("Excluded assay: " + ", ".join(methods))
+    if record["format"] != "h5ad":
+        raise ExcludedSource("Unsupported source format: " + record["format"])
+    with h5py.File(record["local_path"], "r") as handle:
+        source, attempts = count_source(handle, config["count_sources"], config["validation_block"])
+    attempt = next(a for a in attempts if a["source"] == source)
+    return {
+        "source": source,
+        "attempts": attempts,
+        "integer": attempt["integer"],
+        "log1p_counts": attempt["log1p_counts"] and not attempt["integer"],
+    }
+
+
+ENSEMBL = re.compile(r"ENSG\d{11}")
 
 
 def gene_projection(var, genes, symbols):
@@ -78,14 +141,13 @@ def gene_projection(var, genes, symbols):
     candidates.append(var.index.astype(str).to_numpy())
     mapped = []
     for values in candidates:
-        ids = [v.split(".")[0] if v.startswith("ENS") else symbols.get(v, "") for v in values]
-        mapped.append(ids)
+        # Ensembl IDs may carry a version suffix or a symbol prefix (SYMBOL_ENSG...).
+        matches = [ENSEMBL.search(v) for v in values]
+        mapped.append([m.group(0) if m else symbols.get(v, "") for m, v in zip(matches, values)])
     # The best-covered explicit identifier field is recorded, not filled with guessed IDs.
     ids = max(mapped, key=lambda values: sum(v in lookup for v in values))
     columns = np.array([lookup.get(v, -1) for v in ids])
     present = columns >= 0
-    if present.sum() < 3:
-        raise ExcludedSource("Fewer than three genes align to the human backbone vocabulary")
     projection = sparse.csr_matrix(
         (np.ones(present.sum(), dtype="f4"), (np.flatnonzero(present), columns[present])),
         shape=(len(var), len(genes)),
@@ -109,6 +171,54 @@ def row_matrix(node):
     return matrix
 
 
+def cell_keys(names):
+    """Hashed obs names and 16-nt barcodes; a barcode absent or repeated within the file is 0."""
+    names = pd.Series(names, dtype=object)
+    barcodes = names.str.extract("([ACGT]{16})", expand=False)
+    unique = (barcodes.notna() & ~barcodes.duplicated(keep=False)).to_numpy()
+    barcode_keys = np.zeros(len(names), dtype=np.uint64)
+    barcode_keys[unique] = pd.util.hash_array(barcodes.to_numpy(dtype=object)[unique])
+    return {"name": pd.util.hash_array(names.to_numpy()), "barcode": barcode_keys}
+
+
+KINDS = ("name", "barcode")
+
+
+def candidate_matches(keys, study, signatures):
+    """Covered cells of earlier files that share an obs name, or within one study a barcode.
+
+    Returns, sorted by row of this file, the row, the signature index, the cell index in that
+    signature and the key kind of every candidate.
+    """
+    rows, owners, cells, kinds = ([np.zeros(0, np.int64)] for _ in range(4))
+    for kind_index, kind in enumerate(KINDS):
+        order = np.argsort(keys[kind], kind="stable")
+        values = keys[kind][order]
+        for owner, signature in enumerate(signatures):
+            if kind == "barcode" and signature["study_id"] != study:
+                continue
+            wanted = signature[kind]
+            position = np.searchsorted(values, wanted).clip(max=len(values) - 1)
+            hit = (values[position] == wanted) & (wanted != 0)
+            rows.append(order[position[hit]])
+            cells.append(np.flatnonzero(hit))
+            owners.append(np.full(int(hit.sum()), owner))
+            kinds.append(np.full(int(hit.sum()), kind_index))
+    rows, owners, cells, kinds = (np.concatenate(a) for a in (rows, owners, cells, kinds))
+    order = np.argsort(rows, kind="stable")
+    return rows[order], owners[order], cells[order], kinds[order]
+
+
+def load_signature(directory):
+    with np.load(directory / "signature.npz") as data:
+        signature = {key: data[key] for key in data.files}
+    signature["study_id"] = str(signature["study_id"])
+    signature["file_id"] = directory.name
+    # Expressed genes of every covered cell stay on disk and are read per candidate.
+    signature["genes"] = np.load(directory / "genes.npy", mmap_mode="r")
+    return signature
+
+
 def write_shard(path, blocks, ids, assays, available, study, file_id):
     matrix = sparse.vstack(blocks, format="csr")
     with h5py.File(path, "w") as handle:
@@ -124,20 +234,8 @@ def write_shard(path, blocks, ids, assays, available, study, file_id):
     return matrix.shape[0]
 
 
-def prepare_file(record, root, genes, symbols, config, database):
-    projects = record["project_ids"]
-    if len(projects) != 1:
-        raise ExcludedSource("A single source study is required for study-held-out splitting")
-    study = projects[0]
-    methods = [
-        value
-        for protocol in record["metadata"]["protocols"]
-        for value in protocol.get("libraryConstructionApproach", [])
-    ]
-    if any(word in method.lower() for method in methods for word in config["exclude_methods"]):
-        raise ExcludedSource("Excluded assay: " + ", ".join(methods))
-    if record["format"] != "h5ad":
-        raise ExcludedSource("Unsupported source format: " + record["format"])
+def prepare_file(record, choice, root, genes, symbols, config, signatures):
+    study = record["project_ids"][0]
     file_id = record["file_id"]
     target = root / "files" / file_id
     staging = root / "files" / (file_id + ".part")
@@ -145,23 +243,18 @@ def prepare_file(record, root, genes, symbols, config, database):
         raise FileExistsError(f"Uncommitted source output exists: {target}")
     if staging.exists():
         shutil.rmtree(staging)
+    source = choice["source"]
+    matrix_key, var_key = source_keys(source)
     with h5py.File(record["local_path"], "r") as handle:
-        source, attempts = count_source(handle, config["count_sources"], config["validation_block"])
-        var_key = "raw/var" if source == "raw" else "var"
         var = frame(handle[var_key])
         obs = frame(
-            handle["obs"],
-            [
-                "organism",
-                "organism_ontology_term_id",
-                "is_primary_data",
-                "assay",
-                "donor_id",
-                "donor",
-            ],
+            handle["obs"], ["organism", "organism_ontology_term_id", "is_primary_data", "assay"]
         )
-        node = handle["raw/X" if source == "raw" else source]
         projection, available, collapsed = gene_projection(var, genes, symbols)
+        if available.sum() < config["min_measured_genes"]:
+            raise ExcludedSource(
+                f"{available.sum()} backbone genes measured, fewer than {config['min_measured_genes']}"
+            )
         selected = np.ones(len(obs), dtype=bool)
         if "organism_ontology_term_id" in obs:
             selected &= obs["organism_ontology_term_id"].astype(str).to_numpy() == "NCBITaxon:9606"
@@ -179,20 +272,41 @@ def prepare_file(record, root, genes, symbols, config, database):
                     .to_numpy()
                 )
         staging.mkdir(parents=True)
-        matrix = row_matrix(node)
+        matrix = row_matrix(handle[matrix_key])
+        raw_ids = obs.index.astype(str).to_numpy()
+        keys = cell_keys(raw_ids)
+        rows, owners, owner_cells, kinds = candidate_matches(keys, study, signatures)
+        first = np.searchsorted(rows, np.arange(len(obs)))
+        last = np.searchsorted(rows, np.arange(len(obs)), side="right")
+        shared = [available & signature["available"] for signature in signatures]
+        removed = np.zeros((len(signatures), len(KINDS)), dtype=np.int64)
+
+        def held_earlier(expressed, row):
+            """Whether a key-matched covered cell of an earlier file expresses the same genes."""
+            for i in range(first[row], last[row]):
+                signature, both = signatures[owners[i]], shared[owners[i]]
+                ptr = signature["ptr"]
+                x = expressed[both[expressed]]
+                y = signature["genes"][ptr[owner_cells[i]] : ptr[owner_cells[i] + 1]]
+                y = y[both[y]]
+                common = len(np.intersect1d(x, y, assume_unique=True))
+                union = len(x) + len(y) - common
+                # A pair expressing none of the shared genes carries no evidence either way.
+                if union and common / union >= config["duplicate_jaccard"]:
+                    removed[owners[i], kinds[i]] += 1
+                    return True
+            return False
+
+        gene_dtype = np.min_scalar_type(len(genes) - 1)
+        covered = np.zeros(len(obs), dtype=bool)
+        covered_genes = []
         records, blocks, cell_ids, assays = [], [], [], []
         n_buffer = retained = duplicates = qc_pass = 0
-        donor_column = next((c for c in ["donor_id", "donor"] if c in obs), None)
-        donors = (
-            obs[donor_column].astype(str).to_numpy() if donor_column else np.repeat("", len(obs))
-        )
-        raw_ids = obs.index.astype(str).to_numpy()
         assay_values = (
             obs["assay"].astype(str).to_numpy()
             if "assay" in obs
             else np.repeat("unknown", len(obs))
         )
-        availability_id = hashlib.blake2b(available.tobytes()).digest()
 
         def flush():
             nonlocal n_buffer
@@ -213,29 +327,25 @@ def prepare_file(record, root, genes, symbols, config, database):
 
         for start in range(0, len(obs), config["batch_size"]):
             end = min(start + config["batch_size"], len(obs))
-            counts = sparse.csr_matrix(matrix[start:end, :]) @ projection
+            block = sparse.csr_matrix(matrix[start:end, :])
+            if choice["log1p_counts"]:
+                # Counts are restored before features mapping to one gene are summed.
+                block.data = np.rint(np.expm1(block.data.astype("f8")))
+            counts = block @ projection
             counts.sum_duplicates()
             counts.sort_indices()
             counts.eliminate_zeros()
             good = selected[start:end] & (counts.getnnz(axis=1) >= config["min_genes"])
             qc_pass += int(good.sum())
+            covered[start:end] = good
             for row in np.flatnonzero(good):
                 source_row = start + int(row)
                 cell = counts[row]
-                raw_id = str(raw_ids[source_row])
-                donor = str(donors[source_row])
-                identity = json.dumps([study, donor, raw_id])
-                content = hashlib.blake2b(
-                    availability_id
-                    + cell.indices.astype("i8").tobytes()
-                    + cell.data.astype("f4").tobytes()
-                ).hexdigest()
-                inserted = database.execute(
-                    "INSERT OR IGNORE INTO cells VALUES (?, ?)", (identity, content)
-                ).rowcount
-                if not inserted:
+                covered_genes.append(cell.indices.astype(gene_dtype))
+                if held_earlier(cell.indices, source_row):
                     duplicates += 1
                     continue
+                raw_id = str(raw_ids[source_row])
                 blocks.append(cell.astype("f4"))
                 cell_ids.append(f"{file_id}:{source_row}:{raw_id}")
                 assays.append(str(assay_values[source_row]))
@@ -245,12 +355,39 @@ def prepare_file(record, root, genes, symbols, config, database):
                     flush()
         if n_buffer:
             flush()
+        matched = np.zeros_like(removed)
+        np.add.at(matched, (owners[covered[rows]], kinds[covered[rows]]), 1)
+        matches = [
+            {
+                "file_id": signatures[owner]["file_id"],
+                "key": KINDS[kind],
+                "matched": int(matched[owner, kind]),
+                "removed": int(removed[owner, kind]),
+            }
+            for owner, kind in zip(*np.nonzero(matched))
+        ]
+        # The cells this file covers (QC-passing, duplicates included) for later files.
+        lengths = np.array([len(g) for g in covered_genes], dtype=np.int64)
+        np.savez(
+            staging / "signature.npz",
+            study_id=study,
+            name=keys["name"][covered],
+            barcode=keys["barcode"][covered],
+            available=available,
+            ptr=np.concatenate([[0], np.cumsum(lengths)]),
+        )
+        np.save(
+            staging / "genes.npy",
+            np.concatenate(covered_genes) if covered_genes else np.zeros(0, gene_dtype),
+        )
         report = {
             "file_id": file_id,
             "study_id": study,
             "status": "included" if retained else "empty",
             "source": source,
-            "source_attempts": attempts,
+            "source_attempts": choice["attempts"],
+            "integer_counts": choice["integer"] or choice["log1p_counts"],
+            "log1p_counts": choice["log1p_counts"],
             "input_cells": len(obs),
             "retained_cells": retained,
             "metadata_selected_cells": int(selected.sum()),
@@ -258,6 +395,7 @@ def prepare_file(record, root, genes, symbols, config, database):
             "input_features": len(var),
             "unmapped_features": int(len(var) - projection.nnz),
             "duplicate_cells_removed": duplicates,
+            "duplicate_matches": matches,
             "genes_measured": int(available.sum()),
             "duplicate_features_summed": collapsed,
             "shards": records,
@@ -289,57 +427,88 @@ def prepare(manifest_path, output_dir, config, checkpoint, symbols_path):
             raise ValueError("Preparation inputs/settings changed; use a new output directory")
     else:
         write_json(identity, {"identity": settings_id, **settings})
+    records = inventory["records"]
     database = sqlite3.connect(root / "sources.sqlite")
-    database.execute(
-        "CREATE TABLE IF NOT EXISTS cells (identity TEXT, expression TEXT, PRIMARY KEY(identity, expression)) WITHOUT ROWID"
-    )
+    database.execute("CREATE TABLE IF NOT EXISTS choices (file_id TEXT PRIMARY KEY, choice TEXT)")
     database.execute("CREATE TABLE IF NOT EXISTS sources (file_id TEXT PRIMARY KEY, report TEXT)")
-    reports = []
+    reports = {}
     try:
-        for index, record in enumerate(inventory["records"]):
+        choices = {}
+        for index, record in enumerate(records):
             done = database.execute(
-                "SELECT report FROM sources WHERE file_id=?", (record["file_id"],)
+                "SELECT choice FROM choices WHERE file_id=?", (record["file_id"],)
+            ).fetchone()
+            if done:
+                choices[record["file_id"]] = json.loads(done[0])
+                continue
+            print(f"[{index + 1}/{len(records)}] {record['file_name']}: validating counts", flush=True)
+            try:
+                choice = choose_source(record, config)
+            except ExcludedSource as error:
+                choice = {"excluded": str(error)}
+            with database:
+                database.execute(
+                    "INSERT INTO choices VALUES (?, ?)", (record["file_id"], json.dumps(choice))
+                )
+            choices[record["file_id"]] = choice
+        # Stored counts are prepared first, then counts restored from log1p, then normalized
+        # expression, so a cell held several ways is kept in the form closest to its counts.
+        def rank(record):
+            choice = choices[record["file_id"]]
+            if "excluded" in choice:
+                return 2
+            return 0 if choice["integer"] else 1 if choice["log1p_counts"] else 2
+
+        queue = sorted(records, key=rank)
+        signatures = []
+        for step, record in enumerate(queue):
+            file_id = record["file_id"]
+            done = database.execute(
+                "SELECT report FROM sources WHERE file_id=?", (file_id,)
             ).fetchone()
             if done:
                 report = json.loads(done[0])
             else:
-                print(
-                    f"[{index + 1}/{len(inventory['records'])}] {record['file_name']}: starting",
-                    flush=True,
-                )
+                choice = choices[file_id]
+                print(f"[{step + 1}/{len(queue)}] {record['file_name']}: starting", flush=True)
                 with database:
                     try:
-                        report = prepare_file(record, root, genes, symbols, config, database)
+                        if "excluded" in choice:
+                            raise ExcludedSource(choice["excluded"])
+                        report = prepare_file(
+                            record, choice, root, genes, symbols, config, signatures
+                        )
                     except ExcludedSource as error:
                         report = {
-                            "file_id": record["file_id"],
+                            "file_id": file_id,
                             "status": "excluded",
                             "reason": str(error),
                             "shards": [],
                         }
                     database.execute(
-                        "INSERT INTO sources VALUES (?, ?)", (record["file_id"], json.dumps(report))
+                        "INSERT INTO sources VALUES (?, ?)", (file_id, json.dumps(report))
                     )
-            reports.append(report)
+            if report["status"] != "excluded":
+                signatures.append(load_signature(root / "files" / file_id))
+            reports[file_id] = report
             write_json(
                 root / "coverage.json",
-                {"files_total": len(inventory["records"]), "reports": reports},
+                {
+                    "files_total": len(records),
+                    "reports": [reports[r["file_id"]] for r in records if r["file_id"] in reports],
+                },
             )
-            print(
-                f"[{index + 1}/{len(inventory['records'])}] {record['file_name']}: {report['status']}",
-                flush=True,
-            )
+            print(f"[{step + 1}/{len(queue)}] {record['file_name']}: {report['status']}", flush=True)
     finally:
         database.close()
-    shards = [s for report in reports for s in report["shards"]]
+    shards = [s for r in records for s in reports[r["file_id"]]["shards"]]
     studies = sorted({s["study_id"] for s in shards})
-    if len(studies) < 2:
-        raise ValueError("Atlas pretraining requires at least two studies for held-out validation")
-    order = np.random.default_rng(config["split_seed"]).permutation(studies)
-    n_validation = min(
-        len(studies) - 1, max(1, round(len(studies) * config["validation_fraction"]))
-    )
-    validation = set(order[:n_validation])
+    validation = set(config["validation_studies"])
+    if not validation < set(studies):
+        raise ValueError(
+            "Validation studies must hold shards and leave a training study: "
+            + ", ".join(sorted(validation - set(studies)))
+        )
     for shard in shards:
         shard["split"] = "validation" if shard["study_id"] in validation else "train"
     write_json(root / "genes.json", genes)
@@ -351,8 +520,8 @@ def prepare(manifest_path, output_dir, config, checkpoint, symbols_path):
         "shards": shards,
         "source_inventory": str(Path(manifest_path).resolve()),
         "source_files": len(reports),
-        "included_files": sum(r["status"] == "included" for r in reports),
-        "excluded_files": sum(r["status"] == "excluded" for r in reports),
+        "included_files": sum(r["status"] == "included" for r in reports.values()),
+        "excluded_files": sum(r["status"] == "excluded" for r in reports.values()),
         "cells": sum(s["cells"] for s in shards),
         "studies": len(studies),
         "validation_studies": sorted(validation),

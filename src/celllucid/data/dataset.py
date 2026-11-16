@@ -4,6 +4,7 @@ from pathlib import Path
 import anndata as ad
 import h5py
 import json
+import warnings
 from types import SimpleNamespace
 import numpy as np
 from scipy import sparse
@@ -14,7 +15,7 @@ def validate_counts(matrix):
     if not np.isfinite(values).all() or (values < 0).any():
         raise ValueError("Counts must be finite and nonnegative")
     if not np.allclose(values, np.rint(values), atol=1e-4, rtol=0):
-        raise ValueError("Expression is not integer-valued counts; select a raw count source")
+        warnings.warn("Expression is not integer-valued counts; a raw count source is preferred")
 
 
 def gene_ids(var, gene_key=None, gene_mapping=None):

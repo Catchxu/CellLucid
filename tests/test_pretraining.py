@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 import torch
 from scipy import sparse
-from data.prepare_topics import prepare
+from data.prepare_topics import gene_projection, prepare
 from celllucid.checkpoint import load_checkpoint
 from celllucid.data.cache import TrainingCache, build_cache, cache_initialization
 from celllucid.data.masking import TRAINING_VIEW, hidden_mask, masked_views
@@ -37,22 +37,40 @@ class VisibleEncoder(torch.nn.Module):
         ).float()
 
 
+BARCODES = ["".join(np.random.default_rng(i).choice(list("ACGT"), 16)) for i in range(20)]
+
+
 def corpus(tmp_path):
     records = []
-    for label, study, normalized in [
-        ("a", "s1", False),
-        ("b", "s2", False),
-        ("duplicate", "s1", False),
-        ("normalized", "s3", True),
+    # Every file holds the same counts, so only shared names or barcodes mark copies:
+    # "duplicate" is a log1p copy of "a" listed first, "renamed" a renamed copy of "b", and
+    # "colliding" reuses the barcodes of "b" for cells expressing half of its genes.
+    # "logged" holds log1p counts of its own cells, "panel" measures half of the genes, and
+    # "listed" is excluded by name.
+    for label, study, shift, methods, names in [
+        ("duplicate", "s1", None, [], [f"cell{i}" for i in range(20)]),
+        ("a", "s1", 0, ["10x 3' v3", "scATAC-seq"], [f"cell{i}" for i in range(20)]),
+        ("b", "s2", 0, ["Visium Spatial Gene Expression"], [f"b_{c}-1" for c in BARCODES]),
+        ("colliding", "s2", 0, [], [f"{c}-2" for c in BARCODES]),
+        ("renamed", "s2", 0, [], [f"{c}-1-0" for c in BARCODES]),
+        ("normalized", "s3", 0.25, [], [f"normalized{i}" for i in range(20)]),
+        ("negative", "s4", -10, [], [f"negative{i}" for i in range(20)]),
+        ("peaks", "s5", 0, ["scATAC-seq"], [f"peak{i}" for i in range(20)]),
+        ("logged", "s6", None, [], [f"logged{i}" for i in range(20)]),
+        ("panel", "s7", 0, [], [f"panel{i}" for i in range(20)]),
+        ("listed", "s8", 0, [], [f"listed{i}" for i in range(20)]),
     ]:
         path = tmp_path / (label + ".h5ad")
         x = np.random.default_rng(9).integers(1, 8, size=(20, 6)).astype("f4")
-        if normalized:
-            x += 0.25
+        x = np.log1p(x) if shift is None else x + shift
+        if label == "colliding":
+            x[:, :3] = 0
+        if label == "panel":
+            x = x[:, :3]
         ad.AnnData(
             (sparse.csc_matrix(x) if label == "a" else sparse.csr_matrix(x)),
-            obs=pd.DataFrame(index=[f"cell{i}" for i in range(20)]),
-            var=pd.DataFrame(index=VisibleEncoder.genes),
+            obs=pd.DataFrame(index=names),
+            var=pd.DataFrame(index=VisibleEncoder.genes[: x.shape[1]]),
         ).write_h5ad(path)
         if label == "b":
             with h5py.File(path, "r+") as h:
@@ -60,9 +78,7 @@ def corpus(tmp_path):
                 del h["var"]
                 h.create_dataset(
                     "obs",
-                    data=np.array(
-                        [(f"cell{i}".encode(),) for i in range(20)], dtype=[("index", "S12")]
-                    ),
+                    data=np.array([(n.encode(),) for n in names], dtype=[("index", "S24")]),
                 )
                 h.create_dataset(
                     "var",
@@ -79,7 +95,7 @@ def corpus(tmp_path):
                 "file_name": path.name,
                 "local_path": str(path),
                 "project_ids": [study],
-                "metadata": {"protocols": []},
+                "metadata": {"protocols": [{"libraryConstructionApproach": methods}]},
             }
         )
     inventory = tmp_path / "inventory.json"
@@ -93,12 +109,14 @@ def corpus(tmp_path):
     cfg = {
         "count_sources": ["X"],
         "validation_block": 1000,
-        "exclude_methods": ["spatial", "atac"],
+        "exclude_methods": ["atac"],
+        "min_measured_genes": 4,
+        "exclude_files": {"listed.h5ad": "a copy of a"},
+        "duplicate_jaccard": 0.9,
         "batch_size": 4,
         "min_genes": 1,
         "shard_cells": 7,
-        "split_seed": 42,
-        "validation_fraction": 0.2,
+        "validation_studies": ["s3"],
     }
     output = tmp_path / "atlas"
     manifest = prepare(inventory, output, cfg, checkpoint.parent, mapping)
@@ -122,11 +140,38 @@ def settings(tmp_path, manifest):
 
 def test_inventory_coverage_and_study_split(tmp_path):
     _, manifest = corpus(tmp_path)
-    assert manifest["source_files"] == 4 and manifest["included_files"] == 2
-    assert manifest["excluded_files"] == 1 and manifest["cells"] == 40
+    assert manifest["source_files"] == 11 and manifest["included_files"] == 5
+    assert manifest["excluded_files"] == 4 and manifest["cells"] == 100
+    reports = {r["file_id"]: r for r in json.loads((tmp_path / "atlas/coverage.json").read_text())["reports"]}
+    assert reports["a"]["integer_counts"] and not reports["normalized"]["integer_counts"]
+    assert reports["negative"]["status"] == "excluded"
+    # log1p counts are restored to the integer counts.
+    assert reports["logged"]["log1p_counts"] and reports["logged"]["integer_counts"]
+    restored = []
+    for shard in manifest["shards"]:
+        if shard["file_id"] == "logged":
+            with h5py.File(shard["path"], "r") as handle:
+                restored.append(ad.io.sparse_dataset(handle["X"])[:].toarray())
+    counts = np.random.default_rng(9).integers(1, 8, size=(20, 6))
+    np.testing.assert_array_equal(np.concatenate(restored), counts)
+    # Visium and the RNA files of a multiome project are prepared; ATAC-only files are not.
+    assert reports["peaks"]["reason"].startswith("Excluded assay")
+    assert reports["panel"]["reason"] == "3 backbone genes measured, fewer than 4"
+    assert reports["listed"]["reason"] == "Excluded file: a copy of a"
+    assert reports["a"]["retained_cells"] == reports["b"]["retained_cells"] == 20
+    # The stored counts are kept over the log1p copy listed first, a renamed copy is found
+    # by its barcodes, and different cells that share barcodes are kept.
+    matches = {
+        label: {(m["file_id"], m["key"]): (m["matched"], m["removed"]) for m in reports[label]["duplicate_matches"]}
+        for label in ("duplicate", "colliding", "renamed")
+    }
+    assert matches["duplicate"] == {("a", "name"): (20, 20)}
+    assert matches["colliding"] == {("b", "barcode"): (20, 0)}
+    assert matches["renamed"] == {("b", "barcode"): (20, 20), ("colliding", "barcode"): (20, 0)}
+    assert [reports[label]["status"] for label in matches] == ["empty", "included", "empty"]
     train_studies = {s["study_id"] for s in manifest["shards"] if s["split"] == "train"}
     validation = {s["study_id"] for s in manifest["shards"] if s["split"] == "validation"}
-    assert train_studies.isdisjoint(validation)
+    assert validation == {"s3"} and train_studies == {"s1", "s2", "s6"}
     for shard in manifest["shards"]:
         assert shard["cells"] <= 7
 
@@ -173,6 +218,13 @@ def test_cache_holds_every_eligible_cell_once_with_its_mask(tmp_path):
     scale, source = training_gene_scale(config, path, tmp_path / "cache", workers=2)
     np.testing.assert_allclose(scale, (counts / counts.sum(1, keepdims=True) * 1e6).std(0), rtol=1e-9, atol=1e-6)
     assert source["cells"] == len(cache)
+
+
+def test_gene_identifiers_align_with_versions_and_symbol_prefixes():
+    var = pd.DataFrame(index=["TNMD_ENSG00000000005", "ENSG00000000419.12", "ENSA", "unknown"])
+    genes = ["ENSG00000000005", "ENSG00000000419", "ENSG00000143420"]
+    projection, available, _ = gene_projection(var, genes, {"ENSA": "ENSG00000143420"})
+    assert available.all() and projection.nnz == 3
 
 
 def test_learning_rate_warmup_and_cosine_decay():

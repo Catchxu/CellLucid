@@ -47,8 +47,8 @@ def test_count_layer_is_selected_without_eager_other_layers(tmp_path):
     with CountDataset(p) as ds:
         np.testing.assert_array_equal(ds.read([0]), np.ones((1, 4)))
     with CountDataset(p, source="X") as ds:
-        with pytest.raises(ValueError, match="integer"):
-            ds.read([0])
+        with pytest.warns(UserWarning, match="integer"):
+            np.testing.assert_allclose(ds.read([0]), np.log1p(np.ones((1, 4))))
 
 
 def test_explicit_symbol_mapping_and_provenance(tmp_path):
