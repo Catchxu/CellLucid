@@ -14,7 +14,7 @@ cache:
   encoder_batch_size: 32  # fits beside other jobs on shared 32 GB GPUs (about 7 GB per replica)
   chunk_samples: 8192
   initialization_cells_per_study: 256
-  evaluation_pools: runs/eval_pools
+  evaluation_pools: null
 model:
   n_topics: 128
   temperature: 0.05
@@ -41,7 +41,7 @@ training:
   eval_every_steps: 200
   save_every_steps: 1000
 evaluation:
-  pools: runs/eval_pools
+  pools: null
 inference:
   topic_bank: assets/topic_banks/default
   # Topic usage from the TranscriptFormer embedding (embedding), or in gene space from the counts

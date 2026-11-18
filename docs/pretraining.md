@@ -177,10 +177,10 @@ Every `eval_every_steps`, the fixed evaluation pools (`evaluation.pools`) are sc
 held-out CE gain over the gene marginal, within- and cross-study pair-ranking AUC and cell-topic
 mutual information, with full per-pool results and the unmasked inference readout.
 
-The pools are a fixed local artifact (`runs/eval_pools`, described by its README), not built by
-this repository. The cache excludes their cells (`cache.evaluation_pools`) so they never enter
-training. Set both `cache.evaluation_pools` and `evaluation.pools` to `null` to train without
-them.
+The default configuration sets both `cache.evaluation_pools` and `evaluation.pools` to `null` and
+trains without pools. Pools are a local artifact, not built by this repository: a directory with
+`cells.json`, `embeddings.pt` and `embeddings_unmasked_compiled.pt`. Point both settings at it to
+score them; the cache then excludes their cells so they never enter training.
 
 ## Topic banks and assets
 
