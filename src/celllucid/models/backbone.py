@@ -36,9 +36,6 @@ class FrozenTranscriptFormer(nn.Module):
         config = OmegaConf.create(self.assets.read_config())
         config.model.data_config.aux_vocab_path = str(self.assets.vocabs)
         config.model.data_config.esm2_mappings_path = str(self.assets.vocabs)
-        # TranscriptFormer was trained on counts clipped at 30, and its own inference clips
-        # there too; the checkpoint config leaves clip_counts unset.
-        config.model.data_config.clip_counts = 30
         model_config = config.model.model_config
         # Runtime sequence length and attention compilation do not change learned weights.
         if max_length is not None:
